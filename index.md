@@ -2,5 +2,6 @@
 
 ## 第1週
 
-- [実力確認テスト](01/orientation.md)
-- [テスト解説・振り返り](01/practice.md)
+- [オリエンテーション・実力確認テスト](01/orientation.md)
+- [練習：scaffoldで思い出す](01/practice.md)
+- [Stretch：scaffoldを壊して直す](01/stretch.md)
