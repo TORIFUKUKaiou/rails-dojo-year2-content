@@ -17,3 +17,9 @@
 - [データベース設計（2）：マイグレーション手書き](03/orientation.md)
 - [練習：マイグレーションを手で書く](03/practice.md)
 - [Stretch：マイグレーションをもう少し動かす](03/stretch.md)
+
+## 第4週
+
+- [データベース設計（3）：アソシエーション](04/orientation.md)
+- [練習：`has_many` と `belongs_to` を書く](04/practice.md)
+- [Stretch：association を深くする](04/stretch.md)
