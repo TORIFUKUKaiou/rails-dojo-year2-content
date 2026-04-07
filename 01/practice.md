@@ -39,6 +39,8 @@ gem install rails --no-document
 rails -v
 ```
 
+`--no-document` は、説明書のような追加ファイルを入れずに Rails 本体だけをインストールする指定です。授業では、インストールを少し軽くするために付けています。
+
 `rails 8.x.x` や `rails 7.x.x` のように表示されたら、Rails が使える状態です。
 
 ---
