@@ -30,7 +30,20 @@ scaffoldを使ってRailsアプリをもう一度動かし、Model / View / Cont
 
 ---
 
-## 2. Railsアプリを作る
+## 2. Railsをインストールする
+
+ターミナルで以下を実行します：
+
+```bash
+gem install rails --no-document
+rails -v
+```
+
+`rails 8.x.x` や `rails 7.x.x` のように表示されたら、Rails が使える状態です。
+
+---
+
+## 3. Railsアプリを作る
 
 ターミナルで以下を実行します：
 
@@ -41,7 +54,7 @@ cd review_app
 
 ---
 
-## 3. scaffoldを実行する
+## 4. scaffoldを実行する
 
 ```bash
 rails generate scaffold Article title:string body:text
@@ -50,13 +63,13 @@ rails db:migrate
 
 ---
 
-## 4. サーバーを起動する
+## 5. サーバーを起動する
 
 ```bash
 rails server
 ```
 
-ブラウザでアクセスして、記事の一覧・作成・編集・削除ができることを確認してください。
+ブラウザで `/articles` にアクセスして、記事の一覧・作成・編集・削除ができることを確認してください。
 
 ### 確認ポイント
 
@@ -67,7 +80,7 @@ rails server
 
 ---
 
-## 5. scaffoldが作ったものを観察する
+## 6. scaffoldが作ったものを観察する
 
 scaffoldは便利ですが、何をしているかわからないまま使うのは危険です。
 
