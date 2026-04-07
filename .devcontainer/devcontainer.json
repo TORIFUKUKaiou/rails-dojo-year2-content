@@ -1,0 +1,73 @@
+{
+  "name": "rails-dojo-year2",
+  "image": "mcr.microsoft.com/devcontainers/ruby:4",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/home/vscode/content,type=bind",
+  "workspaceFolder": "/home/vscode",
+  "waitFor": "onCreateCommand",
+  "onCreateCommand": "gem install irb -N && gem install solargraph -v '0.56.2' -N",
+  "postAttachCommand": {
+    "Open terminal": "echo '準備完了'"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.codespaces",
+        "Shopify.ruby-lsp",
+        "castwide.solargraph"
+      ],
+      "settings": {
+        "terminal.integrated.hideOnStartup": "never",
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.cwd": "/home/vscode",
+        "editor.tabSize": 2,
+        "editor.formatOnSave": false,
+        "editor.formatOnType": false,
+        "editor.insertSpaces": true,
+        "editor.renderWhitespace": "none",
+        "files.exclude": {
+          "**/.devcontainer": true,
+          "**/.git": true,
+          "**/.ruby-lsp": true
+        },
+        "[ruby]": {
+          "editor.defaultFormatter": "castwide.solargraph",
+          "editor.semanticHighlighting.enabled": true
+        },
+        "files.associations": {
+          "*.erb": "erb"
+        },
+        "emmet.includeLanguages": {
+          "erb": "html"
+        },
+        "solargraph.useBundler": false,
+        "solargraph.diagnostics": false,
+        "solargraph.formatting": true,
+        "solargraph.autoformat": false,
+        "solargraph.definitions": true,
+        "solargraph.completion": true,
+        "solargraph.references": true,
+        "solargraph.symbols": true,
+        "solargraph.rename": true,
+        "solargraph.hover": true,
+        "rubyLsp.rubyVersionManager": {
+          "identifier": "none"
+        },
+        "rubyLsp.formatter": "none",
+        "rubyLsp.enabledFeatures": {
+          "diagnostics": false,
+          "formatting": false
+        }
+      }
+    }
+  },
+  "remoteEnv": {
+    "EDITOR": "code --wait"
+  },
+  "portsAttributes": {
+    "3000": {
+      "label": "Application",
+      "onAutoForward": "openPreview"
+    }
+  },
+  "forwardPorts": [3000]
+}
