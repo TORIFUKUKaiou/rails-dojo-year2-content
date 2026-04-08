@@ -56,6 +56,8 @@ Article.column_names
 
 `"author"` が含まれていれば成功。
 
+💡 `rails console` から抜けるときは `exit` と入力します。
+
 ---
 
 ## 課題2：著者名を保存できるようにする（20分）
@@ -75,15 +77,19 @@ Article.column_names
   </div>
 ```
 
-3. `app/controllers/articles_controller.rb` を開く
+3. ブラウザで `/articles/new` を開き、`author` の入力欄が増えていることを確認する
 
-4. `article_params` に `:author` を追加する
+確認ができたら、入力欄だけが増えた状態です。まだこのままではデータベースに保存できないので、次のステップで保存を許可します。
+
+4. `app/controllers/articles_controller.rb` を開き、`article_params` に `:author` を追加する
 
 ```ruby
 def article_params
   params.expect(article: [ :title, :body, :author ])
 end
 ```
+
+💡 `expect` は「期待する」という意味です。`article_params` は、「フォームから送られてきたどの項目を保存してよいか」を決める場所です。ここに `:author` がないと、入力欄があっても値は保存されません。
 
 5. サーバーを再起動する
 
@@ -104,7 +110,7 @@ rails server
 
 ## 課題3：著者名を画面に表示する（20分）
 
-保存できても、今のままでは `author` がほとんど表示されません。`index` と `show` の両方で著者名が見えるようにしてください。
+保存できても、今のままでは `author` は全く表示されません。`index` と `show` の両方で著者名が見えるようにしてください。
 
 ### 手順
 
@@ -126,6 +132,20 @@ rails server
 
 - 一覧画面で著者名が見える
 - 詳細画面でも著者名が見える
+
+<details>
+<summary>解答例</summary>
+
+`app/views/articles/_article.html.erb`
+
+```erb
+  <div>
+    <strong>Author:</strong>
+    <%= article.author %>
+  </div>
+```
+
+</details>
 
 ---
 
@@ -158,6 +178,19 @@ end
 - `body` にもバリデーションを追加してみる
 - `author` に文字数制限をつけてみる（ヒント：`length`）
 
+<details>
+<summary>解答例</summary>
+
+```ruby
+class Article < ApplicationRecord
+  validates :title, presence: true
+  validates :body, presence: true
+  validates :author, length: { maximum: 20 }
+end
+```
+
+</details>
+
 ---
 
 ## 課題5：一覧画面をさらに変更する（20分）
@@ -166,21 +199,47 @@ end
 
 ### やること
 
-1. タイトルを太字にする
-2. 著者名を `著者: 〇〇` の形で表示する
-3. 記事が0件のとき「まだ記事がありません」と表示する
+1. 一覧をテーブル構造で表示する
+2. タイトルを太字にする
+3. 著者名と本文を表示する
+4. 各記事に `Show` へのリンクを追加する
+5. 記事が0件のとき「まだ記事がありません」と表示する
 
 ### ヒント
 
 ```erb
+<p style="color: green"><%= notice %></p>
+
+<% content_for :title, "Articles" %>
+
+<h1>Articles</h1>
+
 <% if @articles.empty? %>
   <p>まだ記事がありません</p>
 <% else %>
-  <% @articles.each do |article| %>
-    <p><strong><%= article.title %></strong></p>
-    <p>著者: <%= article.author %></p>
-  <% end %>
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Body</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @articles.each do |article| %>
+        <tr>
+          <td><strong><%= article.title %></strong></td>
+          <td><%= article.author %></td>
+          <td><%= article.body %></td>
+          <td><%= link_to "Show", article %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 <% end %>
+
+<%= link_to "New article", new_article_path %>
 ```
 
 そのまま写しても構いません。写した上で、1箇所だけ自分で変えてみてください。
@@ -203,6 +262,19 @@ def destroy
 end
 ```
 
+<details>
+<summary>解答例</summary>
+
+```ruby
+# 選んだ記事をデータベースから削除する
+def destroy
+  @article.destroy!
+  # ...
+end
+```
+
+</details>
+
 ---
 
 ## 振り返り（15分）
@@ -210,7 +282,7 @@ end
 以下の質問に、ファイル名で答えてください。正確でなくても構いません。
 
 1. 記事のデータを保存するルールを書くファイルはどれ？
-2. ブラウザに表示するHTMLを書くファイルはどれ？
+2. 一覧表示のHTMLを書くファイルはどれ？
 3. 「一覧を表示する」「保存する」などの処理を書くファイルはどれ？
 4. テーブルの構造を変更するファイルはどれ？
 
