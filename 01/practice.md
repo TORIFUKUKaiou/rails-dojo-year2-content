@@ -67,6 +67,13 @@ cd review_app
 
 ```bash
 rails generate scaffold Article title:string body:text
+```
+
+`db/migrate/` に新しいファイルができているはずです。`xxxx_create_articles.rb` を開いて、中身を確認してください。
+
+そのあとで、以下を実行します。
+
+```bash
 rails db:migrate
 ```
 
