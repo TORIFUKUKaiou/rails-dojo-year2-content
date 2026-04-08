@@ -28,6 +28,10 @@ scaffoldを使ってRailsアプリをもう一度動かし、Model / View / Cont
 
 1年生のときと同じです。GitHubにログインして、このリポジトリのCodespacesを起動してください。
 
+1. GitHubにログインする
+2. [このリポジトリ](https://github.com/TORIFUKUKaiou/rails-dojo-year2-content/)のページを開く (リンクを右クリックして、「リンクを新しいタブで開く」)
+3. 「Code」ボタン → 「Codespaces」タブ → 「Create codespace on main」をクリック
+
 ---
 
 ## 2. Railsをインストールする
@@ -50,9 +54,12 @@ rails -v
 ターミナルで以下を実行します：
 
 ```bash
+cd ~/
 rails new review_app
 cd review_app
 ```
+
+💡 `cd ~/` はHOMEディレクトリへの移動です。
 
 ---
 
