@@ -79,11 +79,37 @@ rails db:migrate
 
 ---
 
-## 5. サーバーを起動する
+## 5. Codespacesで開くための設定を追加する
+
+Codespaces で `rails server` を使うと、そのままでは `Blocked hosts` や `InvalidAuthenticityToken` で止まることがあります。開発用の設定ファイルを追加します。
+
+1. `config/initializers/codespaces.rb` を作る
+
+2. 以下を書きます
+
+```ruby
+# GitHub Codespaces で開発するための緩和設定（開発用）
+Rails.application.configure do
+  config.hosts << /.*\.github\.dev/
+  config.action_controller.forgery_protection_origin_check = false
+
+  if defined?(WebConsole)
+    config.web_console.permissions = '0.0.0.0/0'
+  end
+end
+```
+
+`config.hosts` は `Blocked hosts` 対策です。`config.action_controller.forgery_protection_origin_check = false` は、Codespaces で開いた画面から作成・更新するときの Origin 不一致対策です。
+
+---
+
+## 6. サーバーを起動する
 
 ```bash
 rails server
 ```
+
+`Blocked hosts:` や `InvalidAuthenticityToken` が表示されたときは、`config/initializers/codespaces.rb` のファイル名と中身を確認して、サーバーを起動し直してください。
 
 ブラウザで `/articles` にアクセスして、記事の一覧・作成・編集・削除ができることを確認してください。
 
@@ -96,7 +122,7 @@ rails server
 
 ---
 
-## 6. scaffoldが作ったものを観察する
+## 7. scaffoldが作ったものを観察する
 
 scaffoldは便利ですが、何をしているかわからないまま使うのは危険です。
 
@@ -119,7 +145,8 @@ scaffoldは便利ですが、何をしているかわからないまま使うの
 今日やったこと：
 
 1. scaffoldでRailsアプリを動かした
-2. 記事の一覧・作成・編集・削除を確認した
-3. scaffoldが生成したファイルを観察した
+2. Codespaces で開けるように設定した
+3. 記事の一覧・作成・編集・削除を確認した
+4. scaffoldが生成したファイルを観察した
 
 余裕がある人は、次に [Stretch](stretch.md) に進んでください。
