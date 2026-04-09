@@ -115,6 +115,7 @@ ER図は、テーブル同士の関係を図で表したものです。
 
 ```mermaid
 erDiagram
+    direction LR
     ARTICLES ||--o{ COMMENTS : has
 
     ARTICLES {
@@ -164,6 +165,10 @@ erDiagram
 - 再来週：モデルに `has_many` と `belongs_to` を書いてつなぐ
 
 つまり、今週の設計が、そのまま次の2週間の土台になります。
+
+ER図の書き方をもう少し別の説明でも見たい人は、次も参考になります。
+
+- [若手プログラマー必読！５分で理解できるER図の書き方５ステップ](https://www.ntt.com/business/services/rink/knowledge/archive_58.html)
 
 ---
 

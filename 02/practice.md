@@ -12,6 +12,10 @@ ER図を見てテーブルのつながりを読めるようになり、自分で
 2. `db_design.md` というメモ用ファイルを作る
 3. 紙やノートに図を書いてもよい。大事なのは、手を動かして整理すること
 
+参考資料:
+
+- [若手プログラマー必読！５分で理解できるER図の書き方５ステップ](https://www.ntt.com/business/services/rink/knowledge/archive_58.html)
+
 ---
 
 ## Markdown について
@@ -28,9 +32,15 @@ ER図を見てテーブルのつながりを読めるようになり、自分で
 - 箇条書き：`-`
 - コードブロック：````` ``` `````
 
-※ ここには後で、VS Code / Codespaces で Markdown プレビューを開く方法を図付きで追加します。
+編集画面:
 
-<!-- TODO: VS Code / Codespaces の Markdown preview の開き方を、スクリーンショット付きで追加する -->
+![](../images/edit-markdown.png)
+
+Markdownを編集中に `Alt + Shift + V` を押すと、プレビューを表示できます。
+
+プレビュー画面:
+
+![](../images/preview-markdown.png)
 
 ---
 
@@ -119,6 +129,7 @@ orientation とこの練習は、全員が終える前提です。まずは `必
 
 ```mermaid
 erDiagram
+    direction LR
     ARTICLES ||--o{ COMMENTS : has
 
     ARTICLES {
@@ -179,10 +190,20 @@ erDiagram
 - テーブル同士のつながり
 - どこに外部キーが入るか
 
-Mermaidで書くなら、次の形から始めると楽です。
+Mermaidで書くなら、次の形から始めると楽です。Mermaid対応の画面では図として表示されます。コードをそのまま見たいときは、その下の「コード版」を見てください。
 
 ```mermaid
 erDiagram
+    direction LR
+    CATEGORIES ||--o{ ARTICLES : classifies
+    ARTICLES ||--o{ COMMENTS : has
+```
+
+コード版：
+
+```text
+erDiagram
+    direction LR
     CATEGORIES ||--o{ ARTICLES : classifies
     ARTICLES ||--o{ COMMENTS : has
 ```
@@ -190,8 +211,45 @@ erDiagram
 <details>
 <summary>解答例</summary>
 
+図として見る場合：
+
 ```mermaid
 erDiagram
+    direction LR
+    CATEGORIES ||--o{ ARTICLES : classifies
+    ARTICLES ||--o{ COMMENTS : has
+
+    CATEGORIES {
+        bigint id PK
+        string name
+        datetime created_at
+        datetime updated_at
+    }
+
+    ARTICLES {
+        bigint id PK
+        bigint category_id FK
+        string title
+        text body
+        datetime created_at
+        datetime updated_at
+    }
+
+    COMMENTS {
+        bigint id PK
+        bigint article_id FK
+        string author_name
+        text body
+        datetime created_at
+        datetime updated_at
+    }
+```
+
+コードとして見る場合：
+
+```text
+erDiagram
+    direction LR
     CATEGORIES ||--o{ ARTICLES : classifies
     ARTICLES ||--o{ COMMENTS : has
 
