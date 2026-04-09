@@ -207,6 +207,15 @@ end
 
 ### ヒント
 
+- `table`、`thead`、`tbody` を使うと表にできます
+- `link_to "Show", article` で詳細画面へのリンクが作れます
+- 迷ったら、今の `index.html.erb` を少しずつ書き換えていきましょう
+
+そのまま写しても構いません。写した上で、1箇所だけ自分で変えてみてください。
+
+<details>
+<summary>解答例</summary>
+
 ```erb
 <p style="color: green"><%= notice %></p>
 
@@ -242,7 +251,7 @@ end
 <%= link_to "New article", new_article_path %>
 ```
 
-そのまま写しても構いません。写した上で、1箇所だけ自分で変えてみてください。
+</details>
 
 ---
 

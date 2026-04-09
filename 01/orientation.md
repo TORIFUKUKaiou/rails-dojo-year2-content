@@ -64,7 +64,13 @@ end
 ```
 
 4. `rails db:migrate` は何をするコマンドか
-5. ブラウザで `/articles` にアクセスしたとき、リクエストはどこを通るか（順番に書け）
+5. ブラウザで `/articles` にアクセスしたときの流れとして、次の5つを正しい順番に並べよ
+
+- ブラウザからリクエスト
+- `config/routes.rb`
+- `ArticlesController#index`
+- `app/views/articles/index.html.erb`
+- ブラウザに表示
 
 ### 採点について
 
