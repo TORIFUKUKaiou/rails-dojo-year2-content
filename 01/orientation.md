@@ -43,7 +43,7 @@
 
 ## 実力確認テスト
 
-Google Formsで実施します。時間は30分。教科書・PC・スマホを含め、何を使っても構いません。
+Google Formsで実施します。時間は15分。教科書・PC・スマホを含め、何を使っても構いません。
 
 [実力確認テスト](https://forms.gle/eDwoQUt4gmNFHAEP6)
 
