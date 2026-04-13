@@ -126,17 +126,15 @@ rails server
 
 scaffoldは便利ですが、何をしているかわからないまま使うのは危険です。
 
-以下のファイルを開いて、中身を眺めてください：
+以下のファイルを開いて、指示された内容を確認してください：
 
-| ファイル | 役割 |
+| ファイル | 確認すること |
 |---|---|
-| `app/models/article.rb` | Model |
-| `app/views/articles/index.html.erb` | View（一覧） |
-| `app/controllers/articles_controller.rb` | Controller |
-| `config/routes.rb` | ルーティング |
-| `db/migrate/xxxx_create_articles.rb` | マイグレーション |
-
-全部理解する必要はありません。「こういうファイルがあったな」と思い出せれば十分です。
+| `config/routes.rb` | `resources :articles` という1行を見つける。ターミナルで `rails routes` を実行し、この1行からいくつのURLが生まれているか数える |
+| `app/controllers/articles_controller.rb` | メソッド（`def index` など）がいくつあるか数える。`rails routes` の出力と見比べて、どのURLがどのメソッドに対応しているか1つだけ確認する |
+| `app/views/articles/` | このフォルダにファイルがいくつあるか数える。コントローラのメソッド数と比べて、多いか少ないか確認する |
+| `app/models/article.rb` | ファイルを開く。中身がほぼ空であることを確認する。それでもCRUDが動いている理由を考える |
+| `db/migrate/xxxx_create_articles.rb` | 実力確認テストの問題3と同じ内容であることを確認する |
 
 ---
 
