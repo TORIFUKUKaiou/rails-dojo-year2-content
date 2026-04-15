@@ -12,7 +12,7 @@ ER図を見ながら、自分の手でマイグレーションを書いてデー
 2. `review_app` ディレクトリに移動する
 3. `db/migrate/` と `db/schema.rb` を開ける状態にする
 
-もし `review_app` がない場合は、第1週の内容を参考に scaffold で作り直してください。
+もし `review_app` がない場合は、第1週の内容を参考に <ruby>scaffold<rt>スキャフォールド</rt></ruby> で作り直してください。
 
 ```bash
 rails new review_app

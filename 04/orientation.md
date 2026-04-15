@@ -122,7 +122,7 @@ end
 - `app/models/category.rb`
 - `app/models/comment.rb`
 
-第1週で scaffold を使ったので、`article.rb` はすでにあります。
+第1週で <ruby>scaffold<rt>スキャフォールド</rt></ruby> を使ったので、`article.rb` はすでにあります。
 
 ただし `category.rb` と `comment.rb` は、まだない可能性があります。その場合は自分で作ります。
 

@@ -57,7 +57,7 @@ orientation とこの練習は、全員が終える前提です。まずは `必
 
 ## 2. `Category` と `Comment` のモデルファイルを作る（20分）
 
-`Article` は scaffold で作られているので、すでに `app/models/article.rb` があります。
+`Article` は <ruby>scaffold<rt>スキャフォールド</rt></ruby> で作られているので、すでに `app/models/article.rb` があります。
 
 一方で、`Category` と `Comment` は migration は作りましたが、モデルファイルはまだないかもしれません。
 

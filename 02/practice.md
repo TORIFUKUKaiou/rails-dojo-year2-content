@@ -56,7 +56,7 @@ orientation とこの練習は、全員が終える前提です。まずは `必
 
 ## 1. `articles` テーブルを読み取る（15分）
 
-先週のscaffoldで、Railsは次のような `articles` テーブルを作っていました。
+先週の<ruby>scaffold<rt>スキャフォールド</rt></ruby>で、Railsは次のような `articles` テーブルを作っていました。
 
 | カラム名 | 何が入るか |
 |---|---|

@@ -1,4 +1,4 @@
-# 第1週：Stretch ── scaffoldを壊して直す
+# 第1週：Stretch ── <ruby>scaffold<rt>スキャフォールド</rt></ruby>を壊して直す
 
 ## 今日のゴール
 

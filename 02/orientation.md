@@ -8,7 +8,7 @@
 
 ## 前回のおさらい
 
-前回は、scaffoldを使って `Article` のアプリを動かしました。
+前回は、<ruby>scaffold<rt>スキャフォールド</rt></ruby>を使って `Article` のアプリを動かしました。
 
 ```bash
 rails generate scaffold Article title:string body:text
