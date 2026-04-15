@@ -54,6 +54,18 @@ orientation とこの練習は、全員が終える前提です。まずは `必
 
 ---
 
+## 0. 参考資料を読む（5分）
+
+練習に入る前に、以下の記事を5分間読んでください。ER図の全体像がつかめます。
+
+- [若手プログラマー必読！５分で理解できるER図の書き方５ステップ](https://www.ntt.com/business/services/rink/knowledge/archive_58.html)
+
+全部を覚える必要はありません。「ER図にはこういう要素があるんだな」という感覚をつかんでから、次の練習に進んでください。
+
+ER図の記法にはIE記法やIDEF1X記法などがありますが、この授業ではIE記法（Information Engineering記法）を使います。Mermaidで書けるのもIE記法です。記事の中のIE記法の部分はよく読んでおいてください。練習中に迷ったら読み返してください。
+
+---
+
 ## 1. `articles` テーブルを読み取る（15分）
 
 先週の<ruby>scaffold<rt>スキャフォールド</rt></ruby>で、Railsは次のような `articles` テーブルを作っていました。
@@ -68,7 +80,17 @@ orientation とこの練習は、全員が終える前提です。まずは `必
 
 ### やってみよう
 
-上の表を `db_design.md` に写して、それぞれのカラムに何が入るか自分の言葉で書いてみましょう。
+以下を `db_design.md` にコピーして、`？` を自分の言葉で書き換えてみましょう。これがMarkdownでの表の書き方です。
+
+```markdown
+| カラム名 | 何が入るか |
+|---|---|
+| `id` | ？ |
+| `title` | ？ |
+| `body` | ？ |
+| `created_at` | ？ |
+| `updated_at` | ？ |
+```
 
 <details>
 <summary>解答例</summary>
