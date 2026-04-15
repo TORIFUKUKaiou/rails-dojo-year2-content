@@ -51,6 +51,7 @@
 
 ```mermaid
 erDiagram
+    direction LR
     USERS ||--o{ ARTICLES : writes
     USERS ||--o{ COMMENTS : writes
     CATEGORIES ||--o{ ARTICLES : classifies
@@ -163,6 +164,7 @@ erDiagram
 
 ```mermaid
 erDiagram
+    direction LR
     ARTICLES ||--o{ ARTICLE_TAGS : has
     TAGS ||--o{ ARTICLE_TAGS : has
 
@@ -229,6 +231,7 @@ erDiagram
 
 ```mermaid
 erDiagram
+    direction LR
     USERS ||--o{ LIKES : gives
     ARTICLES ||--o{ LIKES : receives
 
@@ -303,6 +306,7 @@ ER図にはカラムの型も書きます。Railsでよく使う型を確認し�
 
 ```mermaid
 erDiagram
+    direction LR
     USERS ||--o{ ORDERS : places
     ORDERS ||--o{ ORDER_ITEMS : contains
     PRODUCTS ||--o{ ORDER_ITEMS : included_in
@@ -396,6 +400,7 @@ erDiagram
 
 ```mermaid
 erDiagram
+    direction LR
     USERS ||--o{ NOTIFICATIONS : receives
     ARTICLES ||--o{ NOTIFICATIONS : about
 
@@ -435,6 +440,7 @@ erDiagram
 
 ```mermaid
 erDiagram
+    direction LR
     USERS ||--o{ LISTS : owns
     LISTS ||--o{ TASKS : contains
 
@@ -465,6 +471,7 @@ erDiagram
 
 ```mermaid
 erDiagram
+    direction LR
     RECIPES ||--o{ INGREDIENTS : has
     RECIPES ||--o{ STEPS : has
 
@@ -496,13 +503,20 @@ erDiagram
 
 ```mermaid
 erDiagram
+    direction LR
     SUBJECTS ||--o{ TIMETABLE_ENTRIES : scheduled_in
+    TEACHERS ||--o{ SUBJECTS : teaches
     ROOMS ||--o{ TIMETABLE_ENTRIES : used_by
+
+    TEACHERS {
+        bigint id PK
+        string name
+    }
 
     SUBJECTS {
         bigint id PK
+        bigint teacher_id FK
         string name
-        string teacher
     }
 
     ROOMS {
