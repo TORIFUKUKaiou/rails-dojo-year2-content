@@ -20,8 +20,8 @@ scaffoldが作ったアプリを自分の手で変更する。壊れても構わ
 この課題にも、3つの達成ラインがあります。
 
 - `推奨`：課題1〜2 に取り組む
-- `発展`：課題3〜4 まで進む
-- `さらに余裕がある人`：課題5〜6 と振り返りまで行う
+- `発展`：課題3〜7 まで進む
+- `さらに余裕がある人`：課題8〜20 と振り返りまで行う
 
 ---
 
@@ -258,7 +258,105 @@ end
 
 ---
 
-## 課題6：削除してみる（15分）
+## 課題6：Tailwind CSS を CDN で入れて一覧を派手にする（20分）
+
+一覧画面を一気に見た目よくします。授業用なので、まずは CDN で Tailwind CSS を読み込んで構いません。
+
+<ruby>CDN<rt>シーディーエヌ</rt></ruby> は、<ruby>Content Delivery Network<rt>コンテントデリバリーネットワーク</rt></ruby> の略です。インターネット上に置かれているファイルを、その場で読み込んで使う方法です。今回は Tailwind CSS のファイルを自分でインストールせず、`<script>` 1行で読み込みます。これは開発用の使い方です。
+
+### 手順
+
+1. `app/views/layouts/application.html.erb` を開く
+
+2. `<head>` の中に、次の1行を追加する
+
+```erb
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+```
+
+3. `app/views/articles/index.html.erb` を開く
+
+4. タイトル、テーブル、ボタンに Tailwind の class を付けて、見た目を大きく変える
+
+### ヒント
+
+- `class="text-4xl font-bold"` で大きい見出しにできます
+- `class="min-w-full border"` で表らしくできます
+- `class="px-4 py-2 rounded bg-blue-600 text-white"` でボタンらしくできます
+- 配色は自由です。派手で構いません
+
+### 確認ポイント
+
+- CDN を入れたあと、class を書くと見た目が変わる
+- 一覧画面の印象が、最初の scaffold のままとは明らかに変わる
+
+<details>
+<summary>解答例</summary>
+
+`app/views/layouts/application.html.erb`
+
+```erb
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+```
+
+`app/views/articles/index.html.erb`
+
+```erb
+<p class="mb-4 text-sm text-green-700"><%= notice %></p>
+
+<% content_for :title, "Articles" %>
+
+<div class="mx-auto max-w-5xl px-6 py-10">
+  <div class="mb-8 flex items-center justify-between">
+    <div>
+      <h1 class="text-4xl font-black tracking-tight text-slate-900">Articles</h1>
+      <p class="mt-2 text-slate-500">登録されている記事の一覧です</p>
+    </div>
+    <%= link_to "New article", new_article_path, class: "rounded-lg bg-blue-600 px-4 py-2 font-bold text-white shadow" %>
+  </div>
+
+  <% if @articles.empty? %>
+    <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-slate-500">
+      まだ記事がありません
+    </div>
+  <% else %>
+    <div class="overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
+      <table class="min-w-full bg-white text-sm">
+        <thead class="bg-slate-900 text-left text-white">
+          <tr>
+            <th class="px-4 py-3">Title</th>
+            <th class="px-4 py-3">Author</th>
+            <th class="px-4 py-3">Body</th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @articles.each do |article| %>
+            <tr class="border-t border-slate-100 hover:bg-sky-50">
+              <td class="px-4 py-3 font-bold text-slate-900"><%= article.title %></td>
+              <td class="px-4 py-3">
+                <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-900">
+                  <%= article.author %>
+                </span>
+              </td>
+              <td class="px-4 py-3 text-slate-600"><%= article.body %></td>
+              <td class="px-4 py-3">
+                <%= link_to "Show", article, class: "font-semibold text-blue-600 hover:underline" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>
+```
+
+</details>
+
+---
+
+## 課題7：削除してみる（15分）
 
 記事を削除する機能はscaffoldが作ってくれています。
 
@@ -283,6 +381,298 @@ def destroy
   @article.destroy!
   # ...
 end
+```
+
+</details>
+
+---
+
+## 課題8：一覧のタイトルの下に説明文を入れる（5分）
+
+`Articles` の見出しの下に、一覧画面の説明を1行入れてください。
+
+例：
+
+```text
+登録されている記事の一覧です
+```
+
+<details>
+<summary>解答例</summary>
+
+```erb
+<h1 class="text-4xl font-black tracking-tight text-slate-900">Articles</h1>
+<p class="mt-2 text-slate-500">登録されている記事の一覧です</p>
+```
+
+</details>
+
+---
+
+## 課題9：`New article` ボタンを目立たせる（5分）
+
+`New article` のリンクを、ただの文字リンクではなくボタン風にしてください。
+
+<details>
+<summary>解答例</summary>
+
+```erb
+<%= link_to "New article", new_article_path, class: "rounded-lg bg-blue-600 px-4 py-2 font-bold text-white shadow" %>
+```
+
+</details>
+
+---
+
+## 課題10：記事が0件のときの見た目を整える（5分）
+
+`まだ記事がありません` の表示を、余白と枠付きのメッセージにしてください。
+
+<details>
+<summary>解答例</summary>
+
+```erb
+<div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-slate-500">
+  まだ記事がありません
+</div>
+```
+
+</details>
+
+---
+
+## 課題11：一覧に作成日時を追加する（10分）
+
+一覧画面に `created_at` を追加してください。
+
+ヒント：
+
+- `article.created_at`
+- 最初はそのまま表示して構いません
+
+<details>
+<summary>解答例</summary>
+
+```erb
+<th class="px-4 py-3">Created</th>
+```
+
+```erb
+<td class="px-4 py-3 text-slate-500"><%= article.created_at %></td>
+```
+
+</details>
+
+---
+
+## 課題12：著者名をバッジ風にする（10分）
+
+一覧画面の著者名を、背景色付きの小さなラベルのように表示してください。
+
+<details>
+<summary>解答例</summary>
+
+```erb
+<td class="px-4 py-3">
+  <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-900">
+    <%= article.author %>
+  </span>
+</td>
+```
+
+</details>
+
+---
+
+## 課題13：本文を短くして表示する（10分）
+
+一覧画面では本文を全部出さず、最初の40文字くらいだけ表示してください。
+
+ヒント：
+
+- `article.body[0, 40]`
+- 余裕があれば `...` も付ける
+
+<details>
+<summary>解答例</summary>
+
+```erb
+<td class="px-4 py-3 text-slate-600">
+  <%= article.body[0, 40] %>...
+</td>
+```
+
+</details>
+
+---
+
+## 課題14：行に hover 効果を付ける（5分）
+
+一覧の各行に、マウスを乗せたとき背景色が変わる class を付けてください。
+
+<details>
+<summary>解答例</summary>
+
+```erb
+<tr class="border-t border-slate-100 hover:bg-sky-50">
+```
+
+</details>
+
+---
+
+## 課題15：一覧に `Edit` リンクも出す（5分）
+
+`Show` だけでなく、一覧から直接 `Edit` に行けるリンクも追加してください。
+
+<details>
+<summary>解答例</summary>
+
+```erb
+<td class="px-4 py-3 space-x-3">
+  <%= link_to "Show", article, class: "font-semibold text-blue-600 hover:underline" %>
+  <%= link_to "Edit", edit_article_path(article), class: "font-semibold text-emerald-600 hover:underline" %>
+</td>
+```
+
+</details>
+
+---
+
+## 課題16：詳細画面をカード風にする（10分）
+
+`show.html.erb` を見やすく整えて、タイトル・著者・本文がカードの中にあるような見た目にしてください。
+
+<details>
+<summary>解答例</summary>
+
+`app/views/articles/show.html.erb`
+
+```erb
+<div class="mx-auto max-w-3xl px-6 py-10">
+  <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+    <p class="mb-2 text-sm font-semibold text-slate-400">Article detail</p>
+    <%= render @article %>
+  </div>
+
+  <div class="mt-6 flex gap-4">
+    <%= link_to "Edit this article", edit_article_path(@article), class: "rounded-lg bg-emerald-600 px-4 py-2 font-bold text-white" %>
+    <%= link_to "Back to articles", articles_path, class: "rounded-lg border border-slate-300 px-4 py-2 font-bold text-slate-700" %>
+  </div>
+</div>
+```
+
+</details>
+
+---
+
+## 課題17：`new` と `edit` のフォームを見やすくする（10分）
+
+入力欄、ラベル、保存ボタンに class を付けて、フォーム全体を見やすくしてください。
+
+<details>
+<summary>解答例</summary>
+
+`app/views/articles/_form.html.erb`
+
+```erb
+<div class="space-y-6">
+  <div>
+    <%= form.label :title, class: "mb-2 block text-sm font-bold text-slate-700" %>
+    <%= form.text_field :title, class: "w-full rounded-lg border border-slate-300 px-3 py-2" %>
+  </div>
+
+  <div>
+    <%= form.label :author, class: "mb-2 block text-sm font-bold text-slate-700" %>
+    <%= form.text_field :author, class: "w-full rounded-lg border border-slate-300 px-3 py-2" %>
+  </div>
+
+  <div>
+    <%= form.label :body, class: "mb-2 block text-sm font-bold text-slate-700" %>
+    <%= form.textarea :body, class: "w-full rounded-lg border border-slate-300 px-3 py-2" %>
+  </div>
+
+  <div>
+    <%= form.submit class: "rounded-lg bg-blue-600 px-4 py-2 font-bold text-white" %>
+  </div>
+</div>
+```
+
+</details>
+
+---
+
+## 課題18：戻るリンクをそろえる（5分）
+
+`show`、`new`、`edit` にある戻るリンクの見た目をそろえてください。
+
+例：
+
+- `Back to articles`
+- `一覧へ戻る`
+
+どちらでも構いません。
+
+<details>
+<summary>解答例</summary>
+
+```erb
+<%= link_to "Back to articles", articles_path, class: "rounded-lg border border-slate-300 px-4 py-2 font-bold text-slate-700" %>
+```
+
+</details>
+
+---
+
+## 課題19：自分のテーマカラーを決める（10分）
+
+青系、赤系、緑系など、自分でテーマカラーを1つ決めて、一覧・詳細・フォームの見た目に反映してください。
+
+<details>
+<summary>解答例</summary>
+
+青系で作っていた class を、たとえば緑系に寄せます。
+
+```erb
+<%= link_to "New article", new_article_path, class: "rounded-lg bg-emerald-600 px-4 py-2 font-bold text-white shadow" %>
+```
+
+```erb
+<tr class="border-t border-slate-100 hover:bg-emerald-50">
+```
+
+```erb
+<%= form.submit class: "rounded-lg bg-emerald-600 px-4 py-2 font-bold text-white" %>
+```
+
+</details>
+
+---
+
+## 課題20：自由改造（15分）
+
+ここまでの課題を組み合わせて、自分なりに1つ機能や見た目を改造してください。
+
+例：
+
+- 見出しに絵文字を入れる
+- テーブルの列名を日本語にする
+- ボタンの角丸や影を変える
+- 空のときの画面をもっと派手にする
+
+<details>
+<summary>解答例</summary>
+
+例として、列名を日本語にし、見出しに絵文字を足します。
+
+```erb
+<h1 class="text-4xl font-black tracking-tight text-slate-900">📝 記事一覧</h1>
+```
+
+```erb
+<th class="px-4 py-3">タイトル</th>
+<th class="px-4 py-3">著者</th>
+<th class="px-4 py-3">本文</th>
 ```
 
 </details>
