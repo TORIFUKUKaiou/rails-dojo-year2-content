@@ -93,6 +93,50 @@ erDiagram
 
 `author_name` は不要になります。名前を持つのは `users` テーブルだからです。
 
+コードとして見る場合：
+
+```text
+erDiagram
+    direction LR
+    USERS ||--o{ ARTICLES : writes
+    USERS ||--o{ COMMENTS : writes
+    CATEGORIES ||--o{ ARTICLES : classifies
+    ARTICLES ||--o{ COMMENTS : has
+
+    USERS {
+        bigint id PK
+        string name
+        datetime created_at
+        datetime updated_at
+    }
+
+    CATEGORIES {
+        bigint id PK
+        string name
+        datetime created_at
+        datetime updated_at
+    }
+
+    ARTICLES {
+        bigint id PK
+        bigint user_id FK
+        bigint category_id FK
+        string title
+        text body
+        datetime created_at
+        datetime updated_at
+    }
+
+    COMMENTS {
+        bigint id PK
+        bigint article_id FK
+        bigint user_id FK
+        text body
+        datetime created_at
+        datetime updated_at
+    }
+```
+
 </details>
 
 ---
@@ -185,6 +229,31 @@ erDiagram
     }
 ```
 
+コードとして見る場合：
+
+```text
+erDiagram
+    direction LR
+    ARTICLES ||--o{ ARTICLE_TAGS : has
+    TAGS ||--o{ ARTICLE_TAGS : has
+
+    ARTICLES {
+        bigint id PK
+        string title
+    }
+
+    TAGS {
+        bigint id PK
+        string name
+    }
+
+    ARTICLE_TAGS {
+        bigint id PK
+        bigint article_id FK
+        bigint tag_id FK
+    }
+```
+
 </details>
 
 ---
@@ -254,6 +323,32 @@ erDiagram
 ```
 
 ユーザーと記事は多対多の関係です。中間テーブル `likes` でつなぎます。
+
+コードとして見る場合：
+
+```text
+erDiagram
+    direction LR
+    USERS ||--o{ LIKES : gives
+    ARTICLES ||--o{ LIKES : receives
+
+    USERS {
+        bigint id PK
+        string name
+    }
+
+    ARTICLES {
+        bigint id PK
+        string title
+    }
+
+    LIKES {
+        bigint id PK
+        bigint user_id FK
+        bigint article_id FK
+        datetime created_at
+    }
+```
 
 </details>
 
@@ -419,6 +514,23 @@ erDiagram
 
 外部キーが2つあるテーブルです。
 
+コードとして見る場合：
+
+```text
+erDiagram
+    direction LR
+    USERS ||--o{ NOTIFICATIONS : receives
+    ARTICLES ||--o{ NOTIFICATIONS : about
+
+    NOTIFICATIONS {
+        bigint id PK
+        bigint user_id FK
+        bigint article_id FK
+        string action
+        datetime created_at
+    }
+```
+
 </details>
 
 ---
@@ -439,6 +551,34 @@ erDiagram
 <summary>解答例：TODOアプリ</summary>
 
 ```mermaid
+erDiagram
+    direction LR
+    USERS ||--o{ LISTS : owns
+    LISTS ||--o{ TASKS : contains
+
+    USERS {
+        bigint id PK
+        string name
+    }
+
+    LISTS {
+        bigint id PK
+        bigint user_id FK
+        string name
+    }
+
+    TASKS {
+        bigint id PK
+        bigint list_id FK
+        string title
+        boolean done
+        datetime created_at
+    }
+```
+
+コードとして見る場合：
+
+```text
 erDiagram
     direction LR
     USERS ||--o{ LISTS : owns
@@ -496,12 +636,75 @@ erDiagram
     }
 ```
 
+コードとして見る場合：
+
+```text
+erDiagram
+    direction LR
+    RECIPES ||--o{ INGREDIENTS : has
+    RECIPES ||--o{ STEPS : has
+
+    RECIPES {
+        bigint id PK
+        string title
+        text description
+    }
+
+    INGREDIENTS {
+        bigint id PK
+        bigint recipe_id FK
+        string name
+        string amount
+    }
+
+    STEPS {
+        bigint id PK
+        bigint recipe_id FK
+        integer position
+        text body
+    }
+```
+
 </details>
 
 <details>
 <summary>解答例：時間割アプリ</summary>
 
 ```mermaid
+erDiagram
+    direction LR
+    SUBJECTS ||--o{ TIMETABLE_ENTRIES : scheduled_in
+    TEACHERS ||--o{ SUBJECTS : teaches
+    ROOMS ||--o{ TIMETABLE_ENTRIES : used_by
+
+    TEACHERS {
+        bigint id PK
+        string name
+    }
+
+    SUBJECTS {
+        bigint id PK
+        bigint teacher_id FK
+        string name
+    }
+
+    ROOMS {
+        bigint id PK
+        string name
+    }
+
+    TIMETABLE_ENTRIES {
+        bigint id PK
+        bigint subject_id FK
+        bigint room_id FK
+        string day_of_week
+        integer period
+    }
+```
+
+コードとして見る場合：
+
+```text
 erDiagram
     direction LR
     SUBJECTS ||--o{ TIMETABLE_ENTRIES : scheduled_in
