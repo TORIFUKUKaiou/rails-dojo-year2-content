@@ -18,8 +18,8 @@
 ## 今日の目標（達成ライン）
 
 - `推奨`：課題1〜2 に取り組む
-- `発展`：課題3 まで進む
-- `さらに余裕がある人`：課題4 まで進む
+- `発展`：課題3〜4 まで進む
+- `さらに余裕がある人`：課題5〜10 に進む
 
 ---
 
@@ -205,5 +205,318 @@ erDiagram
 2. `articles` テーブルには、カテゴリとつなぐための `category_id` を追加するマイグレーションが必要
 
 つまり、ER図で決めた内容が、そのまま次週のマイグレーションの材料になります。
+
+</details>
+
+---
+
+## 課題5：「いいね」機能を設計する
+
+ユーザーが記事に「いいね」できるようにします。
+
+### 要件
+
+- 1人のユーザーは複数の記事にいいねできる
+- 1つの記事は複数のユーザーからいいねされる
+- 同じユーザーが同じ記事に2回いいねはできない
+
+### やってみよう
+
+この関係を表すER図を書いてください。課題3のタグ機能と似た構造になるはずです。
+
+<details>
+<summary>解答例</summary>
+
+```mermaid
+erDiagram
+    USERS ||--o{ LIKES : gives
+    ARTICLES ||--o{ LIKES : receives
+
+    USERS {
+        bigint id PK
+        string name
+    }
+
+    ARTICLES {
+        bigint id PK
+        string title
+    }
+
+    LIKES {
+        bigint id PK
+        bigint user_id FK
+        bigint article_id FK
+        datetime created_at
+    }
+```
+
+ユーザーと記事は多対多の関係です。中間テーブル `likes` でつなぎます。
+
+</details>
+
+---
+
+## 課題6：カラムの型を考える
+
+ER図にはカラムの型も書きます。Railsでよく使う型を確認しましょう。
+
+| 型 | 意味 | 例 |
+|---|---|---|
+| `string` | 短い文字列 | 名前、タイトル |
+| `text` | 長い文字列 | 本文、説明 |
+| `integer` | 整数 | 数量、年齢 |
+| `boolean` | 真偽値 | 公開/非公開 |
+| `datetime` | 日時 | 作成日時 |
+
+### やってみよう
+
+次のカラムに、どの型が適切か考えて書いてください。
+
+```markdown
+| カラム | 型 |
+|---|---|
+| 記事のタイトル | ？ |
+| 記事の本文 | ？ |
+| ユーザーの年齢 | ？ |
+| 記事が公開済みかどうか | ？ |
+| コメントの投稿日時 | ？ |
+```
+
+<details>
+<summary>解答例</summary>
+
+| カラム | 型 |
+|---|---|
+| 記事のタイトル | `string` |
+| 記事の本文 | `text` |
+| ユーザーの年齢 | `integer` |
+| 記事が公開済みかどうか | `boolean` |
+| コメントの投稿日時 | `datetime` |
+
+</details>
+
+---
+
+## 課題7：ER図を読んで要件を逆算する
+
+次のER図を見て、「このアプリは何ができるか」を説明してください。
+
+```mermaid
+erDiagram
+    USERS ||--o{ ORDERS : places
+    ORDERS ||--o{ ORDER_ITEMS : contains
+    PRODUCTS ||--o{ ORDER_ITEMS : included_in
+
+    USERS {
+        bigint id PK
+        string name
+        string email
+    }
+
+    ORDERS {
+        bigint id PK
+        bigint user_id FK
+        datetime ordered_at
+    }
+
+    PRODUCTS {
+        bigint id PK
+        string name
+        integer price
+    }
+
+    ORDER_ITEMS {
+        bigint id PK
+        bigint order_id FK
+        bigint product_id FK
+        integer quantity
+    }
+```
+
+### やってみよう
+
+次の質問に答えてください。
+
+1. テーブルはいくつあるか
+2. このアプリは何をするためのものか
+3. `ORDER_ITEMS` はなぜ必要か
+4. 1回の注文で複数の商品を買えるか
+
+<details>
+<summary>解答例</summary>
+
+1. 4つ（`USERS`、`ORDERS`、`PRODUCTS`、`ORDER_ITEMS`）
+2. ユーザーが商品を注文するECサイトのようなアプリ
+3. 1回の注文に複数の商品が入る可能性があるため。注文と商品は多対多の関係で、`ORDER_ITEMS` が中間テーブル
+4. 買える。`ORDER_ITEMS` に複数行入れればよい
+
+</details>
+
+---
+
+## 課題8：下書き機能を設計する
+
+記事に「公開」と「下書き」の状態を持たせたいとします。
+
+### やってみよう
+
+1. `articles` テーブルにどんなカラムを追加すればよいか
+2. そのカラムの型は何か
+3. 公開済みの記事だけを取り出すには、どんな条件で絞ればよいか
+
+<details>
+<summary>解答例</summary>
+
+1. `published` カラムを追加する
+2. 型は `boolean`
+3. `published` が `true` の記事だけを取り出す
+
+新しいテーブルは不要です。既存のテーブルにカラムを1つ足すだけで実現できます。
+
+</details>
+
+---
+
+## 課題9：通知機能を設計する
+
+ユーザーに通知を送る機能を考えます。
+
+### 要件
+
+- 「田中さんがあなたの記事にコメントしました」のような通知
+- 通知には「誰が」「どの記事に」「何をしたか」の情報が必要
+- 1人のユーザーに複数の通知が届く
+
+### やってみよう
+
+`notifications` テーブルを設計してください。どんなカラムが必要か、外部キーはいくつ必要かを考えてください。
+
+<details>
+<summary>解答例</summary>
+
+```mermaid
+erDiagram
+    USERS ||--o{ NOTIFICATIONS : receives
+    ARTICLES ||--o{ NOTIFICATIONS : about
+
+    NOTIFICATIONS {
+        bigint id PK
+        bigint user_id FK
+        bigint article_id FK
+        string action
+        datetime created_at
+    }
+```
+
+- `user_id`：通知を受け取るユーザー
+- `article_id`：対象の記事
+- `action`：何が起きたか（例：`"commented"`）
+
+外部キーが2つあるテーブルです。
+
+</details>
+
+---
+
+## 課題10：自由設計
+
+好きなアプリを1つ選んで、そのER図を書いてみましょう。
+
+アイデア例：
+
+- TODOアプリ（ユーザー、リスト、タスク）
+- レシピアプリ（レシピ、材料、手順）
+- 時間割アプリ（曜日、時限、科目、教室）
+
+正解はありません。「何を保存するか」「テーブル同士がどうつながるか」を自分で考えることが目的です。
+
+<details>
+<summary>解答例：TODOアプリ</summary>
+
+```mermaid
+erDiagram
+    USERS ||--o{ LISTS : owns
+    LISTS ||--o{ TASKS : contains
+
+    USERS {
+        bigint id PK
+        string name
+    }
+
+    LISTS {
+        bigint id PK
+        bigint user_id FK
+        string name
+    }
+
+    TASKS {
+        bigint id PK
+        bigint list_id FK
+        string title
+        boolean done
+        datetime created_at
+    }
+```
+
+</details>
+
+<details>
+<summary>解答例：レシピアプリ</summary>
+
+```mermaid
+erDiagram
+    RECIPES ||--o{ INGREDIENTS : has
+    RECIPES ||--o{ STEPS : has
+
+    RECIPES {
+        bigint id PK
+        string title
+        text description
+    }
+
+    INGREDIENTS {
+        bigint id PK
+        bigint recipe_id FK
+        string name
+        string amount
+    }
+
+    STEPS {
+        bigint id PK
+        bigint recipe_id FK
+        integer position
+        text body
+    }
+```
+
+</details>
+
+<details>
+<summary>解答例：時間割アプリ</summary>
+
+```mermaid
+erDiagram
+    SUBJECTS ||--o{ TIMETABLE_ENTRIES : scheduled_in
+    ROOMS ||--o{ TIMETABLE_ENTRIES : used_by
+
+    SUBJECTS {
+        bigint id PK
+        string name
+        string teacher
+    }
+
+    ROOMS {
+        bigint id PK
+        string name
+    }
+
+    TIMETABLE_ENTRIES {
+        bigint id PK
+        bigint subject_id FK
+        bigint room_id FK
+        string day_of_week
+        integer period
+    }
+```
 
 </details>
