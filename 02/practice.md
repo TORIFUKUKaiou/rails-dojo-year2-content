@@ -278,16 +278,18 @@ erDiagram
     ARTICLES ||--o{ COMMENTS : has
 ```
 
-コード版：
+コピペ用：
 
-```text
+~~~
+```mermaid
 erDiagram
     direction LR
     CATEGORIES ||--o{ ARTICLES : classifies
     ARTICLES ||--o{ COMMENTS : has
 ```
+~~~
 
-Mermaidで書く場合は、` ```mermaid ` と ` ``` ` で中身を囲みます。この囲みがないと、ただの文字列として表示されます。プレビュー画面（`Alt + Shift + V`）で図になっていれば成功です。
+上のコードをそのまま `db_design.md` にコピーしてください。` ```mermaid ` と ` ``` ` の囲みも含めてコピーすることで、プレビュー画面（`Alt + Shift + V`）で図として表示されます。
 
 ここに、各テーブルのカラムを追加してください。
 
