@@ -93,9 +93,10 @@ erDiagram
 
 `author_name` は不要になります。名前を持つのは `users` テーブルだからです。
 
-コードとして見る場合：
+コード：
 
-```text
+~~~
+```mermaid
 erDiagram
     direction LR
     USERS ||--o{ ARTICLES : writes
@@ -136,6 +137,7 @@ erDiagram
         datetime updated_at
     }
 ```
+~~~
 
 </details>
 
@@ -229,9 +231,10 @@ erDiagram
     }
 ```
 
-コードとして見る場合：
+コード：
 
-```text
+~~~
+```mermaid
 erDiagram
     direction LR
     ARTICLES ||--o{ ARTICLE_TAGS : has
@@ -253,6 +256,7 @@ erDiagram
         bigint tag_id FK
     }
 ```
+~~~
 
 </details>
 
@@ -324,9 +328,10 @@ erDiagram
 
 ユーザーと記事は多対多の関係です。中間テーブル `likes` でつなぎます。
 
-コードとして見る場合：
+コード：
 
-```text
+~~~
+```mermaid
 erDiagram
     direction LR
     USERS ||--o{ LIKES : gives
@@ -349,6 +354,7 @@ erDiagram
         datetime created_at
     }
 ```
+~~~
 
 </details>
 
@@ -514,9 +520,10 @@ erDiagram
 
 外部キーが2つあるテーブルです。
 
-コードとして見る場合：
+コード：
 
-```text
+~~~
+```mermaid
 erDiagram
     direction LR
     USERS ||--o{ NOTIFICATIONS : receives
@@ -530,6 +537,7 @@ erDiagram
         datetime created_at
     }
 ```
+~~~
 
 </details>
 
@@ -576,9 +584,10 @@ erDiagram
     }
 ```
 
-コードとして見る場合：
+コード：
 
-```text
+~~~
+```mermaid
 erDiagram
     direction LR
     USERS ||--o{ LISTS : owns
@@ -603,6 +612,7 @@ erDiagram
         datetime created_at
     }
 ```
+~~~
 
 </details>
 
@@ -636,9 +646,10 @@ erDiagram
     }
 ```
 
-コードとして見る場合：
+コード：
 
-```text
+~~~
+```mermaid
 erDiagram
     direction LR
     RECIPES ||--o{ INGREDIENTS : has
@@ -664,6 +675,7 @@ erDiagram
         text body
     }
 ```
+~~~
 
 </details>
 
@@ -702,9 +714,10 @@ erDiagram
     }
 ```
 
-コードとして見る場合：
+コード：
 
-```text
+~~~
+```mermaid
 erDiagram
     direction LR
     SUBJECTS ||--o{ TIMETABLE_ENTRIES : scheduled_in
@@ -735,5 +748,6 @@ erDiagram
         integer period
     }
 ```
+~~~
 
 </details>

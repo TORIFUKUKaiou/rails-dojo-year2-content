@@ -278,7 +278,7 @@ erDiagram
     ARTICLES ||--o{ COMMENTS : has
 ```
 
-コピペ用：
+コード：
 
 ~~~
 ```mermaid
@@ -330,9 +330,10 @@ erDiagram
     }
 ```
 
-コードとして見る場合：
+コード：
 
-```text
+~~~
+```mermaid
 erDiagram
     direction LR
     CATEGORIES ||--o{ ARTICLES : classifies
@@ -363,6 +364,7 @@ erDiagram
         datetime updated_at
     }
 ```
+~~~
 
 ポイント：
 
