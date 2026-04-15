@@ -25,7 +25,7 @@ scaffoldが作ったアプリを自分の手で変更する。壊れても構わ
 
 ---
 
-## 課題1：カラムを追加する（20分）
+## 課題1：カラムを追加する
 
 Articleテーブルに `author`（著者名）カラムを追加してください。
 
@@ -63,7 +63,7 @@ Article.column_names
 
 ---
 
-## 課題2：著者名を保存できるようにする（20分）
+## 課題2：著者名を保存できるようにする
 
 `author` カラムを作っただけでは、フォームに入力欄は出ません。保存の許可も必要です。
 
@@ -111,7 +111,7 @@ rails server
 
 ---
 
-## 課題3：著者名を画面に表示する（20分）
+## 課題3：著者名を画面に表示する
 
 保存できても、今のままでは `author` は全く表示されません。`index` と `show` の両方で著者名が見えるようにしてください。
 
@@ -152,7 +152,7 @@ rails server
 
 ---
 
-## 課題4：バリデーションを追加する（20分）
+## 課題4：バリデーションを追加する
 
 タイトルが空の記事を保存できないようにしてください。
 
@@ -184,6 +184,8 @@ end
 <details>
 <summary>解答例</summary>
 
+`app/models/article.rb`
+
 ```ruby
 class Article < ApplicationRecord
   validates :title, presence: true
@@ -196,7 +198,7 @@ end
 
 ---
 
-## 課題5：一覧画面をさらに変更する（20分）
+## 課題5：一覧画面をさらに変更する
 
 `app/views/articles/index.html.erb` を編集して、一覧画面の見た目を変えてください。
 
@@ -218,6 +220,8 @@ end
 
 <details>
 <summary>解答例</summary>
+
+`app/views/articles/index.html.erb`
 
 ```erb
 <p style="color: green"><%= notice %></p>
@@ -258,7 +262,7 @@ end
 
 ---
 
-## 課題6：Tailwind CSS を CDN で入れて一覧を派手にする（20分）
+## 課題6：Tailwind CSS を CDN で入れて一覧を派手にする
 
 一覧画面を一気に見た目よくします。授業用なので、まずは CDN で Tailwind CSS を読み込んで構いません。
 
@@ -356,7 +360,7 @@ end
 
 ---
 
-## 課題7：削除してみる（15分）
+## 課題7：削除してみる
 
 記事を削除する機能はscaffoldが作ってくれています。
 
@@ -375,6 +379,8 @@ end
 <details>
 <summary>解答例</summary>
 
+`app/controllers/articles_controller.rb`
+
 ```ruby
 # 選んだ記事をデータベースから削除する
 def destroy
@@ -387,7 +393,7 @@ end
 
 ---
 
-## 課題8：一覧のタイトルの下に説明文を入れる（5分）
+## 課題8：一覧のタイトルの下に説明文を入れる
 
 `Articles` の見出しの下に、一覧画面の説明を1行入れてください。
 
@@ -400,6 +406,8 @@ end
 <details>
 <summary>解答例</summary>
 
+`app/views/articles/index.html.erb`
+
 ```erb
 <h1 class="text-4xl font-black tracking-tight text-slate-900">Articles</h1>
 <p class="mt-2 text-slate-500">登録されている記事の一覧です</p>
@@ -409,12 +417,14 @@ end
 
 ---
 
-## 課題9：`New article` ボタンを目立たせる（5分）
+## 課題9：`New article` ボタンを目立たせる
 
 `New article` のリンクを、ただの文字リンクではなくボタン風にしてください。
 
 <details>
 <summary>解答例</summary>
+
+`app/views/articles/index.html.erb`
 
 ```erb
 <%= link_to "New article", new_article_path, class: "rounded-lg bg-blue-600 px-4 py-2 font-bold text-white shadow" %>
@@ -424,12 +434,14 @@ end
 
 ---
 
-## 課題10：記事が0件のときの見た目を整える（5分）
+## 課題10：記事が0件のときの見た目を整える
 
 `まだ記事がありません` の表示を、余白と枠付きのメッセージにしてください。
 
 <details>
 <summary>解答例</summary>
+
+`app/views/articles/index.html.erb`
 
 ```erb
 <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-slate-500">
@@ -441,7 +453,7 @@ end
 
 ---
 
-## 課題11：一覧に作成日時を追加する（10分）
+## 課題11：一覧に作成日時を追加する
 
 一覧画面に `created_at` を追加してください。
 
@@ -452,6 +464,8 @@ end
 
 <details>
 <summary>解答例</summary>
+
+`app/views/articles/index.html.erb`
 
 ```erb
 <th class="px-4 py-3">Created</th>
@@ -465,12 +479,14 @@ end
 
 ---
 
-## 課題12：著者名をバッジ風にする（10分）
+## 課題12：著者名をバッジ風にする
 
 一覧画面の著者名を、背景色付きの小さなラベルのように表示してください。
 
 <details>
 <summary>解答例</summary>
+
+`app/views/articles/index.html.erb`
 
 ```erb
 <td class="px-4 py-3">
@@ -484,7 +500,7 @@ end
 
 ---
 
-## 課題13：本文を短くして表示する（10分）
+## 課題13：本文を短くして表示する
 
 一覧画面では本文を全部出さず、最初の40文字くらいだけ表示してください。
 
@@ -496,6 +512,8 @@ end
 <details>
 <summary>解答例</summary>
 
+`app/views/articles/index.html.erb`
+
 ```erb
 <td class="px-4 py-3 text-slate-600">
   <%= article.body[0, 40] %>...
@@ -506,12 +524,14 @@ end
 
 ---
 
-## 課題14：行に hover 効果を付ける（5分）
+## 課題14：行に hover 効果を付ける
 
 一覧の各行に、マウスを乗せたとき背景色が変わる class を付けてください。
 
 <details>
 <summary>解答例</summary>
+
+`app/views/articles/index.html.erb`
 
 ```erb
 <tr class="border-t border-slate-100 hover:bg-sky-50">
@@ -521,12 +541,20 @@ end
 
 ---
 
-## 課題15：一覧に `Edit` リンクも出す（5分）
+## 課題15：一覧に `Edit` リンクも出す
 
 `Show` だけでなく、一覧から直接 `Edit` に行けるリンクも追加してください。
 
+### ヒント
+
+- `Show` と同じように、`link_to` でリンクを追加できます
+- ルーティングの名前が分からなくなったら、`rails server` を動かしていない別のターミナルで `rails routes` を実行して確認してください
+- `edit_article_path` という名前が出てくるはずです
+
 <details>
 <summary>解答例</summary>
+
+`app/views/articles/index.html.erb`
 
 ```erb
 <td class="px-4 py-3 space-x-3">
@@ -539,7 +567,7 @@ end
 
 ---
 
-## 課題16：詳細画面をカード風にする（10分）
+## 課題16：詳細画面をカード風にする
 
 `show.html.erb` を見やすく整えて、タイトル・著者・本文がカードの中にあるような見た目にしてください。
 
@@ -566,7 +594,7 @@ end
 
 ---
 
-## 課題17：`new` と `edit` のフォームを見やすくする（10分）
+## 課題17：`new` と `edit` のフォームを見やすくする
 
 入力欄、ラベル、保存ボタンに class を付けて、フォーム全体を見やすくしてください。
 
@@ -602,7 +630,7 @@ end
 
 ---
 
-## 課題18：戻るリンクをそろえる（5分）
+## 課題18：戻るリンクをそろえる
 
 `show`、`new`、`edit` にある戻るリンクの見た目をそろえてください。
 
@@ -616,6 +644,8 @@ end
 <details>
 <summary>解答例</summary>
 
+`app/views/articles/show.html.erb` など
+
 ```erb
 <%= link_to "Back to articles", articles_path, class: "rounded-lg border border-slate-300 px-4 py-2 font-bold text-slate-700" %>
 ```
@@ -624,12 +654,14 @@ end
 
 ---
 
-## 課題19：自分のテーマカラーを決める（10分）
+## 課題19：自分のテーマカラーを決める
 
 青系、赤系、緑系など、自分でテーマカラーを1つ決めて、一覧・詳細・フォームの見た目に反映してください。
 
 <details>
 <summary>解答例</summary>
+
+`app/views/articles/index.html.erb` や `app/views/articles/_form.html.erb`
 
 青系で作っていた class を、たとえば緑系に寄せます。
 
@@ -649,7 +681,7 @@ end
 
 ---
 
-## 課題20：自由改造（15分）
+## 課題20：自由改造
 
 ここまでの課題を組み合わせて、自分なりに1つ機能や見た目を改造してください。
 
@@ -662,6 +694,8 @@ end
 
 <details>
 <summary>解答例</summary>
+
+`app/views/articles/index.html.erb`
 
 例として、列名を日本語にし、見出しに絵文字を足します。
 
@@ -679,7 +713,7 @@ end
 
 ---
 
-## 振り返り（15分）
+## 振り返り
 
 以下の質問に、ファイル名で答えてください。正確でなくても構いません。
 
