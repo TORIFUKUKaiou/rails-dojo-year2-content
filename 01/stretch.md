@@ -502,6 +502,8 @@ end
 </td>
 ```
 
+※ 全体は、課題7 の解答例を参照してください。
+
 </details>
 
 ---
@@ -542,6 +544,8 @@ end
 ```erb
 <tr class="border-t border-slate-100 hover:bg-sky-50">
 ```
+
+※ 全体は、課題7 の解答例を参照してください。
 
 </details>
 
@@ -610,26 +614,40 @@ end
 `app/views/articles/_form.html.erb`
 
 ```erb
-<div class="space-y-6">
-  <div>
-    <%= form.label :title, class: "mb-2 block text-sm font-bold text-slate-700" %>
-    <%= form.text_field :title, class: "w-full rounded-lg border border-slate-300 px-3 py-2" %>
-  </div>
+<%= form_with(model: article) do |form| %>
+  <% if article.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(article.errors.count, "error") %> prohibited this article from being saved:</h2>
 
-  <div>
-    <%= form.label :author, class: "mb-2 block text-sm font-bold text-slate-700" %>
-    <%= form.text_field :author, class: "w-full rounded-lg border border-slate-300 px-3 py-2" %>
-  </div>
+      <ul>
+        <% article.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
 
-  <div>
-    <%= form.label :body, class: "mb-2 block text-sm font-bold text-slate-700" %>
-    <%= form.textarea :body, class: "w-full rounded-lg border border-slate-300 px-3 py-2" %>
-  </div>
+  <div class="space-y-6">
+    <div>
+      <%= form.label :title, class: "mb-2 block text-sm font-bold text-slate-700" %>
+      <%= form.text_field :title, class: "w-full rounded-lg border border-slate-300 px-3 py-2" %>
+    </div>
 
-  <div>
-    <%= form.submit class: "rounded-lg bg-blue-600 px-4 py-2 font-bold text-white" %>
+    <div>
+      <%= form.label :author, class: "mb-2 block text-sm font-bold text-slate-700" %>
+      <%= form.text_field :author, class: "w-full rounded-lg border border-slate-300 px-3 py-2" %>
+    </div>
+
+    <div>
+      <%= form.label :body, class: "mb-2 block text-sm font-bold text-slate-700" %>
+      <%= form.textarea :body, class: "w-full rounded-lg border border-slate-300 px-3 py-2" %>
+    </div>
+
+    <div>
+      <%= form.submit class: "rounded-lg bg-blue-600 px-4 py-2 font-bold text-white" %>
+    </div>
   </div>
-</div>
+<% end %>
 ```
 
 </details>
