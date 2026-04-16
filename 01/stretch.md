@@ -20,8 +20,8 @@ scaffoldが作ったアプリを自分の手で変更する。壊れても構わ
 この課題にも、3つの達成ラインがあります。
 
 - `推奨`：課題1〜2 に取り組む
-- `発展`：課題3〜7 まで進む
-- `さらに余裕がある人`：課題8〜20 と振り返りまで行う
+- `発展`：課題3〜5 まで進む
+- `さらに余裕がある人`：課題6〜21 と振り返りまで行う
 
 ---
 
@@ -93,7 +93,6 @@ end
 ```
 
 💡 `expect`（エクスペクト） は「期待する」という意味です。`article_params` は、「フォームから送られてきたどの項目を保存してよいか」を決める場所です。ここに `:author` がないと、入力欄があっても値は保存されません。
-
 
 5. ブラウザで記事を作成して、著者名が保存されるか確認する
 
@@ -227,9 +226,169 @@ end
 
 ---
 
-## 課題6：一覧画面をさらに変更する
+## 課題6：記事が0件のときの分岐を追加する
 
-`app/views/articles/index.html.erb` を編集して、一覧画面の見た目を変えてください。
+scaffold が最初に作る `index.html.erb` には、記事が0件のときの分岐は入っていません。まずは `if` を追加して、記事が0件のときと1件以上あるときで表示を分けてください。
+
+### 手順
+
+1. `app/views/articles/index.html.erb` を開く
+2. `@articles.each` の前後に `if @articles.empty?`、`else`、`end` を追加する
+3. 記事が0件のときだけ `まだ記事がありません` と表示する
+
+### ヒント
+
+- `@articles.empty?` は、「記事が0件なら true」になる書き方です
+- 最初は見た目を整えなくて構いません。まずは分岐が動けば十分です
+
+<details>
+<summary>解答例</summary>
+
+`差分の例`
+
+`app/views/articles/index.html.erb`
+
+```erb
+<% if @articles.empty? %>
+  <p>まだ記事がありません</p>
+<% else %>
+  <% @articles.each do |article| %>
+    <%= render article %>
+    <p>
+      <%= link_to "Show this article", article %>
+    </p>
+  <% end %>
+<% end %>
+```
+
+`全文の例`
+
+`app/views/articles/index.html.erb`
+
+```erb
+<p style="color: green"><%= notice %></p>
+
+<% content_for :title, "Articles" %>
+
+<h1>Articles</h1>
+
+<% if @articles.empty? %>
+  <p>まだ記事がありません</p>
+<% else %>
+  <% @articles.each do |article| %>
+    <%= render article %>
+    <p>
+      <%= link_to "Show this article", article %>
+    </p>
+  <% end %>
+<% end %>
+
+<%= link_to "New article", new_article_path %>
+```
+
+</details>
+
+---
+
+## 課題7：Tailwind CSS を CDN で読み込む
+
+この課題から、見た目の改造に入ります。まずは Tailwind CSS を使える状態にしてください。
+
+<ruby>CDN<rt>シーディーエヌ</rt></ruby> は、<ruby>Content Delivery Network<rt>コンテントデリバリーネットワーク</rt></ruby> の略です。インターネット上に置かれているファイルを、その場で読み込んで使う方法です。今回は Tailwind CSS のファイルを自分でインストールせず、`<script>` 1行で読み込みます。これは開発用の使い方です。
+
+### 手順
+
+1. `app/views/layouts/application.html.erb` を開く
+2. `<head>` の中に、次の1行を追加する
+
+```erb
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+```
+
+3. `app/views/articles/index.html.erb` を開く
+4. `h1` に class を付けて、見た目が変わることを確認する
+
+### ヒント
+
+- まずは `class="text-4xl font-black tracking-tight text-slate-900"` のような class を1つ付けるだけで構いません
+- ここでは「Tailwind が読み込めたこと」を確認するのが目的です
+
+<details>
+<summary>解答例</summary>
+
+`差分の例`
+
+`app/views/layouts/application.html.erb`
+
+```erb
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+```
+
+`app/views/articles/index.html.erb`
+
+```erb
+<h1 class="text-4xl font-black tracking-tight text-slate-900">Articles</h1>
+```
+
+`全文の例`
+
+`app/views/layouts/application.html.erb`
+
+```erb
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "ReviewApp" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <%= yield %>
+  </body>
+</html>
+```
+
+`app/views/articles/index.html.erb`
+
+```erb
+<p style="color: green"><%= notice %></p>
+
+<% content_for :title, "Articles" %>
+
+<h1 class="text-4xl font-black tracking-tight text-slate-900">Articles</h1>
+
+<% if @articles.empty? %>
+  <p>まだ記事がありません</p>
+<% else %>
+  <% @articles.each do |article| %>
+    <%= render article %>
+    <p>
+      <%= link_to "Show this article", article %>
+    </p>
+  <% end %>
+<% end %>
+
+<%= link_to "New article", new_article_path %>
+```
+
+</details>
+
+---
+
+## 課題8：一覧をテーブル構造にする
+
+`app/views/articles/index.html.erb` を編集して、一覧画面をテーブル構造にしてください。
 
 ### やること
 
@@ -245,10 +404,41 @@ end
 - `link_to "Show", article` で詳細画面へのリンクが作れます
 - 迷ったら、今の `index.html.erb` を少しずつ書き換えていきましょう
 
-そのまま写しても構いません。写した上で、1箇所だけ自分で変えてみてください。
-
 <details>
 <summary>解答例</summary>
+
+`差分の例`
+
+`app/views/articles/index.html.erb`
+
+```erb
+<% if @articles.empty? %>
+  <p>まだ記事がありません</p>
+<% else %>
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Body</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @articles.each do |article| %>
+        <tr>
+          <td><strong><%= article.title %></strong></td>
+          <td><%= article.author %></td>
+          <td><%= article.body %></td>
+          <td><%= link_to "Show", article %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
+```
+
+`全文の例`
 
 `app/views/articles/index.html.erb`
 
@@ -257,7 +447,7 @@ end
 
 <% content_for :title, "Articles" %>
 
-<h1>Articles</h1>
+<h1 class="text-4xl font-black tracking-tight text-slate-900">Articles</h1>
 
 <% if @articles.empty? %>
   <p>まだ記事がありません</p>
@@ -291,52 +481,168 @@ end
 
 ---
 
-## 課題7：Tailwind CSS を CDN で入れて一覧を派手にする
+## 課題9：一覧のタイトルの下に説明文を入れる
 
-一覧画面を一気に見た目よくします。授業用なので、まずは CDN で Tailwind CSS を読み込んで構いません。
+`Articles` の見出しの下に、一覧画面の説明を1行入れてください。
 
-<ruby>CDN<rt>シーディーエヌ</rt></ruby> は、<ruby>Content Delivery Network<rt>コンテントデリバリーネットワーク</rt></ruby> の略です。インターネット上に置かれているファイルを、その場で読み込んで使う方法です。今回は Tailwind CSS のファイルを自分でインストールせず、`<script>` 1行で読み込みます。これは開発用の使い方です。
+例：
 
-### 手順
-
-1. `app/views/layouts/application.html.erb` を開く
-
-2. `<head>` の中に、次の1行を追加する
-
-```erb
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+```text
+登録されている記事の一覧です
 ```
-
-3. `app/views/articles/index.html.erb` を開く
-
-4. タイトル、テーブル、ボタンに Tailwind の class を付けて、見た目を大きく変える
-
-### ヒント
-
-- `class="text-4xl font-bold"` で大きい見出しにできます
-- `class="min-w-full border"` で表らしくできます
-- `class="px-4 py-2 rounded bg-blue-600 text-white"` でボタンらしくできます
-- 配色は自由です。派手で構いません
-- 迷ったら、解答例をそのまま写してください。写すだけでも「どこに何の class を書くと何が変わるか」が手に残ります。写した上で、1箇所だけ自分で変えてみてください
-
-### 確認ポイント
-
-- CDN を入れたあと、class を書くと見た目が変わる
-- 一覧画面の印象が、最初の scaffold のままとは明らかに変わる
 
 <details>
 <summary>解答例</summary>
 
-`app/views/layouts/application.html.erb`
-
-```erb
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-```
+`差分の例`
 
 `app/views/articles/index.html.erb`
 
 ```erb
-<p class="mb-4 text-sm text-green-700"><%= notice %></p>
+<h1 class="text-4xl font-black tracking-tight text-slate-900">Articles</h1>
+<p class="mt-2 text-slate-500">登録されている記事の一覧です</p>
+```
+
+`全文の例`
+
+`app/views/articles/index.html.erb`
+
+```erb
+<p style="color: green"><%= notice %></p>
+
+<% content_for :title, "Articles" %>
+
+<h1 class="text-4xl font-black tracking-tight text-slate-900">Articles</h1>
+<p class="mt-2 text-slate-500">登録されている記事の一覧です</p>
+
+<% if @articles.empty? %>
+  <p>まだ記事がありません</p>
+<% else %>
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Body</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @articles.each do |article| %>
+        <tr>
+          <td><strong><%= article.title %></strong></td>
+          <td><%= article.author %></td>
+          <td><%= article.body %></td>
+          <td><%= link_to "Show", article %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
+
+<%= link_to "New article", new_article_path %>
+```
+
+</details>
+
+---
+
+## 課題10：`New article` ボタンを目立たせる
+
+`New article` のリンクを、ただの文字リンクではなくボタン風にしてください。
+
+<details>
+<summary>解答例</summary>
+
+`差分の例`
+
+`app/views/articles/index.html.erb`
+
+```erb
+<div class="mx-auto max-w-5xl px-6 py-10">
+  <div class="mb-8 flex items-center justify-between">
+    <div>
+      <h1 class="text-4xl font-black tracking-tight text-slate-900">Articles</h1>
+      <p class="mt-2 text-slate-500">登録されている記事の一覧です</p>
+    </div>
+    <%= link_to "New article", new_article_path, class: "rounded-lg bg-blue-600 px-4 py-2 font-bold text-white shadow" %>
+  </div>
+```
+
+`全文の例`
+
+`app/views/articles/index.html.erb`
+
+```erb
+<p style="color: green"><%= notice %></p>
+
+<% content_for :title, "Articles" %>
+
+<div class="mx-auto max-w-5xl px-6 py-10">
+  <div class="mb-8 flex items-center justify-between">
+    <div>
+      <h1 class="text-4xl font-black tracking-tight text-slate-900">Articles</h1>
+      <p class="mt-2 text-slate-500">登録されている記事の一覧です</p>
+    </div>
+    <%= link_to "New article", new_article_path, class: "rounded-lg bg-blue-600 px-4 py-2 font-bold text-white shadow" %>
+  </div>
+
+  <% if @articles.empty? %>
+    <p>まだ記事がありません</p>
+  <% else %>
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Author</th>
+          <th>Body</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @articles.each do |article| %>
+          <tr>
+            <td><strong><%= article.title %></strong></td>
+            <td><%= article.author %></td>
+            <td><%= article.body %></td>
+            <td><%= link_to "Show", article %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</div>
+```
+
+</details>
+
+---
+
+## 課題11：記事が0件のときの見た目を整える
+
+`まだ記事がありません` の表示を、余白と枠付きのメッセージにしてください。
+
+<details>
+<summary>解答例</summary>
+
+`差分の例`
+
+`app/views/articles/index.html.erb`
+
+```erb
+<% if @articles.empty? %>
+  <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-slate-500">
+    まだ記事がありません
+  </div>
+<% else %>
+```
+
+`全文の例`
+
+`app/views/articles/index.html.erb`
+
+```erb
+<p style="color: green"><%= notice %></p>
 
 <% content_for :title, "Articles" %>
 
@@ -354,34 +660,26 @@ end
       まだ記事がありません
     </div>
   <% else %>
-    <div class="overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
-      <table class="min-w-full bg-white text-sm">
-        <thead class="bg-slate-900 text-left text-white">
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Author</th>
+          <th>Body</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @articles.each do |article| %>
           <tr>
-            <th class="px-4 py-3">Title</th>
-            <th class="px-4 py-3">Author</th>
-            <th class="px-4 py-3">Body</th>
-            <th class="px-4 py-3"></th>
+            <td><strong><%= article.title %></strong></td>
+            <td><%= article.author %></td>
+            <td><%= article.body %></td>
+            <td><%= link_to "Show", article %></td>
           </tr>
-        </thead>
-        <tbody>
-          <% @articles.each do |article| %>
-            <tr class="border-t border-slate-100 hover:bg-sky-50">
-              <td class="px-4 py-3 font-bold text-slate-900"><%= article.title %></td>
-              <td class="px-4 py-3">
-                <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-900">
-                  <%= article.author %>
-                </span>
-              </td>
-              <td class="px-4 py-3 text-slate-600"><%= article.body %></td>
-              <td class="px-4 py-3">
-                <%= link_to "Show", article, class: "font-semibold text-blue-600 hover:underline" %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
+        <% end %>
+      </tbody>
+    </table>
   <% end %>
 </div>
 ```
@@ -390,73 +688,7 @@ end
 
 ---
 
-## 課題8：一覧のタイトルの下に説明文を入れる
-
-`Articles` の見出しの下に、一覧画面の説明を1行入れてください。
-
-例：
-
-```text
-登録されている記事の一覧です
-```
-
-<details>
-<summary>解答例</summary>
-
-`app/views/articles/index.html.erb`
-
-```erb
-<h1 class="text-4xl font-black tracking-tight text-slate-900">Articles</h1>
-<p class="mt-2 text-slate-500">登録されている記事の一覧です</p>
-```
-
-※ 全体は、課題7 の解答例を参照してください。
-
-</details>
-
----
-
-## 課題9：`New article` ボタンを目立たせる
-
-`New article` のリンクを、ただの文字リンクではなくボタン風にしてください。
-
-<details>
-<summary>解答例</summary>
-
-`app/views/articles/index.html.erb`
-
-```erb
-<%= link_to "New article", new_article_path, class: "rounded-lg bg-blue-600 px-4 py-2 font-bold text-white shadow" %>
-```
-
-※ 全体は、課題7 の解答例を参照してください。
-
-</details>
-
----
-
-## 課題10：記事が0件のときの見た目を整える
-
-`まだ記事がありません` の表示を、余白と枠付きのメッセージにしてください。
-
-<details>
-<summary>解答例</summary>
-
-`app/views/articles/index.html.erb`
-
-```erb
-<div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-slate-500">
-  まだ記事がありません
-</div>
-```
-
-※ 全体は、課題7 の解答例を参照してください。
-
-</details>
-
----
-
-## 課題11：一覧に作成日時を追加する
+## 課題12：一覧に作成日時を追加する
 
 一覧画面に `created_at` を追加してください。
 
@@ -468,30 +700,96 @@ end
 <details>
 <summary>解答例</summary>
 
+`差分の例`
+
 `app/views/articles/index.html.erb`
 
-`table` > `thead` > `tr` > `th` の位置に配置します。
-
 ```erb
-<th class="px-4 py-3">Created</th>
+<table class="min-w-full border border-slate-300 bg-white text-sm">
+  <thead class="bg-slate-100">
+    <tr>
+      <th class="border-b px-4 py-3 text-left">Title</th>
+      <th class="border-b px-4 py-3 text-left">Author</th>
+      <th class="border-b px-4 py-3 text-left">Body</th>
+      <th class="border-b px-4 py-3 text-left">Created</th>
+      <th class="border-b px-4 py-3 text-left"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @articles.each do |article| %>
+      <tr class="border-b">
+        <td class="px-4 py-3 font-bold text-slate-900"><%= article.title %></td>
+        <td class="px-4 py-3"><%= article.author %></td>
+        <td class="px-4 py-3 text-slate-600"><%= article.body %></td>
+        <td class="px-4 py-3 text-slate-500"><%= article.created_at %></td>
+        <td class="px-4 py-3"><%= link_to "Show", article %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
 ```
 
-`tbody` > `tr` > `td` の位置に配置します。
+`全文の例`
+
+`app/views/articles/index.html.erb`
 
 ```erb
-<td class="px-4 py-3 text-slate-500"><%= article.created_at %></td>
+<p style="color: green"><%= notice %></p>
+
+<% content_for :title, "Articles" %>
+
+<div class="mx-auto max-w-5xl px-6 py-10">
+  <div class="mb-8 flex items-center justify-between">
+    <div>
+      <h1 class="text-4xl font-black tracking-tight text-slate-900">Articles</h1>
+      <p class="mt-2 text-slate-500">登録されている記事の一覧です</p>
+    </div>
+    <%= link_to "New article", new_article_path, class: "rounded-lg bg-blue-600 px-4 py-2 font-bold text-white shadow" %>
+  </div>
+
+  <% if @articles.empty? %>
+    <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-slate-500">
+      まだ記事がありません
+    </div>
+  <% else %>
+    <table class="min-w-full border border-slate-300 bg-white text-sm">
+      <thead class="bg-slate-100">
+        <tr>
+          <th class="border-b px-4 py-3 text-left">Title</th>
+          <th class="border-b px-4 py-3 text-left">Author</th>
+          <th class="border-b px-4 py-3 text-left">Body</th>
+          <th class="border-b px-4 py-3 text-left">Created</th>
+          <th class="border-b px-4 py-3 text-left"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @articles.each do |article| %>
+          <tr class="border-b">
+            <td class="px-4 py-3 font-bold text-slate-900"><%= article.title %></td>
+            <td class="px-4 py-3"><%= article.author %></td>
+            <td class="px-4 py-3 text-slate-600"><%= article.body %></td>
+            <td class="px-4 py-3 text-slate-500"><%= article.created_at %></td>
+            <td class="px-4 py-3"><%= link_to "Show", article %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</div>
 ```
 
 </details>
 
 ---
 
-## 課題12：著者名をバッジ風にする
+## 課題13：著者名をバッジ風にする
 
 一覧画面の著者名を、背景色付きの小さなラベルのように表示してください。
 
 <details>
 <summary>解答例</summary>
+
+`差分の例`
 
 `app/views/articles/index.html.erb`
 
@@ -503,13 +801,64 @@ end
 </td>
 ```
 
-※ 全体は、課題7 の解答例を参照してください。
+`全文の例`
+
+`app/views/articles/index.html.erb`
+
+```erb
+<p style="color: green"><%= notice %></p>
+
+<% content_for :title, "Articles" %>
+
+<div class="mx-auto max-w-5xl px-6 py-10">
+  <div class="mb-8 flex items-center justify-between">
+    <div>
+      <h1 class="text-4xl font-black tracking-tight text-slate-900">Articles</h1>
+      <p class="mt-2 text-slate-500">登録されている記事の一覧です</p>
+    </div>
+    <%= link_to "New article", new_article_path, class: "rounded-lg bg-blue-600 px-4 py-2 font-bold text-white shadow" %>
+  </div>
+
+  <% if @articles.empty? %>
+    <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-slate-500">
+      まだ記事がありません
+    </div>
+  <% else %>
+    <table class="min-w-full border border-slate-300 bg-white text-sm">
+      <thead class="bg-slate-100">
+        <tr>
+          <th class="border-b px-4 py-3 text-left">Title</th>
+          <th class="border-b px-4 py-3 text-left">Author</th>
+          <th class="border-b px-4 py-3 text-left">Body</th>
+          <th class="border-b px-4 py-3 text-left">Created</th>
+          <th class="border-b px-4 py-3 text-left"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @articles.each do |article| %>
+          <tr class="border-b">
+            <td class="px-4 py-3 font-bold text-slate-900"><%= article.title %></td>
+            <td class="px-4 py-3">
+              <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-900">
+                <%= article.author %>
+              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600"><%= article.body %></td>
+            <td class="px-4 py-3 text-slate-500"><%= article.created_at %></td>
+            <td class="px-4 py-3"><%= link_to "Show", article %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</div>
+```
 
 </details>
 
 ---
 
-## 課題13：本文を短くして表示する
+## 課題14：本文を短くして表示する
 
 一覧画面では本文を全部出さず、最初の40文字くらいだけ表示してください。
 
@@ -521,6 +870,8 @@ end
 <details>
 <summary>解答例</summary>
 
+`差分の例`
+
 `app/views/articles/index.html.erb`
 
 ```erb
@@ -529,30 +880,136 @@ end
 </td>
 ```
 
+`全文の例`
+
+`app/views/articles/index.html.erb`
+
+```erb
+<p style="color: green"><%= notice %></p>
+
+<% content_for :title, "Articles" %>
+
+<div class="mx-auto max-w-5xl px-6 py-10">
+  <div class="mb-8 flex items-center justify-between">
+    <div>
+      <h1 class="text-4xl font-black tracking-tight text-slate-900">Articles</h1>
+      <p class="mt-2 text-slate-500">登録されている記事の一覧です</p>
+    </div>
+    <%= link_to "New article", new_article_path, class: "rounded-lg bg-blue-600 px-4 py-2 font-bold text-white shadow" %>
+  </div>
+
+  <% if @articles.empty? %>
+    <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-slate-500">
+      まだ記事がありません
+    </div>
+  <% else %>
+    <table class="min-w-full border border-slate-300 bg-white text-sm">
+      <thead class="bg-slate-100">
+        <tr>
+          <th class="border-b px-4 py-3 text-left">Title</th>
+          <th class="border-b px-4 py-3 text-left">Author</th>
+          <th class="border-b px-4 py-3 text-left">Body</th>
+          <th class="border-b px-4 py-3 text-left">Created</th>
+          <th class="border-b px-4 py-3 text-left"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @articles.each do |article| %>
+          <tr class="border-b">
+            <td class="px-4 py-3 font-bold text-slate-900"><%= article.title %></td>
+            <td class="px-4 py-3">
+              <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-900">
+                <%= article.author %>
+              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600"><%= article.body[0, 40] %>...</td>
+            <td class="px-4 py-3 text-slate-500"><%= article.created_at %></td>
+            <td class="px-4 py-3"><%= link_to "Show", article %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</div>
+```
+
 </details>
 
 ---
 
-## 課題14：行に hover 効果を付ける
+## 課題15：行に hover 効果を付ける
 
 一覧の各行に、マウスを乗せたとき背景色が変わる class を付けてください。
 
 <details>
 <summary>解答例</summary>
 
+`差分の例`
+
 `app/views/articles/index.html.erb`
 
 ```erb
-<tr class="border-t border-slate-100 hover:bg-sky-50">
+<tr class="border-b hover:bg-sky-50">
 ```
 
-※ 全体は、課題7 の解答例を参照してください。
+`全文の例`
+
+`app/views/articles/index.html.erb`
+
+```erb
+<p style="color: green"><%= notice %></p>
+
+<% content_for :title, "Articles" %>
+
+<div class="mx-auto max-w-5xl px-6 py-10">
+  <div class="mb-8 flex items-center justify-between">
+    <div>
+      <h1 class="text-4xl font-black tracking-tight text-slate-900">Articles</h1>
+      <p class="mt-2 text-slate-500">登録されている記事の一覧です</p>
+    </div>
+    <%= link_to "New article", new_article_path, class: "rounded-lg bg-blue-600 px-4 py-2 font-bold text-white shadow" %>
+  </div>
+
+  <% if @articles.empty? %>
+    <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-slate-500">
+      まだ記事がありません
+    </div>
+  <% else %>
+    <table class="min-w-full border border-slate-300 bg-white text-sm">
+      <thead class="bg-slate-100">
+        <tr>
+          <th class="border-b px-4 py-3 text-left">Title</th>
+          <th class="border-b px-4 py-3 text-left">Author</th>
+          <th class="border-b px-4 py-3 text-left">Body</th>
+          <th class="border-b px-4 py-3 text-left">Created</th>
+          <th class="border-b px-4 py-3 text-left"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @articles.each do |article| %>
+          <tr class="border-b hover:bg-sky-50">
+            <td class="px-4 py-3 font-bold text-slate-900"><%= article.title %></td>
+            <td class="px-4 py-3">
+              <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-900">
+                <%= article.author %>
+              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600"><%= article.body[0, 40] %>...</td>
+            <td class="px-4 py-3 text-slate-500"><%= article.created_at %></td>
+            <td class="px-4 py-3"><%= link_to "Show", article %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</div>
+```
 
 </details>
 
 ---
 
-## 課題15：一覧に `Edit` リンクも出す
+## 課題16：一覧に `Edit` リンクも出す
 
 `Show` だけでなく、一覧から直接 `Edit` に行けるリンクも追加してください。
 
@@ -565,6 +1022,8 @@ end
 <details>
 <summary>解答例</summary>
 
+`差分の例`
+
 `app/views/articles/index.html.erb`
 
 ```erb
@@ -574,18 +1033,109 @@ end
 </td>
 ```
 
+`全文の例`
+
+`app/views/articles/index.html.erb`
+
+```erb
+<p style="color: green"><%= notice %></p>
+
+<% content_for :title, "Articles" %>
+
+<div class="mx-auto max-w-5xl px-6 py-10">
+  <div class="mb-8 flex items-center justify-between">
+    <div>
+      <h1 class="text-4xl font-black tracking-tight text-slate-900">Articles</h1>
+      <p class="mt-2 text-slate-500">登録されている記事の一覧です</p>
+    </div>
+    <%= link_to "New article", new_article_path, class: "rounded-lg bg-blue-600 px-4 py-2 font-bold text-white shadow" %>
+  </div>
+
+  <% if @articles.empty? %>
+    <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-slate-500">
+      まだ記事がありません
+    </div>
+  <% else %>
+    <table class="min-w-full border border-slate-300 bg-white text-sm">
+      <thead class="bg-slate-100">
+        <tr>
+          <th class="border-b px-4 py-3 text-left">Title</th>
+          <th class="border-b px-4 py-3 text-left">Author</th>
+          <th class="border-b px-4 py-3 text-left">Body</th>
+          <th class="border-b px-4 py-3 text-left">Created</th>
+          <th class="border-b px-4 py-3 text-left"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @articles.each do |article| %>
+          <tr class="border-b hover:bg-sky-50">
+            <td class="px-4 py-3 font-bold text-slate-900"><%= article.title %></td>
+            <td class="px-4 py-3">
+              <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-900">
+                <%= article.author %>
+              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600"><%= article.body[0, 40] %>...</td>
+            <td class="px-4 py-3 text-slate-500"><%= article.created_at %></td>
+            <td class="px-4 py-3 space-x-3">
+              <%= link_to "Show", article, class: "font-semibold text-blue-600 hover:underline" %>
+              <%= link_to "Edit", edit_article_path(article), class: "font-semibold text-emerald-600 hover:underline" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</div>
+```
+
 </details>
 
 ---
 
-## 課題16：詳細画面をカード風にする
+## 課題17：詳細画面をカード風にする
 
 `show.html.erb` を見やすく整えて、タイトル・著者・本文がカードの中にあるような見た目にしてください。
 
 <details>
 <summary>解答例</summary>
 
+`差分の例`
+
 `app/views/articles/show.html.erb`
+
+```erb
+<div class="mx-auto max-w-3xl px-6 py-10">
+  <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+    <p class="mb-2 text-sm font-semibold text-slate-400">Article detail</p>
+    <%= render @article %>
+  </div>
+
+  <div class="mt-6 flex gap-4">
+    <%= link_to "Edit this article", edit_article_path(@article), class: "rounded-lg bg-emerald-600 px-4 py-2 font-bold text-white" %>
+    <%= link_to "Back to articles", articles_path, class: "rounded-lg border border-slate-300 px-4 py-2 font-bold text-slate-700" %>
+  </div>
+</div>
+```
+
+`全文の例`
+
+`app/views/articles/show.html.erb`
+
+```erb
+<p style="color: green"><%= notice %></p>
+
+<%= render @article %>
+
+<div>
+  <%= link_to "Edit this article", edit_article_path(@article) %> |
+  <%= link_to "Back to articles", articles_path %>
+
+  <%= button_to "Destroy this article", @article, method: :delete %>
+</div>
+```
+
+書き換え後：
 
 ```erb
 <div class="mx-auto max-w-3xl px-6 py-10">
@@ -605,12 +1155,26 @@ end
 
 ---
 
-## 課題17：`new` と `edit` のフォームを見やすくする
+## 課題18：`new` と `edit` のフォームを見やすくする
 
 入力欄、ラベル、保存ボタンに class を付けて、フォーム全体を見やすくしてください。
 
 <details>
 <summary>解答例</summary>
+
+`差分の例`
+
+`app/views/articles/_form.html.erb`
+
+```erb
+<div class="space-y-6">
+  <div>
+    <%= form.label :title, class: "mb-2 block text-sm font-bold text-slate-700" %>
+    <%= form.text_field :title, class: "w-full rounded-lg border border-slate-300 px-3 py-2" %>
+  </div>
+```
+
+`全文の例`
 
 `app/views/articles/_form.html.erb`
 
@@ -655,15 +1219,16 @@ end
 
 ---
 
-## 課題18：戻るリンクをそろえる
+## 課題19：戻るリンクをそろえる
 
 `show`、`new`、`edit` にある戻るリンクの見た目をそろえてください。
-
 
 リンクの文言は英語でも日本語でも構いません。
 
 <details>
 <summary>解答例</summary>
+
+`差分の例`
 
 - `app/views/articles/new.html.erb`
 - `app/views/articles/show.html.erb`
@@ -673,38 +1238,147 @@ end
 <%= link_to "Back to articles", articles_path, class: "rounded-lg border border-slate-300 px-4 py-2 font-bold text-slate-700" %>
 ```
 
+`全文の例`
+
+`app/views/articles/new.html.erb`
+
+```erb
+<% content_for :title, "New article" %>
+
+<div class="mx-auto max-w-3xl px-6 py-10">
+  <h1 class="mb-6 text-3xl font-black tracking-tight text-slate-900">New article</h1>
+
+  <%= render "form", article: @article %>
+
+  <div class="mt-6">
+    <%= link_to "Back to articles", articles_path, class: "rounded-lg border border-slate-300 px-4 py-2 font-bold text-slate-700" %>
+  </div>
+</div>
+```
+
+`app/views/articles/edit.html.erb`
+
+```erb
+<% content_for :title, "Editing article" %>
+
+<div class="mx-auto max-w-3xl px-6 py-10">
+  <h1 class="mb-6 text-3xl font-black tracking-tight text-slate-900">Editing article</h1>
+
+  <%= render "form", article: @article %>
+
+  <div class="mt-6 flex gap-4">
+    <%= link_to "Show this article", @article, class: "rounded-lg bg-blue-600 px-4 py-2 font-bold text-white" %>
+    <%= link_to "Back to articles", articles_path, class: "rounded-lg border border-slate-300 px-4 py-2 font-bold text-slate-700" %>
+  </div>
+</div>
+```
+
+`app/views/articles/show.html.erb`
+
+```erb
+<div class="mx-auto max-w-3xl px-6 py-10">
+  <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+    <p class="mb-2 text-sm font-semibold text-slate-400">Article detail</p>
+    <%= render @article %>
+  </div>
+
+  <div class="mt-6 flex gap-4">
+    <%= link_to "Edit this article", edit_article_path(@article), class: "rounded-lg bg-emerald-600 px-4 py-2 font-bold text-white" %>
+    <%= link_to "Back to articles", articles_path, class: "rounded-lg border border-slate-300 px-4 py-2 font-bold text-slate-700" %>
+  </div>
+</div>
+```
+
 </details>
 
 ---
 
-## 課題19：自分のテーマカラーを決める
+## 課題20：自分のテーマカラーを決める
 
 青系、赤系、緑系など、自分でテーマカラーを1つ決めて、一覧・詳細・フォームの見た目に反映してください。
 
 <details>
 <summary>解答例</summary>
 
-`app/views/articles/index.html.erb` や `app/views/articles/_form.html.erb`
+`差分の例`
 
-青系で作っていた class を、たとえば緑系に寄せます。
+- `app/views/articles/index.html.erb`
+- `app/views/articles/show.html.erb`
+- `app/views/articles/_form.html.erb`
 
 ```erb
 <%= link_to "New article", new_article_path, class: "rounded-lg bg-emerald-600 px-4 py-2 font-bold text-white shadow" %>
 ```
 
 ```erb
-<tr class="border-t border-slate-100 hover:bg-emerald-50">
+<tr class="border-b hover:bg-emerald-50">
 ```
 
 ```erb
 <%= form.submit class: "rounded-lg bg-emerald-600 px-4 py-2 font-bold text-white" %>
 ```
 
+`全文の例`
+
+`app/views/articles/index.html.erb`
+
+```erb
+<p style="color: green"><%= notice %></p>
+
+<% content_for :title, "Articles" %>
+
+<div class="mx-auto max-w-5xl px-6 py-10">
+  <div class="mb-8 flex items-center justify-between">
+    <div>
+      <h1 class="text-4xl font-black tracking-tight text-slate-900">Articles</h1>
+      <p class="mt-2 text-slate-500">登録されている記事の一覧です</p>
+    </div>
+    <%= link_to "New article", new_article_path, class: "rounded-lg bg-emerald-600 px-4 py-2 font-bold text-white shadow" %>
+  </div>
+
+  <% if @articles.empty? %>
+    <div class="rounded-xl border border-dashed border-emerald-300 bg-emerald-50 p-8 text-center text-emerald-700">
+      まだ記事がありません
+    </div>
+  <% else %>
+    <table class="min-w-full border border-emerald-200 bg-white text-sm">
+      <thead class="bg-emerald-50">
+        <tr>
+          <th class="border-b border-emerald-200 px-4 py-3 text-left">Title</th>
+          <th class="border-b border-emerald-200 px-4 py-3 text-left">Author</th>
+          <th class="border-b border-emerald-200 px-4 py-3 text-left">Body</th>
+          <th class="border-b border-emerald-200 px-4 py-3 text-left">Created</th>
+          <th class="border-b border-emerald-200 px-4 py-3 text-left"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @articles.each do |article| %>
+          <tr class="border-b border-emerald-100 hover:bg-emerald-50">
+            <td class="px-4 py-3 font-bold text-slate-900"><%= article.title %></td>
+            <td class="px-4 py-3">
+              <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-900">
+                <%= article.author %>
+              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600"><%= article.body[0, 40] %>...</td>
+            <td class="px-4 py-3 text-slate-500"><%= article.created_at %></td>
+            <td class="px-4 py-3 space-x-3">
+              <%= link_to "Show", article, class: "font-semibold text-emerald-700 hover:underline" %>
+              <%= link_to "Edit", edit_article_path(article), class: "font-semibold text-lime-700 hover:underline" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</div>
+```
+
 </details>
 
 ---
 
-## 課題20：自由改造
+## 課題21：自由改造
 
 ここまでの課題を組み合わせて、自分なりに1つ機能や見た目を改造してください。
 
@@ -718,18 +1392,74 @@ end
 <details>
 <summary>解答例</summary>
 
-`app/views/articles/index.html.erb`
+`差分の例`
 
-例として、列名を日本語にし、見出しに絵文字を足します。
+`app/views/articles/index.html.erb`
 
 ```erb
 <h1 class="text-4xl font-black tracking-tight text-slate-900">📝 記事一覧</h1>
 ```
 
 ```erb
-<th class="px-4 py-3">タイトル</th>
-<th class="px-4 py-3">著者</th>
-<th class="px-4 py-3">本文</th>
+<th class="border-b px-4 py-3 text-left">タイトル</th>
+<th class="border-b px-4 py-3 text-left">著者</th>
+<th class="border-b px-4 py-3 text-left">本文</th>
+```
+
+`全文の例`
+
+`app/views/articles/index.html.erb`
+
+```erb
+<p style="color: green"><%= notice %></p>
+
+<% content_for :title, "Articles" %>
+
+<div class="mx-auto max-w-5xl px-6 py-10">
+  <div class="mb-8 flex items-center justify-between">
+    <div>
+      <h1 class="text-4xl font-black tracking-tight text-slate-900">📝 記事一覧</h1>
+      <p class="mt-2 text-slate-500">登録されている記事の一覧です</p>
+    </div>
+    <%= link_to "New article", new_article_path, class: "rounded-lg bg-blue-600 px-4 py-2 font-bold text-white shadow" %>
+  </div>
+
+  <% if @articles.empty? %>
+    <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-slate-500">
+      まだ記事がありません
+    </div>
+  <% else %>
+    <table class="min-w-full border border-slate-300 bg-white text-sm">
+      <thead class="bg-slate-100">
+        <tr>
+          <th class="border-b px-4 py-3 text-left">タイトル</th>
+          <th class="border-b px-4 py-3 text-left">著者</th>
+          <th class="border-b px-4 py-3 text-left">本文</th>
+          <th class="border-b px-4 py-3 text-left">Created</th>
+          <th class="border-b px-4 py-3 text-left"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @articles.each do |article| %>
+          <tr class="border-b hover:bg-sky-50">
+            <td class="px-4 py-3 font-bold text-slate-900"><%= article.title %></td>
+            <td class="px-4 py-3">
+              <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-900">
+                <%= article.author %>
+              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600"><%= article.body[0, 40] %>...</td>
+            <td class="px-4 py-3 text-slate-500"><%= article.created_at %></td>
+            <td class="px-4 py-3 space-x-3">
+              <%= link_to "Show", article, class: "font-semibold text-blue-600 hover:underline" %>
+              <%= link_to "Edit", edit_article_path(article), class: "font-semibold text-emerald-600 hover:underline" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</div>
 ```
 
 </details>
