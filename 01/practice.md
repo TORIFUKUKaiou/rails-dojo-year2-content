@@ -33,6 +33,7 @@ scaffoldを使ってRailsアプリをもう一度動かし、Model / View / Cont
 1. GitHubにログインする
 2. [このリポジトリ](https://github.com/TORIFUKUKaiou/rails-dojo-year2-content/)のページを開く (リンクを右クリックして、「リンクを新しいタブで開く」)
 3. 「Code」ボタン → 「Codespaces」タブ → 「Create codespace on main」をクリック
+4. 「ターミナル」に `準備完了` と表示されたら次へ進む
 
 ---
 
@@ -61,7 +62,9 @@ rails new review_app
 cd review_app
 ```
 
-💡 `cd ~/` はHOMEディレクトリへの移動です。
+💡 `cd ~/` はHOMEディレクトリへの移動です。  
+💡 コマンドは一行ずつ実行しましょう。  
+💡 `rails new review_app` は、必要なライブラリのインストールも行うため2分程度かかります。終わるまで待ってください。
 
 ---
 
