@@ -658,17 +658,15 @@ end
 
 `show`、`new`、`edit` にある戻るリンクの見た目をそろえてください。
 
-例：
 
-- `Back to articles`
-- `一覧へ戻る`
-
-どちらでも構いません。
+リンクの文言は英語でも日本語でも構いません。
 
 <details>
 <summary>解答例</summary>
 
-`app/views/articles/show.html.erb` など
+- `app/views/articles/new.html.erb`
+- `app/views/articles/show.html.erb`
+- `app/views/articles/edit.html.erb`
 
 ```erb
 <%= link_to "Back to articles", articles_path, class: "rounded-lg border border-slate-300 px-4 py-2 font-bold text-slate-700" %>
