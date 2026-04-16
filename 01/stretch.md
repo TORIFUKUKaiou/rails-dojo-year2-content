@@ -194,7 +194,40 @@ end
 
 ---
 
-## 課題5：一覧画面をさらに変更する
+## 課題5：削除してみる
+
+記事を削除する機能はscaffoldが作ってくれています。
+
+1. 一覧画面から記事を1つ削除する
+2. `articles_controller.rb` の `destroy` アクションを読む
+3. 何をしているか、自分の言葉で1行コメントを書く
+
+```ruby
+# ここに自分の言葉で書く
+def destroy
+  @article.destroy!
+  # ...
+end
+```
+
+<details>
+<summary>解答例</summary>
+
+`app/controllers/articles_controller.rb`
+
+```ruby
+# 選んだ記事をデータベースから削除する
+def destroy
+  @article.destroy!
+  # ...
+end
+```
+
+</details>
+
+---
+
+## 課題6：一覧画面をさらに変更する
 
 `app/views/articles/index.html.erb` を編集して、一覧画面の見た目を変えてください。
 
@@ -252,39 +285,6 @@ end
 <% end %>
 
 <%= link_to "New article", new_article_path %>
-```
-
-</details>
-
----
-
-## 課題6：削除してみる
-
-記事を削除する機能はscaffoldが作ってくれています。
-
-1. 一覧画面から記事を1つ削除する
-2. `articles_controller.rb` の `destroy` アクションを読む
-3. 何をしているか、自分の言葉で1行コメントを書く
-
-```ruby
-# ここに自分の言葉で書く
-def destroy
-  @article.destroy!
-  # ...
-end
-```
-
-<details>
-<summary>解答例</summary>
-
-`app/controllers/articles_controller.rb`
-
-```ruby
-# 選んだ記事をデータベースから削除する
-def destroy
-  @article.destroy!
-  # ...
-end
 ```
 
 </details>
