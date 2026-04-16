@@ -258,7 +258,40 @@ end
 
 ---
 
-## 課題6：Tailwind CSS を CDN で入れて一覧を派手にする
+## 課題6：削除してみる
+
+記事を削除する機能はscaffoldが作ってくれています。
+
+1. 一覧画面から記事を1つ削除する
+2. `articles_controller.rb` の `destroy` アクションを読む
+3. 何をしているか、自分の言葉で1行コメントを書く
+
+```ruby
+# ここに自分の言葉で書く
+def destroy
+  @article.destroy!
+  # ...
+end
+```
+
+<details>
+<summary>解答例</summary>
+
+`app/controllers/articles_controller.rb`
+
+```ruby
+# 選んだ記事をデータベースから削除する
+def destroy
+  @article.destroy!
+  # ...
+end
+```
+
+</details>
+
+---
+
+## 課題7：Tailwind CSS を CDN で入れて一覧を派手にする
 
 一覧画面を一気に見た目よくします。授業用なので、まずは CDN で Tailwind CSS を読み込んで構いません。
 
@@ -356,39 +389,6 @@ end
 
 ---
 
-## 課題7：削除してみる
-
-記事を削除する機能はscaffoldが作ってくれています。
-
-1. 一覧画面から記事を1つ削除する
-2. `articles_controller.rb` の `destroy` アクションを読む
-3. 何をしているか、自分の言葉で1行コメントを書く
-
-```ruby
-# ここに自分の言葉で書く
-def destroy
-  @article.destroy!
-  # ...
-end
-```
-
-<details>
-<summary>解答例</summary>
-
-`app/controllers/articles_controller.rb`
-
-```ruby
-# 選んだ記事をデータベースから削除する
-def destroy
-  @article.destroy!
-  # ...
-end
-```
-
-</details>
-
----
-
 ## 課題8：一覧のタイトルの下に説明文を入れる
 
 `Articles` の見出しの下に、一覧画面の説明を1行入れてください。
@@ -409,6 +409,8 @@ end
 <p class="mt-2 text-slate-500">登録されている記事の一覧です</p>
 ```
 
+※ 全体は、課題7 の解答例を参照してください。
+
 </details>
 
 ---
@@ -425,6 +427,8 @@ end
 ```erb
 <%= link_to "New article", new_article_path, class: "rounded-lg bg-blue-600 px-4 py-2 font-bold text-white shadow" %>
 ```
+
+※ 全体は、課題7 の解答例を参照してください。
 
 </details>
 
@@ -445,6 +449,8 @@ end
 </div>
 ```
 
+※ 全体は、課題7 の解答例を参照してください。
+
 </details>
 
 ---
@@ -463,9 +469,13 @@ end
 
 `app/views/articles/index.html.erb`
 
+`table` > `thead` > `tr` > `th` の位置に配置します。
+
 ```erb
 <th class="px-4 py-3">Created</th>
 ```
+
+`tbody` > `tr` > `td` の位置に配置します。
 
 ```erb
 <td class="px-4 py-3 text-slate-500"><%= article.created_at %></td>
