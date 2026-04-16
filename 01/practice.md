@@ -116,6 +116,10 @@ rails server
 
 `Blocked hosts:` や `InvalidAuthenticityToken` が表示されたときは、`config/initializers/codespaces.rb` のファイル名と中身を確認して、サーバーを起動し直してください。
 
+ポートタブの `3000` にカーソルをあて、 `転送されたアドレス` で 🌐 アイコンを押すとブラウザでRailsアプリを開けます。  
+
+![](../images/open-rails-app.png)
+
 ブラウザで `/articles` にアクセスして、記事の一覧・作成・編集・削除ができることを確認してください。
 
 ### 確認ポイント
