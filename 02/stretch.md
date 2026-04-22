@@ -838,13 +838,35 @@ erDiagram
 
 ## 31〜40：Rails コマンドで実際に作る
 
-ここからは、ER図で設計したテーブルを Rails コマンドで実際に作ります。第1週で作った `review_app` を使います。
+ここからは、ER図で設計したテーブルを Rails コマンドで実際に作ります。
+
+第1週の `review_app` は人によって状態が違うので、新しいアプリを作り直します。
+
+### 問題31：review_app2 を作る
+
+ターミナルで以下を順番に実行してください。
 
 ```bash
-cd ~/review_app
+cd ~/
+rails new review_app2
+cd review_app2
+rails generate scaffold Article title:string body:text
+rails db:migrate
 ```
 
-### 問題31：categories テーブルを作る
+💡 `rails new review_app2` は2分程度かかります。終わるまで待ってください。  
+💡 コマンドは一行ずつ実行しましょう。
+
+<details>
+<summary>確認ポイント</summary>
+
+`rails console` で `Article.column_names` を実行し、`["id", "title", "body", "created_at", "updated_at"]` のように表示されれば成功。`exit` で抜けます。
+
+</details>
+
+---
+
+### 問題32：categories テーブルを作る
 
 次のコマンドを実行して、`categories` テーブルを作ってください。
 
