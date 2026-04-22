@@ -51,19 +51,18 @@ Markdown で整理するのが難しい人は、紙やノートに図を書き�
 - 箇条書き：`-`
 - コードブロック：````` ``` `````
 
-編集画面:
+**編集画面**:
 
 ![](../images/edit-markdown.png)
 
 Markdownを編集中に `Ctrl + Shift + V` を押すと、プレビューを表示できます（Mac は `Command + Shift + V`）。
 
-Mermaid の図が表示されるまで30秒程度時間がかかる場合があります。
-
-Mermaid の図が表示されないときは、準備で入れた `Mermaid Preview` がインストールされているか確認してください。
-
-プレビュー画面:
+**プレビュー画面**:
 
 ![](../images/preview-markdown.png)
+
+Mermaid の図が表示されるまで30秒程度時間がかかる場合があります。
+Mermaid の図が表示されないときは、準備で入れた `Mermaid Preview` がインストールされているか確認してください。
 
 ---
 
