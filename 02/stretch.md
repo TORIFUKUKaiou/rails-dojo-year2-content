@@ -898,7 +898,9 @@ rails console
 Category.column_names
 ```
 
-`exit` で抜けます。
+確認できたら、`exit` と入力して `rails console` から抜けてください。
+
+次の問題は、ターミナルで `rails generate ...` を実行します。`irb(main):` のような表示が出ている間は `rails console` の中です。
 
 <details>
 <summary>解答例</summary>
@@ -931,15 +933,19 @@ rails db:migrate
 
 問題34では `category_id:integer` と書きました。Rails には `references` という書き方もあります。
 
+この問題では、次のコマンドは**実行しません**。
+
+問題34で、すでに `category_id` を追加しています。ここで同じ役割のカラムを別の書き方で追加しようとすると、ややこしくなります。
+
+ここでは、`references` を使うとどんなマイグレーションになるかを**読むこと**に集中してください。
+
 ```bash
 rails generate migration AddCategoryRefToArticles category:references
 ```
 
 `references` を使うと、外部キーのカラム追加と同時に、データベースレベルの外部キー制約とインデックスも作られます。
 
-マイグレーションファイルを開いて、`integer` のときとの違いを確認してください。
-
-💡 問題33で既に `category_id` を追加済みの場合、このコマンドは実行せず、マイグレーションファイルの中身を読むだけで構いません。
+マイグレーションファイルの中身を見て、`integer` のときとの違いを確認しましょう。
 
 <details>
 <summary>解答例</summary>
@@ -1018,17 +1024,18 @@ Category.create(name: "Rails")
 
 ### 問題39：記事にカテゴリを紐づける
 
-`rails console` で、記事の `category_id` にカテゴリの `id` を設定してください。
+`rails console` で、記事の `category_id` にカテゴリの `id` を設定してください。まだ記事が1件もない場合は、先に1件作ってから紐づけます。
 
 ```ruby
-article = Article.first
-article.update(category_id: Category.first.id)
+category = Category.first || Category.create(name: "Rails")
+article = Article.first || Article.create(title: "はじめての記事", body: "本文です")
+article.update(category_id: category.id)
 ```
 
 <details>
 <summary>確認ポイント</summary>
 
-`Article.first.category_id` が `nil` ではなく、カテゴリの `id` になっていれば成功。
+`article.category_id` が `nil` ではなく、カテゴリの `id` になっていれば成功。
 
 </details>
 
@@ -1036,16 +1043,17 @@ article.update(category_id: Category.first.id)
 
 ### 問題40：コメントを作る
 
-`rails console` で、記事に紐づくコメントを1つ作ってください。
+`rails console` で、記事に紐づくコメントを1つ作ってください。記事がまだない場合は、先に1件作ってからコメントを追加します。
 
 ```ruby
-Comment.create(article: Article.first, author_name: "田中", body: "わかりやすいです")
+article = Article.first || Article.create(title: "はじめての記事", body: "本文です")
+Comment.create(article: article, author_name: "田中", body: "わかりやすいです")
 ```
 
 <details>
 <summary>確認ポイント</summary>
 
-`Comment.all` で、`article_id` が記事の `id` になっているレコードが表示されれば成功。
+`Comment.all` で、`article_id` が `article.id` になっているレコードが表示されれば成功。
 
 </details>
 
@@ -1226,9 +1234,11 @@ order = Order.create(user: User.find_by(name: "田中"), ordered_at: Time.now)
 
 ### 問題50：注文明細を作る
 
-田中さんの注文に、「Rubyの本」を2冊、「Railsの本」を1冊追加します。
+田中さんの注文に、「Rubyの本」を2冊、「Railsの本」を1冊追加します。別の `rails console` セッションで作業している場合に備えて、最初に注文を取り直します。まだ注文がなければ、その場で1件作ってください。
 
 ```ruby
+user = User.find_by(name: "田中")
+order = Order.find_by(user: user) || Order.create(user: user, ordered_at: Time.now)
 OrderItem.create(order: order, product: Product.find_by(name: "Rubyの本"), quantity: 2)
 OrderItem.create(order: order, product: Product.find_by(name: "Railsの本"), quantity: 1)
 ```
