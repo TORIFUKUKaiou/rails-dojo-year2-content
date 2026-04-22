@@ -48,8 +48,8 @@ rails generate scaffold Article title:string body:text
 
 | id | title | body |
 |---|---|---|
-| 1 | はじめてのRails | scaffoldは便利 |
-| 2 | MVCとは何か | Railsの基本構造 |
+| 1 | はじめてのRails | scaffoldを使うと最初の形がすぐできる... |
+| 2 | MVCとは何か | Railsの基本構造を順番に整理して学ぶ... |
 
 この表では：
 
