@@ -8,9 +8,21 @@ ER図を見てテーブルのつながりを読めるようになり、自分で
 
 ## 準備
 
-1. Codespacesを起動する
-2. `db_design.md` というメモ用ファイルを作る
-3. 紙やノートに図を書いてもよい。大事なのは、手を動かして整理すること
+この練習は、GitHub Codespaces 上で行います。使うのは year2 用の公開リポジトリです。
+
+1. GitHubにログインする
+2. 次のどちらかで Codespaces を開く
+   - 前回の続きを使う場合：
+     - [Codespaces の一覧](https://github.com/codespaces) を開く
+     - `rails-dojo-year2-content` の Codespace をクリックして開く
+   - 新しく作る場合：
+     - [このリポジトリ](https://github.com/TORIFUKUKaiou/rails-dojo-year2-content/)を開く
+     - リポジトリの `Code` ボタン → `Codespaces` タブを開く
+     - `Create a new codespace` または `Create codespace on main` をクリックする
+3. ターミナルに `準備完了` と表示されたら、Codespaces の起動完了
+4. `db_design.md` というメモ用ファイルを作る
+
+Markdown で整理するのが難しい人は、紙やノートに図を書きながら進めても構いません。大事なのは、手を動かして整理することです。
 
 参考資料:
 

@@ -844,6 +844,25 @@ erDiagram
 
 ### 問題31：review_app2 を作る
 
+ここからのコマンドは、新しくターミナルを開いて `/home/vscode` で実行してください。
+
+まず、Rails が使えるか確認します。
+
+```bash
+rails -v
+```
+
+`rails 8.x.x` や `rails 7.x.x` のように表示されたら、そのまま次へ進めます。
+
+もし `command not found` などで Rails が使えない場合は、次を実行してください。
+
+```bash
+gem install rails --no-document
+rails -v
+```
+
+`--no-document` は、説明書のような追加ファイルを入れずに Rails 本体だけをインストールする指定です。
+
 ターミナルで以下を順番に実行してください。
 
 ```bash
