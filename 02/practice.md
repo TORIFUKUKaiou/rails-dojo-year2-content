@@ -13,10 +13,10 @@ ER図を見てテーブルのつながりを読めるようになり、自分で
 1. GitHubにログインする
 2. 次のどちらかで Codespaces を開く
    - 前回の続きを使う場合：
-     - [Codespaces の一覧](https://github.com/codespaces) を開く
+     - [Codespaces の一覧](https://github.com/codespaces) を開く（リンクを右クリックして、「リンクを新しいタブで開く」）
      - `rails-dojo-year2-content` の Codespace をクリックして開く
    - 新しく作る場合：
-     - [このリポジトリ](https://github.com/TORIFUKUKaiou/rails-dojo-year2-content/)を開く
+     - [このリポジトリ](https://github.com/TORIFUKUKaiou/rails-dojo-year2-content/)を開く（リンクを右クリックして、「リンクを新しいタブで開く」）
      - リポジトリの `Code` ボタン → `Codespaces` タブを開く
      - `Create a new codespace` または `Create codespace on main` をクリックする
 3. ターミナルに `準備完了` と表示されたら、Codespaces の起動完了
