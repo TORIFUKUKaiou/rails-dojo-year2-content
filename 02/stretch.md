@@ -1073,3 +1073,208 @@ practice の課題4で書いた ER図と見比べてください。ER図で設�
 ER図で書いた設計が、そのままデータベースのテーブルになっています。「先に設計、次にコード」の流れを体験できました。
 
 </details>
+
+---
+
+## 42〜51：プチ Amazon Clone を作る
+
+問題28〜30で読んだ EC サイトの ER図を、Rails で実際に作ります。新しいアプリを作るところから始めます。
+
+### 問題42：mini_shop を作る
+
+```bash
+cd ~/
+rails new mini_shop
+cd mini_shop
+```
+
+💡 2分程度かかります。終わるまで待ってください。
+
+<details>
+<summary>確認ポイント</summary>
+
+`mini_shop` ディレクトリが作られ、中に `app/` `config/` `db/` などがあれば成功。
+
+</details>
+
+---
+
+### 問題43：User モデルを作る
+
+```bash
+rails generate model User name:string email:string
+rails db:migrate
+```
+
+<details>
+<summary>確認ポイント</summary>
+
+`rails console` で `User.column_names` を実行し、`"name"` と `"email"` が含まれていれば成功。
+
+</details>
+
+---
+
+### 問題44：Product モデルを作る
+
+```bash
+rails generate model Product name:string price:integer
+rails db:migrate
+```
+
+<details>
+<summary>確認ポイント</summary>
+
+`rails console` で `Product.column_names` を実行し、`"name"` と `"price"` が含まれていれば成功。
+
+</details>
+
+---
+
+### 問題45：Order モデルを作る（references）
+
+```bash
+rails generate model Order user:references ordered_at:datetime
+rails db:migrate
+```
+
+マイグレーションファイルを開いて、`t.references :user` の書かれ方を確認してください。
+
+<details>
+<summary>確認ポイント</summary>
+
+- マイグレーションに `t.references :user, null: false, foreign_key: true` がある
+- `app/models/order.rb` に `belongs_to :user` が自動で書かれている
+
+</details>
+
+---
+
+### 問題46：OrderItem モデルを作る（references 2つ）
+
+```bash
+rails generate model OrderItem order:references product:references quantity:integer
+rails db:migrate
+```
+
+<details>
+<summary>確認ポイント</summary>
+
+- マイグレーションに `t.references :order` と `t.references :product` の両方がある
+- `app/models/order_item.rb` に `belongs_to :order` と `belongs_to :product` が自動で書かれている
+
+</details>
+
+---
+
+### 問題47：ER図とマイグレーションを見比べる
+
+`db/migrate/` にある4つのマイグレーションファイルを開いて、問題28の ER図と見比べてください。
+
+- `users` に `name` と `email` があるか
+- `products` に `name` と `price` があるか
+- `orders` に `user_id` があるか
+- `order_items` に `order_id` と `product_id` と `quantity` があるか
+
+<details>
+<summary>確認ポイント</summary>
+
+ER図で設計した4テーブルが、そのままマイグレーションファイルになっています。
+
+</details>
+
+---
+
+### 問題48：ユーザーと商品を作る
+
+`rails console` で以下を実行してください。
+
+```ruby
+User.create(name: "田中", email: "tanaka@example.com")
+User.create(name: "鈴木", email: "suzuki@example.com")
+
+Product.create(name: "Rubyの本", price: 3000)
+Product.create(name: "Railsの本", price: 3500)
+Product.create(name: "SQLの本", price: 2800)
+```
+
+<details>
+<summary>確認ポイント</summary>
+
+`User.count` が 2、`Product.count` が 3 であれば成功。
+
+</details>
+
+---
+
+### 問題49：注文を作る
+
+田中さんが注文したデータを作ります。
+
+```ruby
+order = Order.create(user: User.find_by(name: "田中"), ordered_at: Time.now)
+```
+
+<details>
+<summary>確認ポイント</summary>
+
+`order.user.name` で `"田中"` が返ってくれば成功。
+
+</details>
+
+---
+
+### 問題50：注文明細を作る
+
+田中さんの注文に、「Rubyの本」を2冊、「Railsの本」を1冊追加します。
+
+```ruby
+OrderItem.create(order: order, product: Product.find_by(name: "Rubyの本"), quantity: 2)
+OrderItem.create(order: order, product: Product.find_by(name: "Railsの本"), quantity: 1)
+```
+
+<details>
+<summary>確認ポイント</summary>
+
+```ruby
+OrderItem.count
+# => 2
+
+OrderItem.first.product.name
+# => "Rubyの本"
+
+OrderItem.first.quantity
+# => 2
+```
+
+</details>
+
+---
+
+### 問題51：注文の合計金額を計算する
+
+田中さんの注文の合計金額を `rails console` で計算してみましょう。
+
+```ruby
+order = Order.first
+total = 0
+
+OrderItem.where(order: order).each do |item|
+  total = total + item.product.price * item.quantity
+end
+
+puts "合計：#{total}円"
+```
+
+<details>
+<summary>確認ポイント</summary>
+
+`合計：9500円` と表示されれば成功。
+
+- Rubyの本 3000円 × 2冊 = 6000円
+- Railsの本 3500円 × 1冊 = 3500円
+- 合計 = 9500円
+
+ER図で設計したテーブルの関係を使って、注文 → 注文明細 → 商品とたどり、合計金額を計算できました。これがデータベース設計の力です。
+
+</details>
