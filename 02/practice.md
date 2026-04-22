@@ -11,16 +11,20 @@ ER図を見てテーブルのつながりを読めるようになり、自分で
 この練習は、GitHub Codespaces 上で行います。使うのは year2 用の公開リポジトリです。
 
 1. GitHubにログインする
-2. 次のどちらかで Codespaces を開く
-   - 前回の続きを使う場合：
-     - [Codespaces の一覧](https://github.com/codespaces) を開く（リンクを右クリックして、「リンクを新しいタブで開く」）
-     - `rails-dojo-year2-content` の Codespace をクリックして開く
-   - 新しく作る場合：
-     - [このリポジトリ](https://github.com/TORIFUKUKaiou/rails-dojo-year2-content/)を開く（リンクを右クリックして、「リンクを新しいタブで開く」）
-     - リポジトリの `Code` ボタン → `Codespaces` タブを開く
-     - `Create a new codespace` または `Create codespace on main` をクリックする
-3. ターミナルに `準備完了` と表示されたら、Codespaces の起動完了
-4. `db_design.md` というメモ用ファイルを作る
+2. [このリポジトリ](https://github.com/TORIFUKUKaiou/rails-dojo-year2-content/)を開く（リンクを右クリックして、「リンクを新しいタブで開く」）
+3. リポジトリの `Code` ボタン → `Codespaces` タブを開く
+4. `Create a codespace on main(+)` または、 `Create codespace on main` をクリックする
+    ![](../images/create-a-codespace-on-main.png)
+
+    ----
+
+    ![](https://raw.githubusercontent.com/TORIFUKUKaiou/rails-dojo-year1-content/refs/heads/main/images/create-codespace-on-main.png)
+    ---
+
+5. ターミナルに `準備完了` と表示されたら、Codespaces の起動完了
+6. `db_design.md` というメモ用ファイルを作る
+
+この練習では、前回の続きを使わず、毎回新しく Codespace を作って始めてください。この Codespaces には、Mermaid を表示するための `Mermaid Preview` 拡張が最初から入っています。
 
 Markdown で整理するのが難しい人は、紙やノートに図を書きながら進めても構いません。大事なのは、手を動かして整理することです。
 
@@ -48,7 +52,9 @@ Markdown で整理するのが難しい人は、紙やノートに図を書き�
 
 ![](../images/edit-markdown.png)
 
-Markdownを編集中に `Alt + Shift + V` を押すと、プレビューを表示できます。
+Markdownを編集中に `Ctrl + Shift + V` を押すと、プレビューを表示できます（Mac は `Shift + Command + V`）。
+
+Mermaid の図が表示されないときは、準備で入れた `Mermaid Preview` がインストールされているか確認してください。
 
 プレビュー画面:
 
@@ -317,7 +323,7 @@ erDiagram
 ```
 ~~~
 
-上のコードをそのまま `db_design.md` にコピーしてください。` ```mermaid ` と ` ``` ` の囲みも含めてコピーすることで、プレビュー画面（`Alt + Shift + V`）で図として表示されます。
+上のコードをそのまま `db_design.md` にコピーしてください。` ```mermaid ` と ` ``` ` の囲みも含めてコピーすることで、プレビュー画面（`Ctrl + Shift + V`、Mac は `Shift + Command + V`）で図として表示されます。
 
 ここに、各テーブルのカラムを追加してください。
 

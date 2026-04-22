@@ -13,7 +13,8 @@
       "extensions": [
         "GitHub.codespaces",
         "Shopify.ruby-lsp",
-        "castwide.solargraph"
+        "castwide.solargraph",
+        "vstirbu.vscode-mermaid-preview"
       ],
       "settings": {
         "terminal.integrated.hideOnStartup": "never",
