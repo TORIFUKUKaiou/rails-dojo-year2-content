@@ -119,6 +119,16 @@ erDiagram
     CATEGORIES ||--o{ ARTICLES : classifies
 ```
 
+コード：
+
+~~~
+```mermaid
+erDiagram
+    direction LR
+    CATEGORIES ||--o{ ARTICLES : classifies
+```
+~~~
+
 </details>
 
 ---
@@ -142,6 +152,23 @@ erDiagram
         datetime updated_at
     }
 ```
+
+コード：
+
+~~~
+```mermaid
+erDiagram
+    direction LR
+    CATEGORIES ||--o{ ARTICLES : classifies
+
+    CATEGORIES {
+        bigint id PK
+        string name
+        datetime created_at
+        datetime updated_at
+    }
+```
+~~~
 
 </details>
 
@@ -175,6 +202,32 @@ erDiagram
         datetime updated_at
     }
 ```
+
+コード：
+
+~~~
+```mermaid
+erDiagram
+    direction LR
+    CATEGORIES ||--o{ ARTICLES : classifies
+
+    CATEGORIES {
+        bigint id PK
+        string name
+        datetime created_at
+        datetime updated_at
+    }
+
+    ARTICLES {
+        bigint id PK
+        bigint category_id FK
+        string title
+        text body
+        datetime created_at
+        datetime updated_at
+    }
+```
+~~~
 
 </details>
 
@@ -218,6 +271,42 @@ erDiagram
         datetime updated_at
     }
 ```
+
+コード：
+
+~~~
+```mermaid
+erDiagram
+    direction LR
+    CATEGORIES ||--o{ ARTICLES : classifies
+    ARTICLES ||--o{ COMMENTS : has
+
+    CATEGORIES {
+        bigint id PK
+        string name
+        datetime created_at
+        datetime updated_at
+    }
+
+    ARTICLES {
+        bigint id PK
+        bigint category_id FK
+        string title
+        text body
+        datetime created_at
+        datetime updated_at
+    }
+
+    COMMENTS {
+        bigint id PK
+        bigint article_id FK
+        string author_name
+        text body
+        datetime created_at
+        datetime updated_at
+    }
+```
+~~~
 
 </details>
 
@@ -335,6 +424,52 @@ erDiagram
 ```
 
 `author_name` は不要になります。名前を持つのは `users` テーブルだからです。
+
+コード：
+
+~~~
+```mermaid
+erDiagram
+    direction LR
+    USERS ||--o{ ARTICLES : writes
+    USERS ||--o{ COMMENTS : writes
+    CATEGORIES ||--o{ ARTICLES : classifies
+    ARTICLES ||--o{ COMMENTS : has
+
+    USERS {
+        bigint id PK
+        string name
+        datetime created_at
+        datetime updated_at
+    }
+
+    CATEGORIES {
+        bigint id PK
+        string name
+        datetime created_at
+        datetime updated_at
+    }
+
+    ARTICLES {
+        bigint id PK
+        bigint user_id FK
+        bigint category_id FK
+        string title
+        text body
+        datetime created_at
+        datetime updated_at
+    }
+
+    COMMENTS {
+        bigint id PK
+        bigint article_id FK
+        bigint user_id FK
+        text body
+        datetime created_at
+        datetime updated_at
+    }
+```
+~~~
 
 </details>
 
@@ -506,6 +641,33 @@ erDiagram
     }
 ```
 
+コード：
+
+~~~
+```mermaid
+erDiagram
+    direction LR
+    ARTICLES ||--o{ ARTICLE_TAGS : has
+    TAGS ||--o{ ARTICLE_TAGS : has
+
+    ARTICLES {
+        bigint id PK
+        string title
+    }
+
+    TAGS {
+        bigint id PK
+        string name
+    }
+
+    ARTICLE_TAGS {
+        bigint id PK
+        bigint article_id FK
+        bigint tag_id FK
+    }
+```
+~~~
+
 </details>
 
 ---
@@ -569,6 +731,34 @@ erDiagram
         datetime created_at
     }
 ```
+
+コード：
+
+~~~
+```mermaid
+erDiagram
+    direction LR
+    USERS ||--o{ LIKES : gives
+    ARTICLES ||--o{ LIKES : receives
+
+    USERS {
+        bigint id PK
+        string name
+    }
+
+    ARTICLES {
+        bigint id PK
+        string title
+    }
+
+    LIKES {
+        bigint id PK
+        bigint user_id FK
+        bigint article_id FK
+        datetime created_at
+    }
+```
+~~~
 
 </details>
 
