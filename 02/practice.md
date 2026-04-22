@@ -19,7 +19,8 @@ ER図を見てテーブルのつながりを読めるようになり、自分で
 
     ---
 
-    緑のボタンがある場合は、この手順でも構いません。`Create codespace on main` をクリックしてください。
+    **緑のボタンがある場合**は、この手順でも構いません。`Create codespace on main` をクリックしてください。
+
     ![](https://raw.githubusercontent.com/TORIFUKUKaiou/rails-dojo-year1-content/refs/heads/main/images/create-codespace-on-main.png)
     ---
 
