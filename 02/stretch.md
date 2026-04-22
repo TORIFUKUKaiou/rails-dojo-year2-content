@@ -13,7 +13,7 @@
 - `まずは`：1〜10
 - `余裕があれば`：11〜20
 - `さらに余裕があれば`：21〜30
-- `もっと先へ`：31〜40
+- `もっと先へ`：31〜41
 
 全部やる必要はありません。できるところまで進めれば十分です。
 
@@ -836,7 +836,7 @@ erDiagram
 
 ---
 
-## 31〜40：Rails コマンドで実際に作る
+## 31〜41：Rails コマンドで実際に作る
 
 ここからは、ER図で設計したテーブルを Rails コマンドで実際に作ります。
 
@@ -886,7 +886,7 @@ rails db:migrate
 
 ---
 
-### 問題32：rails console で確認する
+### 問題33：rails console で確認する
 
 ```bash
 rails console
@@ -909,7 +909,7 @@ Category.column_names
 
 ---
 
-### 問題33：articles に category_id を追加する
+### 問題34：articles に category_id を追加する
 
 次のコマンドを実行して、`articles` テーブルに `category_id` を追加してください。
 
@@ -927,9 +927,9 @@ rails db:migrate
 
 ---
 
-### 問題34：references を使って書き直す
+### 問題35：references を使って書き直す
 
-問題33では `category_id:integer` と書きました。Rails には `references` という書き方もあります。
+問題34では `category_id:integer` と書きました。Rails には `references` という書き方もあります。
 
 ```bash
 rails generate migration AddCategoryRefToArticles category:references
@@ -956,7 +956,7 @@ add_reference :articles, :category, foreign_key: true
 
 ---
 
-### 問題35：comments テーブルを references で作る
+### 問題36：comments テーブルを references で作る
 
 次のコマンドを実行して、`comments` テーブルを作ってください。`article_id` は `references` を使います。
 
@@ -978,7 +978,7 @@ rails db:migrate
 
 ---
 
-### 問題36：モデルファイルを確認する
+### 問題37：モデルファイルを確認する
 
 `app/models/comment.rb` を開いてください。`references` で作ると、何が自動で書かれていますか？
 
@@ -997,7 +997,7 @@ end
 
 ---
 
-### 問題37：rails console でデータを作る
+### 問題38：rails console でデータを作る
 
 `rails console` で、カテゴリを1つ作ってください。
 
@@ -1016,7 +1016,7 @@ Category.create(name: "Rails")
 
 ---
 
-### 問題38：記事にカテゴリを紐づける
+### 問題39：記事にカテゴリを紐づける
 
 `rails console` で、記事の `category_id` にカテゴリの `id` を設定してください。
 
@@ -1034,7 +1034,7 @@ article.update(category_id: Category.first.id)
 
 ---
 
-### 問題39：コメントを作る
+### 問題40：コメントを作る
 
 `rails console` で、記事に紐づくコメントを1つ作ってください。
 
@@ -1051,7 +1051,7 @@ Comment.create(article: Article.first, author_name: "田中", body: "わかり�
 
 ---
 
-### 問題40：ER図と実際のテーブルを見比べる
+### 問題41：ER図と実際のテーブルを見比べる
 
 ここまでで作ったテーブルを `rails console` で確認してください。
 
