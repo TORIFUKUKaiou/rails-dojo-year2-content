@@ -67,7 +67,15 @@ erDiagram
 
 ### 問題3：関係を日本語で書く
 
-`ARTICLES ||--o{ COMMENTS : has` を日本語で説明してください。
+次のER図の関係を、日本語で説明してください。
+
+```mermaid
+erDiagram
+    direction LR
+    ARTICLES ||--o{ COMMENTS : has
+```
+
+特に、左から右へ読んだときの意味を書いてください。
 
 <details>
 <summary>解答例</summary>
