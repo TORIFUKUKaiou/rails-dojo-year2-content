@@ -6,6 +6,32 @@ ER図を見ながら、自分の手でマイグレーションを書いてデー
 
 ---
 
+## この練習について
+
+早く終わらせることが目的ではありません。
+
+コピペで進めても構いません。ただし、コピーした後に必ず `migration` と `schema.rb` を開いて、「何が変わったか」を確認してください。
+
+この週で大事なのは、次を説明できる状態になることです。
+
+- `migration` を書いたら、`schema.rb` にどう反映されたか
+- ER図の外部キーが、`migration` では `references`（結果として `*_id` カラム）としてどう現れるか
+- そのカラムが、どのテーブル同士をつないでいるか
+
+手が止まっている時間は、考えている時間です。無駄ではありません。説明できないまま先に進むより、対応関係を1つずつ確認しながら進めましょう。
+
+---
+
+## 今日の目標（達成ライン）
+
+- `必須（全員）`：1〜4 を終える（既存 migration を読む、categories を作る、category_id を追加する、comments を作る）
+- `推奨（余裕がある人）`：5 まで進む（schema.rb と `rails console` で確認する）
+- `発展（早く終わった人）`：[Stretch](stretch.md) に進む
+
+orientation とこの練習は、全員が終える前提です。まずは `必須` を確実に終えましょう。
+
+---
+
 ## 準備
 
 この練習は、GitHub Codespaces 上で行います。
@@ -20,7 +46,12 @@ ER図を見ながら、自分の手でマイグレーションを書いてデー
 
     ![](../images/create-a-codespace-on-main.png)
 
-    画面の表示が少し違う場合は、`Create codespace on main` と書かれたボタンをクリックしてください。
+    ---
+
+    **緑のボタンがある場合**は、この手順でも構いません。`Create codespace on main` をクリックしてください。
+
+    ![](https://raw.githubusercontent.com/TORIFUKUKaiou/rails-dojo-year1-content/refs/heads/main/images/create-codespace-on-main.png)
+    ---
 
 5. ターミナルに `準備完了` と表示されたら、Codespaces の起動完了
 
@@ -64,16 +95,6 @@ rails db:migrate
 ※ ここには後で、`db/migrate/` と `db/schema.rb` を開く位置がわかるスクリーンショットを追加します。
 
 <!-- TODO: VS Code / Codespaces で db/migrate と db/schema.rb を並べて開く手順のスクリーンショットを追加する -->
-
----
-
-## 今日の目標（達成ライン）
-
-- `必須（全員）`：1〜4 を終える（既存 migration を読む、categories を作る、category_id を追加する、comments を作る）
-- `推奨（余裕がある人）`：5 まで進む（schema.rb と `rails console` で確認する）
-- `発展（早く終わった人）`：[Stretch](stretch.md) に進む
-
-orientation とこの練習は、全員が終える前提です。まずは `必須` を確実に終えましょう。
 
 ---
 
