@@ -927,17 +927,27 @@ rails db:migrate
 
 ```bash
 rails generate model Category name:string
-rails db:migrate
 ```
 
-`db/migrate/` に新しいファイルができているはずです。開いて中身を確認してください。
+`db/migrate/` に新しいファイルができているはずです。`xxxx_create_categories.rb` を開いて、中身を確認してください。
 
-<details>
-<summary>確認ポイント</summary>
+このマイグレーションで作られるテーブルは、ER図で表すと次の形です。マイグレーションファイルの中身とこのER図が対応していることを確認してください。
 
-`create_table :categories` の中に `t.string :name` があれば成功。
+```mermaid
+erDiagram
+    CATEGORIES {
+        bigint id PK
+        string name
+        datetime created_at
+        datetime updated_at
+    }
+```
 
-</details>
+確認できたら、マイグレーションを実行します。
+
+```bash
+rails db:migrate
+```
 
 ---
 
