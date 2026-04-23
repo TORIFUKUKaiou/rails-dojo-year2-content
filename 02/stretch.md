@@ -1053,7 +1053,9 @@ add_column :articles, :category_id, :bigint
 - Rails では、関連を表すとき `references` を使う方が自然
 - `db/schema.rb` では、実際に作られたテーブル構造を確認できる
 
-`category_id` というカラム名は同じでも、Rails にとっては `references` の方が「これは categories テーブルとの関係です」と伝わりやすい書き方です。
+`category_id` というカラム名は同じでも、マイグレーションでは `references` の方が「これは categories テーブルへの参照です」と表しやすい書き方です。
+
+ただし、既存の `Article` モデルに `belongs_to :category` が自動で追加されるわけではありません。
 
 </details>
 
@@ -1150,20 +1152,22 @@ Category.create(name: "Rails")
 
 ---
 
-### 問題39：記事にカテゴリを紐づける
+### 問題39：カテゴリ付きの記事を作る
 
-`rails console` で、記事の `category_id` にカテゴリの `id` を設定してください。まだ記事が1件もない場合は、先に1件作ってから紐づけます。
+`rails console` で、カテゴリに紐づく記事を1つ作ってください。ここではまだ `Article` モデルに `belongs_to :category` を書いていないため、`category_id` を直接使います。
 
 ```ruby
 category = Category.first || Category.create(name: "Rails")
-article = Article.first || Article.create(title: "はじめての記事", body: "本文です", category: category)
-article.update(category_id: category.id)
+article = Article.create(title: "はじめての記事", body: "本文です", category_id: category.id)
+
+article.category_id
+category.id == article.category_id
 ```
 
 <details>
 <summary>確認ポイント</summary>
 
-`article.category_id` が `nil` ではなく、カテゴリの `id` になっていれば成功。
+`article.category_id` がカテゴリの `id` になり、`category.id == article.category_id` が `true` になれば成功。
 
 </details>
 
@@ -1174,7 +1178,8 @@ article.update(category_id: category.id)
 `rails console` で、記事に紐づくコメントを1つ作ってください。記事がまだない場合は、先に1件作ってからコメントを追加します。
 
 ```ruby
-article = Article.first || Article.create(title: "はじめての記事", body: "本文です")
+category = Category.first || Category.create(name: "Rails")
+article = Article.first || Article.create(title: "はじめての記事", body: "本文です", category_id: category.id)
 Comment.create(article: article, author_name: "田中", body: "わかりやすいです")
 ```
 
