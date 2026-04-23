@@ -887,10 +887,30 @@ cd ~/
 rails new review_app2
 cd review_app2
 rails generate scaffold Article title:string body:text
-rails db:migrate
 ```
 
 💡 `rails new review_app2` は2分程度かかります。終わるまで待ってください。  
+
+`db/migrate/` に新しいファイルができているはずです。`xxxx_create_articles.rb` を開いて、中身を確認してください。
+
+このマイグレーションで作られるテーブルは、ER図で表すと次の形です。
+
+```mermaid
+erDiagram
+    ARTICLES {
+        bigint id PK
+        string title
+        text body
+        datetime created_at
+        datetime updated_at
+    }
+```
+
+確認できたら、マイグレーションを実行します。
+
+```bash
+rails db:migrate
+```
 
 <details>
 <summary>確認ポイント</summary>
