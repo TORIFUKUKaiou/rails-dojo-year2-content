@@ -35,9 +35,17 @@ ER図をもとにマイグレーションファイルを書き、テーブルの
 
 こうした変更を、1つずつファイルとして残していきます。
 
-※ ここには後で、ER図 → migration → schema.rb → model の流れを示す図を追加します。
+今週と来週で扱う流れは、次のようにつながります。
 
-<!-- TODO: ER図から migration を書き、schema.rb に反映され、次週の model の association につながる流れ図を追加する -->
+```mermaid
+flowchart LR
+    er["ER図<br>テーブルと関係を決める"]
+    migration["migration<br>データベース変更をコードにする"]
+    schema["schema.rb<br>今のデータベースの形を確認する"]
+    model["model<br>has_many / belongs_to でつなぐ"]
+
+    er --> migration --> schema --> model
+```
 
 ---
 
@@ -63,7 +71,7 @@ Railsでは、マイグレーションファイルは `db/migrate/` に入りま
 
 ```text
 20260416010101_create_categories.rb
-20260416010500_add_category_id_to_articles.rb
+20260416010500_add_category_to_articles.rb
 ```
 
 先頭の長い数字は、作られた順番を表します。Railsはこの順番でマイグレーションを実行します。
@@ -81,7 +89,7 @@ Railsでは、マイグレーションファイルは `db/migrate/` に入りま
 たとえば `categories` テーブルなら、次のように書けます。
 
 ```ruby
-class CreateCategories < ActiveRecord::Migration[8.0]
+class CreateCategories < ActiveRecord::Migration[8.1]
   def change
     create_table :categories do |t|
       t.string :name
@@ -101,21 +109,35 @@ end
 
 ## テーブルを変更するマイグレーション
 
-すでにあるテーブルにカラムを追加するときは、たとえば `add_column` を使います。
+すでにあるテーブルに普通のカラムを追加するときは、たとえば `add_column` を使います。
 
 ```ruby
-class AddCategoryIdToArticles < ActiveRecord::Migration[8.0]
+class AddDescriptionToCategories < ActiveRecord::Migration[8.1]
   def change
-    add_column :articles, :category_id, :integer
+    add_column :categories, :description, :text
   end
 end
 ```
 
-このコードは、`articles` テーブルに `category_id` という整数のカラムを追加します。
+このコードは、`categories` テーブルに `description` という本文用のカラムを追加します。
 
-前回のER図で決めた「記事はカテゴリに属する」という設計が、ここで実際のカラムになります。
+一方で、外部キーを追加するときは、Railsでは `references` を使うのが自然です。
 
-実務では `add_reference :articles, :category` のように書くことも多いです。ただし今回は、外部キーの正体が `category_id` というカラムであることを見える形で理解するため、あえて `add_column` で書きます。
+```ruby
+class AddCategoryToArticles < ActiveRecord::Migration[8.1]
+  def change
+    add_reference :articles, :category, null: false, foreign_key: true
+  end
+end
+```
+
+このコードは、`articles` テーブルに `category_id` を追加します。
+
+- `add_reference :articles, :category`：`articles` に `category_id` を追加する
+- `null: false`：カテゴリが空の記事を作れないようにする
+- `foreign_key: true`：`category_id` には、実際に `categories` に存在する `id` だけを入れられるようにする
+
+`add_reference` は、検索や結合を速くするためのインデックスも作ります。外部キーのようにテーブル同士の関係を表すカラムは、`add_column` より `add_reference` を使う方が Rails の流儀に合っています。
 
 ---
 
@@ -130,9 +152,16 @@ end
 
 この「進める」「戻す」ができるので、マイグレーションは設計変更の履歴として機能します。
 
-※ ここには後で、`migrate` と `rollback` の流れを示す図を追加します。
+流れで表すと、次のようになります。
 
-<!-- TODO: rails db:migrate で前進し、rails db:rollback で1つ戻ることを示す簡単な図を追加する -->
+```mermaid
+flowchart LR
+    before["migration未実行<br>まだDBには反映されていない"]
+    after["migration実行済み<br>DBとschema.rbに反映された"]
+
+    before -- "rails db:migrate" --> after
+    after -- "rails db:rollback" --> before
+```
 
 ---
 
@@ -174,12 +203,15 @@ end
 
 1. マイグレーションが設計変更の履歴であることを確認した
 2. `create_table` で新しいテーブルを作れることを知った
-3. `add_column` で既存テーブルを変更できることを知った
-4. `db/migrate/` と `db/schema.rb` の役割の違いを確認した
+3. `add_column` で普通のカラムを追加できることを知った
+4. `add_reference` で外部キーを追加できることを知った
+5. `db/migrate/` と `db/schema.rb` の役割の違いを確認した
 
 覚えておくこと：
 
 - マイグレーションは「データベースの変更をコードで残す仕組み」
 - `db/migrate/` は変更の履歴
 - `db/schema.rb` は今の完成形
+- 普通のカラム追加は `add_column`
+- 外部キーの追加は `add_reference`
 - 今週のカラムが、来週の `has_many / belongs_to` につながる
