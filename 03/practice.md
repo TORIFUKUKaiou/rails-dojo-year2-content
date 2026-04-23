@@ -24,7 +24,7 @@ ER図を見ながら、自分の手でマイグレーションを書いてデー
 
 ## 今日の目標（達成ライン）
 
-- `必須（全員）`：1〜4 を終える（既存 migration を読む、categories を作る、category_id を追加する、comments を作る）
+- `必須（全員）`：1〜4 を終える（既存 migration を読む、categories を作る、articles と categories の関連を追加する、comments を作る）
 - `推奨（余裕がある人）`：5 まで進む（schema.rb と `rails console` で確認する）
 - `発展（早く終わった人）`：[Stretch](stretch.md) に進む
 
@@ -192,27 +192,32 @@ end
 
 ---
 
-## 3. `articles` に `category_id` を追加する
+## 3. `articles` に `category` の関連を追加する
 
-次は、記事がどのカテゴリに属するかを表す `category_id` を追加します。
+次は、記事がどのカテゴリに属するかを表す外部キーを追加します。
 
 まず、空のマイグレーションファイルを作ります。
 
 ```bash
-rails generate migration AddCategoryIdToArticles
+rails generate migration AddCategoryToArticles
 ```
 
 できたファイルに、次のように書いてください。
 
 ```ruby
-class AddCategoryIdToArticles < ActiveRecord::Migration[8.1]
+class AddCategoryToArticles < ActiveRecord::Migration[8.1]
   def change
-    add_column :articles, :category_id, :integer
+    add_reference :articles, :category, null: false, foreign_key: true
   end
 end
 ```
 
-実務では `add_reference :articles, :category` のように書くことも多いです。ただし今回は、`category_id` というカラムを自分の目で確認しやすいように、あえて `add_column` で書きます。
+`add_reference` は、Railsで関連を表すときの基本形です。
+
+- `category_id` カラムが追加される
+- `null: false` で空を防ぐ
+- `foreign_key: true` で `categories.id` への参照制約が付く
+- インデックスも自動で追加される
 
 そのあと、実行します。
 
@@ -220,18 +225,48 @@ end
 rails db:migrate
 ```
 
+ER図・migration・schema.rb は次のように対応します。
+
+```mermaid
+erDiagram
+    direction LR
+    CATEGORIES ||--o{ ARTICLES : "has many"
+
+    CATEGORIES {
+      int id PK
+      string name
+    }
+
+    ARTICLES {
+      int id PK
+      int category_id FK
+      string title
+      text body
+    }
+```
+
 ### 確認ポイント
 
 - `articles` テーブルに `category_id` が増えているか
-- `db/schema.rb` の `articles` の欄に `category_id` があるか
+- `db/schema.rb` の `articles` に `category_id` と `index_articles_on_category_id` があるか
+- `db/schema.rb` の末尾に `add_foreign_key "articles", "categories"` があるか
 
 <details>
 <summary>解答例</summary>
 
-`db/schema.rb` の `articles` に、次の1行が追加されます。
+`db/schema.rb` には、次のように反映されます。
 
 ```ruby
-t.integer "category_id"
+create_table "articles", force: :cascade do |t|
+  t.text "body"
+  t.integer "category_id", null: false
+  t.datetime "created_at", null: false
+  t.string "title"
+  t.datetime "updated_at", null: false
+  t.index ["category_id"], name: "index_articles_on_category_id"
+end
+
+add_foreign_key "articles", "categories"
 ```
 
 </details>
@@ -254,13 +289,34 @@ rails generate migration CreateComments
 class CreateComments < ActiveRecord::Migration[8.1]
   def change
     create_table :comments do |t|
-      t.integer :article_id
+      t.references :article, null: false, foreign_key: true
       t.string :author_name
       t.text :body
       t.timestamps
     end
   end
 end
+```
+
+ER図・migration・schema.rb は次のように対応します。
+
+```mermaid
+erDiagram
+    direction LR
+    ARTICLES ||--o{ COMMENTS : "has many"
+
+    ARTICLES {
+      int id PK
+      string title
+      text body
+    }
+
+    COMMENTS {
+      int id PK
+      int article_id FK
+      string author_name
+      text body
+    }
 ```
 
 そのあと、実行します。
@@ -273,11 +329,8 @@ rails db:migrate
 
 - `comments` テーブルができているか
 - `article_id` `author_name` `body` が入っているか
-- 前回のER図と見比べて、対応しているか
-
-※ ここには後で、ER図と migration ファイルを見比べる図を追加します。
-
-<!-- TODO: comments テーブルの ER図と CreateComments migration の対応がわかる図を追加する -->
+- `db/schema.rb` の `comments` に `index_comments_on_article_id` があるか
+- `db/schema.rb` の末尾に `add_foreign_key "comments", "articles"` があるか
 
 <details>
 <summary>解答例</summary>
@@ -286,12 +339,15 @@ rails db:migrate
 
 ```ruby
 create_table "comments", force: :cascade do |t|
-  t.integer "article_id"
+  t.integer "article_id", null: false
   t.string "author_name"
   t.text "body"
   t.datetime "created_at", null: false
   t.datetime "updated_at", null: false
+  t.index ["article_id"], name: "index_comments_on_article_id"
 end
+
+add_foreign_key "comments", "articles"
 ```
 
 </details>
@@ -343,7 +399,7 @@ Article.column_names
 
 1. 既存の migration を読んだ
 2. `categories` テーブルを手で作った
-3. `articles` に `category_id` を追加した
+3. `articles` と `categories` の関連を追加した
 4. `comments` テーブルを手で作った
 5. `schema.rb` と `rails console` で結果を確認した
 
