@@ -1281,6 +1281,13 @@ cd mini_shop
 
 ```bash
 rails generate model User name:string email:string
+```
+
+`db/migrate/` に新しいファイルができているはずです。開いて中身を確認してください。
+
+確認できたら、マイグレーションを実行します。
+
+```bash
 rails db:migrate
 ```
 
@@ -1309,6 +1316,13 @@ erDiagram
 
 ```bash
 rails generate model Product name:string price:integer
+```
+
+`db/migrate/` に新しいファイルができているはずです。開いて中身を確認してください。
+
+確認できたら、マイグレーションを実行します。
+
+```bash
 rails db:migrate
 ```
 
@@ -1343,10 +1357,15 @@ erDiagram
 
 ```bash
 rails generate model Order user:references ordered_at:datetime
-rails db:migrate
 ```
 
-マイグレーションファイルを開いて、`t.references :user` の書かれ方を確認してください。
+`db/migrate/` に新しいファイルができているはずです。開いて、`t.references :user` の書かれ方を確認してください。
+
+確認できたら、マイグレーションを実行します。
+
+```bash
+rails db:migrate
+```
 
 <details>
 <summary>確認ポイント</summary>
@@ -1388,6 +1407,13 @@ erDiagram
 
 ```bash
 rails generate model OrderItem order:references product:references quantity:integer
+```
+
+`db/migrate/` に新しいファイルができているはずです。開いて、`t.references :order` と `t.references :product` の両方があることを確認してください。
+
+確認できたら、マイグレーションを実行します。
+
+```bash
 rails db:migrate
 ```
 
