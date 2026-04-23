@@ -184,6 +184,16 @@ flowchart LR
 
 今週は、ER図をマイグレーションに落とし込みます。
 
+```mermaid
+flowchart LR
+    w2["前週（第2週）<br>ER図で関係を決める"]
+    w3["今週（第3週）<br>migrationでDBを変更し<br>schema.rbで確認する"]
+    w4["来週（第4週）<br>modelにassociationを書く"]
+
+    w2 -->|"外部キーを設計<br>articles.category_id / comments.article_id"| w3
+    w3 -->|"add_reference と schema.rb を根拠に<br>has_many / belongs_to を書く"| w4
+```
+
 - 前週：ER図で、何を保存するか決めた
 - 今週：マイグレーションで、データベースの形を作る
 - 来週：モデルに `has_many` と `belongs_to` を書いて、Railsのコードとしてつなぐ
@@ -194,6 +204,33 @@ flowchart LR
 - `article_id` が `comments` にある
 
 という事実が、来週の association の根拠になります。
+
+この2つの外部キーをER図で見ると、次の形です。
+
+```mermaid
+erDiagram
+    CATEGORIES ||--o{ ARTICLES : "has many"
+    ARTICLES ||--o{ COMMENTS : "has many"
+
+    CATEGORIES {
+      int id PK
+      string name
+    }
+
+    ARTICLES {
+      int id PK
+      int category_id FK
+      string title
+      text body
+    }
+
+    COMMENTS {
+      int id PK
+      int article_id FK
+      string author_name
+      text body
+    }
+```
 
 ---
 
