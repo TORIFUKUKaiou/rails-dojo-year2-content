@@ -57,6 +57,8 @@ rails generate scaffold Article title:string body:text
 - `id` `title` `body` がカラム
 - 1行ごとが1件のレコード
 
+Railsでは、テーブル名はふつう複数形でつけます。1件の記事は `Article` ですが、記事をまとめて保存するテーブルは `articles` です。
+
 ---
 
 ## 主キー `id`

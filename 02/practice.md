@@ -416,7 +416,7 @@ erDiagram
 1. なぜ `category_id` は `articles` テーブルにあるのか
 2. なぜ `article_id` は `comments` テーブルにあるのか
 
-隣の人に説明してもよいし、`db_design.md` に文章で書いても構いません。
+`db_design.md` に文章で書いてください。
 
 説明するときのキーワード：
 
