@@ -58,7 +58,7 @@ Markdownを編集中に `Ctrl + Shift + V` を押すと、プレビューを表�
 ![](../images/preview-markdown.png)
 
 Mermaid の図が表示されるまで30秒程度時間がかかる場合があります。
-Mermaid の図が表示されないときは、準備で入れた `Mermaid Preview` がインストールされているか確認してください。
+Mermaid の図が表示されないときは、準備で入れた [Mermaid Preview](https://marketplace.visualstudio.com/items?itemName=vstirbu.vscode-mermaid-preview) がインストールされているか確認してください。
 
 ---
 
