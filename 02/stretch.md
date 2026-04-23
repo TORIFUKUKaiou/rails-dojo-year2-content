@@ -990,6 +990,7 @@ rails generate migration AddCategoryIdToArticles category_id:integer
 
 ```mermaid
 erDiagram
+    direction LR
     CATEGORIES ||--o{ ARTICLES : classifies
 
     CATEGORIES {
