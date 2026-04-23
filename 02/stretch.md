@@ -1251,9 +1251,9 @@ ER図で書いた設計が、そのままデータベースのテーブルにな
 
 ---
 
-## 42〜51：プチ Amazon Clone を作る
+## 42〜51：プチECサイト バックエンドを作る
 
-問題28〜30で読んだ EC サイトの ER図を、Rails で実際に作ります。新しいアプリを作るところから始めます。
+問題28〜30で読んだ EC サイトの ER図を、Rails のモデルとテーブルで実際に作ります。画面は作らず、`rails console` でバックエンド側のデータのつながりを確認します。
 
 ### 問題42：mini_shop を作る
 
@@ -1344,7 +1344,42 @@ rails db:migrate
 
 ### 問題47：ER図とマイグレーションを見比べる
 
-`db/migrate/` にある4つのマイグレーションファイルを開いて、問題28の ER図と見比べてください。
+`db/migrate/` にある4つのマイグレーションファイルと `db/schema.rb` を開いて、問題28の ER図と見比べてください。
+
+マイグレーションファイルでは、どのテーブルを作っているかを確認します。`db/schema.rb` では、実際に作られたカラム名を確認します。
+
+```mermaid
+erDiagram
+    direction LR
+    USERS ||--o{ ORDERS : places
+    ORDERS ||--o{ ORDER_ITEMS : contains
+    PRODUCTS ||--o{ ORDER_ITEMS : included_in
+
+    USERS {
+        bigint id PK
+        string name
+        string email
+    }
+
+    ORDERS {
+        bigint id PK
+        bigint user_id FK
+        datetime ordered_at
+    }
+
+    PRODUCTS {
+        bigint id PK
+        string name
+        integer price
+    }
+
+    ORDER_ITEMS {
+        bigint id PK
+        bigint order_id FK
+        bigint product_id FK
+        integer quantity
+    }
+```
 
 - `users` に `name` と `email` があるか
 - `products` に `name` と `price` があるか
@@ -1453,5 +1488,21 @@ puts "合計：#{total}円"
 - 合計 = 9500円
 
 ER図で設計したテーブルの関係を使って、注文 → 注文明細 → 商品とたどり、合計金額を計算できました。これがデータベース設計の力です。
+
+### 別の書き方
+
+Rubyには、集計に使える `sum` というメソッドもあります。
+
+```ruby
+order = Order.first
+
+total = OrderItem.where(order: order).sum do |item|
+  item.product.price * item.quantity
+end
+
+puts "合計：#{total}円"
+```
+
+ただし、最初は `each` で1件ずつたどる方が、テーブル同士の関係を理解しやすいです。
 
 </details>
