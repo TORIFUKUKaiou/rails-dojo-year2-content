@@ -982,15 +982,38 @@ Category.column_names
 
 ```bash
 rails generate migration AddCategoryIdToArticles category_id:integer
-rails db:migrate
 ```
 
-<details>
-<summary>確認ポイント</summary>
+`db/migrate/` に新しいファイルができているはずです。`xxxx_add_category_id_to_articles.rb` を開いて、中身を確認してください。
 
-`rails console` で `Article.column_names` を実行し、`"category_id"` が含まれていれば成功。
+このマイグレーションで `articles` テーブルに `category_id` が追加されます。ER図で表すと、`categories` と `articles` は次のようにつながります。
 
-</details>
+```mermaid
+erDiagram
+    CATEGORIES ||--o{ ARTICLES : classifies
+
+    CATEGORIES {
+        bigint id PK
+        string name
+        datetime created_at
+        datetime updated_at
+    }
+
+    ARTICLES {
+        bigint id PK
+        bigint category_id FK
+        string title
+        text body
+        datetime created_at
+        datetime updated_at
+    }
+```
+
+確認できたら、マイグレーションを実行します。
+
+```bash
+rails db:migrate
+```
 
 ---
 
