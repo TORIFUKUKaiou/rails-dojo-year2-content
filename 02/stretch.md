@@ -1065,17 +1065,48 @@ add_column :articles, :category_id, :bigint
 
 ```bash
 rails generate model Comment article:references author_name:string body:text
-rails db:migrate
 ```
 
-マイグレーションファイルを開いて、`t.references :article` がどう書かれているか確認してください。
+`db/migrate/` に新しいファイルができているはずです。`xxxx_create_comments.rb` を開いて、中身を確認してください。
+
+このマイグレーションで `comments` テーブルが作られ、`article_id` が追加されます。ER図で表すと、`articles` と `comments` は次のようにつながります。
+
+```mermaid
+erDiagram
+    direction LR
+    ARTICLES ||--o{ COMMENTS : has
+
+    ARTICLES {
+        bigint id PK
+        bigint category_id FK
+        string title
+        text body
+        datetime created_at
+        datetime updated_at
+    }
+
+    COMMENTS {
+        bigint id PK
+        bigint article_id FK
+        string author_name
+        text body
+        datetime created_at
+        datetime updated_at
+    }
+```
+
+確認できたら、マイグレーションを実行します。
+
+```bash
+rails db:migrate
+```
 
 <details>
 <summary>確認ポイント</summary>
 
 マイグレーションファイルに `t.references :article, null: false, foreign_key: true` があれば成功。
 
-`rails console` で `Comment.column_names` を実行し、`"article_id"` が含まれていれば成功。
+`db/schema.rb` も確認してください。`comments` テーブルに `article_id` と `index_comments_on_article_id` があり、最後の方に `add_foreign_key "comments", "articles"` があれば、マイグレーションの内容がデータベースの構造に反映されています。
 
 </details>
 
