@@ -31,10 +31,6 @@ ER図を見てテーブルのつながりを読めるようになり、自分で
 
 Markdown で整理するのが難しい人は、紙やノートに図を書きながら進めても構いません。大事なのは、手を動かして整理することです。
 
-参考資料:
-
-- [若手プログラマー必読！５分で理解できるER図の書き方５ステップ](https://www.ntt.com/business/services/rink/knowledge/archive_58.html)
-
 ---
 
 ## Markdown について
