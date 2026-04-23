@@ -1202,7 +1202,7 @@ Article.column_names
 Comment.column_names
 ```
 
-practice の課題4で書いた ER図と見比べてください。ER図で設計したカラムが、実際のテーブルに反映されていますか？
+問題9で書いた ER図と見比べてください。ER図で設計したカラムが、実際のテーブルに反映されていますか？
 
 <details>
 <summary>確認ポイント</summary>
@@ -1210,6 +1210,40 @@ practice の課題4で書いた ER図と見比べてください。ER図で設�
 - `categories` に `name` がある
 - `articles` に `category_id` がある
 - `comments` に `article_id` がある
+
+ここまでの3テーブルは、ER図で表すと次の形です。
+
+```mermaid
+erDiagram
+    direction LR
+    CATEGORIES ||--o{ ARTICLES : classifies
+    ARTICLES ||--o{ COMMENTS : has
+
+    CATEGORIES {
+        bigint id PK
+        string name
+        datetime created_at
+        datetime updated_at
+    }
+
+    ARTICLES {
+        bigint id PK
+        bigint category_id FK
+        string title
+        text body
+        datetime created_at
+        datetime updated_at
+    }
+
+    COMMENTS {
+        bigint id PK
+        bigint article_id FK
+        string author_name
+        text body
+        datetime created_at
+        datetime updated_at
+    }
+```
 
 ER図で書いた設計が、そのままデータベースのテーブルになっています。「先に設計、次にコード」の流れを体験できました。
 
