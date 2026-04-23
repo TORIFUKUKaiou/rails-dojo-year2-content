@@ -893,7 +893,7 @@ rails generate scaffold Article title:string body:text
 
 `db/migrate/` に新しいファイルができているはずです。`xxxx_create_articles.rb` を開いて、中身を確認してください。
 
-このマイグレーションで作られるテーブルは、ER図で表すと次の形です。
+このマイグレーションで作られるテーブルは、ER図で表すと次の形です。マイグレーションファイルの中身とこのER図が対応していることが見えれば、設計と実装がつながってきます。
 
 ```mermaid
 erDiagram
