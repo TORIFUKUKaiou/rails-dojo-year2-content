@@ -1507,7 +1507,8 @@ Product.create(name: "SQLの本", price: 2800)
 田中さんが注文したデータを作ります。
 
 ```ruby
-order = Order.create(user: User.find_by(name: "田中"), ordered_at: Time.now)
+user = User.find_by(name: "田中")
+order = Order.create(user: user, ordered_at: Time.now)
 ```
 
 <details>
