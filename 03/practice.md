@@ -98,7 +98,7 @@ rails db:migrate
 
 ---
 
-## 1. 既存のマイグレーションを読む（15分）
+## 1. 既存のマイグレーションを読む
 
 まずは、scaffoldが作った `articles` 用のマイグレーションを開いてください。
 
@@ -141,7 +141,7 @@ end
 
 ---
 
-## 2. `categories` テーブルを手で作る（30分）
+## 2. `categories` テーブルを手で作る
 
 前回のER図では、カテゴリを管理する `categories` テーブルが必要でした。
 
@@ -192,7 +192,7 @@ end
 
 ---
 
-## 3. `articles` に `category_id` を追加する（25分）
+## 3. `articles` に `category_id` を追加する
 
 次は、記事がどのカテゴリに属するかを表す `category_id` を追加します。
 
@@ -238,7 +238,7 @@ t.integer "category_id"
 
 ---
 
-## 4. `comments` テーブルを手で作る（35分）
+## 4. `comments` テーブルを手で作る
 
 次は、コメントを保存する `comments` テーブルを作ります。
 
@@ -298,7 +298,7 @@ end
 
 ---
 
-## 5. `schema.rb` と `rails console` で確認する（20分）
+## 5. `schema.rb` と `rails console` で確認する
 
 最後に、いまのデータベースの形を確認します。
 
