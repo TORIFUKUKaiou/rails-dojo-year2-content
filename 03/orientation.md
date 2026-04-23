@@ -209,6 +209,7 @@ flowchart LR
 
 ```mermaid
 erDiagram
+    direction LR
     CATEGORIES ||--o{ ARTICLES : "has many"
     ARTICLES ||--o{ COMMENTS : "has many"
 
