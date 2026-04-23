@@ -24,11 +24,10 @@ ER図を見ながら、自分の手でマイグレーションを書いてデー
 
 ## 今日の目標（達成ライン）
 
-- `必須（全員）`：1〜4 を終える（既存 migration を読む、categories を作る、articles と categories の関連を追加する、comments を作る）
-- `推奨（余裕がある人）`：5 まで進む（schema.rb と `rails console` で確認する）
+- `必須（全員）`：1〜5 を終える（既存 migration を読む、categories を作る、articles と categories の関連を追加する、comments を作る、schema.rb と `rails console` で確認する）
 - `発展（早く終わった人）`：[Stretch](stretch.md) に進む
 
-orientation とこの練習は、全員が終える前提です。まずは `必須` を確実に終えましょう。
+orientation とこの練習は、全員が終える前提です。まずは `1〜5` の完了を確実に目指しましょう。
 
 ---
 
