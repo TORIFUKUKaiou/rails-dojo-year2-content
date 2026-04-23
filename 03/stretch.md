@@ -16,8 +16,8 @@
 ## 今日の目標（目安）
 
 - `推奨`：課題1〜10
-- `発展`：課題11〜20
-- `さらに余裕がある人`：課題21〜30
+- `発展`：課題11〜25
+- `さらに余裕がある人`：課題26〜40
 
 ---
 
@@ -368,17 +368,6 @@ add_foreign_key "comments", "users"
 - `articles`
 - `comments`
 
-Mermaid を使う場合は、`direction LR` を入れてください。
-
-```mermaid
-erDiagram
-    direction LR
-    USERS ||--o{ ARTICLES : "has many"
-    USERS ||--o{ COMMENTS : "has many"
-    CATEGORIES ||--o{ ARTICLES : "has many"
-    ARTICLES ||--o{ COMMENTS : "has many"
-```
-
 <details>
 <summary>解答例</summary>
 
@@ -499,7 +488,274 @@ erDiagram
 
 ---
 
-## 課題21：間違い探し その1（`add_column` から `add_reference` へ）
+## 課題21：ミニECの要件を整理する
+
+ここからは `review_app3` の中で、ミニECサイト用のテーブルを追加します。  
+まず、次の要件を1行ずつ書いてください。
+
+- `products`：商品
+- `orders`：注文
+- `order_items`：注文明細
+
+<details>
+<summary>解答例</summary>
+
+- `products` は商品名・価格・在庫を持つ  
+- `orders` は注文者・注文日時・状態を持つ  
+- `order_items` は1注文の中の商品と数量を持つ
+
+</details>
+
+---
+
+## 課題22：ミニECの ER 図を考える
+
+`users` `products` `orders` `order_items` の関係を、文章または図で整理してください。
+
+<details>
+<summary>解答例</summary>
+
+- `users` 1人に対して `orders` は複数  
+- `orders` 1件に対して `order_items` は複数  
+- `products` 1件に対して `order_items` は複数
+
+</details>
+
+---
+
+## 課題23：`products` テーブルを手書きする
+
+次を実行してください。
+
+```bash
+rails generate migration CreateProducts
+```
+
+生成されたファイルを次のように編集します。
+
+```ruby
+class CreateProducts < ActiveRecord::Migration[8.1]
+  def change
+    create_table :products do |t|
+      t.string :name, null: false
+      t.integer :price, null: false
+      t.integer :stock, null: false, default: 0
+      t.timestamps
+    end
+  end
+end
+```
+
+その後、実行します。
+
+```bash
+rails db:migrate
+```
+
+<details>
+<summary>解答例</summary>
+
+`schema.rb` に `products` テーブルが作成され、`name` `price` `stock` が確認できます。
+
+</details>
+
+---
+
+## 課題24：`orders` テーブルを手書きする
+
+次を実行してください。
+
+```bash
+rails generate migration CreateOrders
+```
+
+生成されたファイルを次のように編集します。
+
+```ruby
+class CreateOrders < ActiveRecord::Migration[8.1]
+  def change
+    create_table :orders do |t|
+      t.references :user, null: false, foreign_key: true
+      t.datetime :ordered_at, null: false
+      t.string :status, null: false, default: "pending"
+      t.timestamps
+    end
+  end
+end
+```
+
+その後、実行します。
+
+```bash
+rails db:migrate
+```
+
+<details>
+<summary>解答例</summary>
+
+`orders.user_id` と `index_orders_on_user_id`、`add_foreign_key "orders", "users"` が追加されます。
+
+</details>
+
+---
+
+## 課題25：`order_items` テーブルを手書きする
+
+次を実行してください。
+
+```bash
+rails generate migration CreateOrderItems
+```
+
+生成されたファイルを次のように編集します。
+
+```ruby
+class CreateOrderItems < ActiveRecord::Migration[8.1]
+  def change
+    create_table :order_items do |t|
+      t.references :order, null: false, foreign_key: true
+      t.references :product, null: false, foreign_key: true
+      t.integer :quantity, null: false
+      t.integer :unit_price, null: false
+      t.timestamps
+    end
+  end
+end
+```
+
+その後、実行します。
+
+```bash
+rails db:migrate
+```
+
+<details>
+<summary>解答例</summary>
+
+`order_items` に `order_id` と `product_id` が追加され、両方に index と外部キーが付きます。
+
+</details>
+
+---
+
+## 課題26：EC追加分を `schema.rb` で読む
+
+`schema.rb` を見て、次を確認してください。
+
+- `products` `orders` `order_items` の3テーブルがある
+- `orders.user_id` がある
+- `order_items.order_id` と `order_items.product_id` がある
+
+<details>
+<summary>解答例</summary>
+
+3テーブルが存在し、`*_id` には index と `add_foreign_key` が付いていればOKです。
+
+</details>
+
+---
+
+## 課題27：`rails console` でサンプルデータを入れる
+
+まず、モデルファイルがない場合は作成します。
+
+```bash
+rails generate model User --skip-migration
+rails generate model Product --skip-migration
+rails generate model Order --skip-migration
+rails generate model OrderItem --skip-migration
+```
+
+次に `rails console` を開いて、以下を実行してください。
+
+```ruby
+user = User.first || User.create!(name: "Taro")
+product = Product.first || Product.create!(name: "Book", price: 1500, stock: 10)
+order = Order.create!(user_id: user.id, ordered_at: Time.current, status: "pending")
+OrderItem.create!(order_id: order.id, product_id: product.id, quantity: 2, unit_price: product.price)
+```
+
+<details>
+<summary>解答例</summary>
+
+エラーなく作成できればOKです。  
+`OrderItem.count` が増え、`order_items` に1件追加されます。
+
+</details>
+
+---
+
+## 課題28：注文合計を計算する
+
+`rails console` で、注文1件の合計金額を計算してください。
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+order = Order.last
+total = 0
+OrderItem.where(order_id: order.id).each do |item|
+  total = total + item.unit_price * item.quantity
+end
+total
+```
+
+</details>
+
+---
+
+## 課題29：EC部分の association を先取りする
+
+`User` `Product` `Order` `OrderItem` に、来週書くとしたら何を書くか整理してください。
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+# user.rb
+has_many :orders
+```
+
+```ruby
+# product.rb
+has_many :order_items
+```
+
+```ruby
+# order.rb
+belongs_to :user
+has_many :order_items
+```
+
+```ruby
+# order_item.rb
+belongs_to :order
+belongs_to :product
+```
+
+</details>
+
+---
+
+## 課題30：EC部分の学びを2行で書く
+
+`db_design.md` に次の2行を書いてください。
+
+1. `references` で何が自動作成されたか
+2. `schema.rb` のどこを見れば関連が読めるか
+
+<details>
+<summary>解答例</summary>
+
+1. `*_id` カラム、index、外部キー制約が自動作成される。  
+2. `create_table` の `*_id` と `t.index`、末尾の `add_foreign_key` を見る。
+
+</details>
+
+---
+
+## 課題31：間違い探し その1（`add_column` から `add_reference` へ）
 
 次は関連を追加する migration としては改善の余地があります。
 
@@ -530,7 +786,7 @@ end
 
 ---
 
-## 課題22：間違い探し その2（`t.integer :article_id`）
+## 課題32：間違い探し その2（`t.integer :article_id`）
 
 次は `comments` 作成 migration の一部です。
 
@@ -563,7 +819,7 @@ end
 
 ---
 
-## 課題23：間違い探し その3（`null` 制約）
+## 課題33：間違い探し その3（`null` 制約）
 
 次の migration を見て、改善点を書いてください。
 
@@ -592,7 +848,7 @@ end
 
 ---
 
-## 課題24：間違い探し その4（`foreign_key` 制約）
+## 課題34：間違い探し その4（`foreign_key` 制約）
 
 次の migration を見て、改善点を書いてください。
 
@@ -621,7 +877,7 @@ end
 
 ---
 
-## 課題25：migration ファイル名の順序クイズ
+## 課題35：migration ファイル名の順序クイズ
 
 次のファイル名を、実行される順に並べ替えてください。
 
@@ -646,7 +902,7 @@ end
 
 ---
 
-## 課題26：`remove_column` を読むだけ
+## 課題36：`remove_column` を読むだけ
 
 次のコードを読んで、何が起こるか説明してください。実行は不要です。
 
@@ -668,7 +924,7 @@ end
 
 ---
 
-## 課題27：`rename_column` を読むだけ
+## 課題37：`rename_column` を読むだけ
 
 次のコードを読んで、何が起こるか説明してください。実行は不要です。
 
@@ -690,7 +946,7 @@ end
 
 ---
 
-## 課題28：`change` で戻せる/戻せないを考える
+## 課題38：`change` で戻せる/戻せないを考える
 
 次の2つは、どちらが `db:rollback` しやすいか考えてください。
 
@@ -708,7 +964,7 @@ Rails が `change` の内容を解釈しやすく、逆操作を推定できま�
 
 ---
 
-## 課題29：第4週の association を先取りする
+## 課題39：第4週の association を先取りする
 
 今の外部キーをもとに、次のモデルに書く association を整理してください。
 
@@ -729,6 +985,7 @@ Rails が `change` の内容を解釈しやすく、逆操作を推定できま�
 class User < ApplicationRecord
   has_many :articles
   has_many :comments
+  has_many :orders
 end
 ```
 
@@ -760,7 +1017,7 @@ end
 
 ---
 
-## 課題30：第4週への接続メモを書く
+## 課題40：第4週への接続メモを書く
 
 `db_design.md` に、次の2点を短く書いてください。
 
@@ -773,7 +1030,7 @@ end
 例:
 
 1. migration の1行は schema.rb の1行に対応し、`references` は `*_id` と index / foreign key を生む。  
-2. 来週は `category_id` `article_id` `user_id` を根拠に、`belongs_to` と `has_many` をモデルに書く。
+2. 来週は `category_id` `article_id` `user_id` `order_id` を根拠に、`belongs_to` と `has_many` をモデルに書く。
 
 </details>
 
