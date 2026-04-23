@@ -981,10 +981,10 @@ Category.column_names
 次のコマンドを実行して、`articles` テーブルに `category_id` を追加してください。
 
 ```bash
-rails generate migration AddCategoryIdToArticles category_id:integer
+rails generate migration AddCategoryToArticles category:references
 ```
 
-`db/migrate/` に新しいファイルができているはずです。`xxxx_add_category_id_to_articles.rb` を開いて、中身を確認してください。
+`db/migrate/` に新しいファイルができているはずです。`xxxx_add_category_to_articles.rb` を開いて、中身を確認してください。
 
 このマイグレーションで `articles` テーブルに `category_id` が追加されます。ER図で表すと、`categories` と `articles` は次のようにつながります。
 
@@ -1018,34 +1018,42 @@ rails db:migrate
 
 ---
 
-### 問題35：references を使って書き直す
+### 問題35：references と add_column の違いを読む
 
-問題34では `category_id:integer` と書きました。Rails には `references` という書き方もあります。
+問題34では `category:references` を使いました。
 
-この問題では、次のコマンドは**実行しません**。
+生成されたマイグレーションファイルには、次のような内容が書かれています。
 
-問題34で、すでに `category_id` を追加しています。ここで同じ役割のカラムを別の書き方で追加しようとすると、ややこしくなります。
-
-ここでは、`references` を使うとどんなマイグレーションになるかを**読むこと**に集中してください。
-
-```bash
-rails generate migration AddCategoryRefToArticles category:references
+```ruby
+add_reference :articles, :category, null: false, foreign_key: true
 ```
+
+もし手で `category_id` だけを追加すると、次のような書き方になります。
+
+```ruby
+add_column :articles, :category_id, :bigint
+```
+
+この2つの違いを確認しましょう。
 
 `references` を使うと、外部キーのカラム追加と同時に、データベースレベルの外部キー制約とインデックスも作られます。
 
-マイグレーションファイルの中身を見て、`integer` のときとの違いを確認しましょう。
+外部キー制約は、`articles.category_id` に入る値が `categories.id` に存在することを、データベース側で守る仕組みです。
+
+インデックスは、検索や結合を速くするための索引です。`add_reference` は、特に指定しなければインデックスも作ります。
+
+`rails db:migrate` のあと、`db/schema.rb` も確認してください。`articles` テーブルに `category_id` と `index_articles_on_category_id` があり、最後の方に `add_foreign_key "articles", "categories"` があれば、マイグレーションの内容がデータベースの構造に反映されています。
 
 <details>
 <summary>解答例</summary>
 
-`references` を使ったマイグレーションには、次のような内容が含まれます。
+- `add_column` は、カラムを追加するだけ
+- `add_reference` は、`category_id` を追加する
+- `add_reference` は、インデックスや外部キー制約も一緒に扱える
+- Rails では、関連を表すとき `references` を使う方が自然
+- `db/schema.rb` では、実際に作られたテーブル構造を確認できる
 
-```ruby
-add_reference :articles, :category, foreign_key: true
-```
-
-`integer` のときは単にカラムを追加するだけですが、`references` はインデックスと外部キー制約も一緒に作ります。
+`category_id` というカラム名は同じでも、Rails にとっては `references` の方が「これは categories テーブルとの関係です」と伝わりやすい書き方です。
 
 </details>
 
@@ -1117,7 +1125,7 @@ Category.create(name: "Rails")
 
 ```ruby
 category = Category.first || Category.create(name: "Rails")
-article = Article.first || Article.create(title: "はじめての記事", body: "本文です")
+article = Article.first || Article.create(title: "はじめての記事", body: "本文です", category: category)
 article.update(category_id: category.id)
 ```
 
