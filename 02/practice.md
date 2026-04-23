@@ -10,6 +10,8 @@ ER図を見てテーブルのつながりを読めるようになり、自分で
 
 この練習は、GitHub Codespaces 上で行います。使うのは year2 用の公開リポジトリです。
 
+この練習では、前回の続きを使わず、 **新しく Codespace を作って** 始めてください。この Codespaces には、Mermaid を表示するための `Mermaid Preview` 拡張が最初から入っています。
+
 1. GitHubにログインする
 2. [このリポジトリ](https://github.com/TORIFUKUKaiou/rails-dojo-year2-content/)を開く（リンクを右クリックして、「リンクを新しいタブで開く」）
 3. リポジトリの `Code` ボタン → `Codespaces` タブを開く
@@ -26,8 +28,6 @@ ER図を見てテーブルのつながりを読めるようになり、自分で
 
 5. ターミナルに `準備完了` と表示されたら、Codespaces の起動完了
 6. `db_design.md` というメモ用ファイルを作る
-
-この練習では、前回の続きを使わず、新しく Codespace を作って始めてください。この Codespaces には、Mermaid を表示するための `Mermaid Preview` 拡張が最初から入っています。
 
 Markdown で整理するのが難しい人は、紙やノートに図を書きながら進めても構いません。大事なのは、手を動かして整理することです。
 
