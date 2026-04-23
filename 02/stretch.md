@@ -1286,6 +1286,18 @@ rails db:migrate
 
 `rails console` で `User.column_names` を実行し、`"name"` と `"email"` が含まれていれば成功。
 
+ここまでのER図：
+
+```mermaid
+erDiagram
+    direction LR
+    USERS {
+        bigint id PK
+        string name
+        string email
+    }
+```
+
 </details>
 
 ---
@@ -1301,6 +1313,24 @@ rails db:migrate
 <summary>確認ポイント</summary>
 
 `rails console` で `Product.column_names` を実行し、`"name"` と `"price"` が含まれていれば成功。
+
+ここまでのER図：
+
+```mermaid
+erDiagram
+    direction LR
+    USERS {
+        bigint id PK
+        string name
+        string email
+    }
+
+    PRODUCTS {
+        bigint id PK
+        string name
+        integer price
+    }
+```
 
 </details>
 
@@ -1320,6 +1350,32 @@ rails db:migrate
 
 - マイグレーションに `t.references :user, null: false, foreign_key: true` がある
 - `app/models/order.rb` に `belongs_to :user` が自動で書かれている
+
+ここまでのER図：
+
+```mermaid
+erDiagram
+    direction LR
+    USERS ||--o{ ORDERS : places
+
+    USERS {
+        bigint id PK
+        string name
+        string email
+    }
+
+    PRODUCTS {
+        bigint id PK
+        string name
+        integer price
+    }
+
+    ORDERS {
+        bigint id PK
+        bigint user_id FK
+        datetime ordered_at
+    }
+```
 
 </details>
 
