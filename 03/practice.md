@@ -8,18 +8,58 @@ ER図を見ながら、自分の手でマイグレーションを書いてデー
 
 ## 準備
 
-1. Codespacesを起動する
-2. `review_app` ディレクトリに移動する
-3. `db/migrate/` と `db/schema.rb` を開ける状態にする
+この練習は、GitHub Codespaces 上で行います。
 
-もし `review_app` がない場合は、第1週の内容を参考に <ruby>scaffold<rt>スキャフォールド</rt></ruby> で作り直してください。
+前回の続きは使わず、 **新しく Codespace を作って** 始めてください。  
+生徒ごとに前回の状態が違うため、第3週用に `review_app3` という Rails アプリを新しく作ります。
+
+1. GitHubにログインする
+2. [このリポジトリ](https://github.com/TORIFUKUKaiou/rails-dojo-year2-content/)を開く（リンクを右クリックして、「リンクを新しいタブで開く」）
+3. リポジトリの `Code` ボタン → `Codespaces` タブを開く
+4. `Create a codespace on main(+)` をクリックする
+
+    ![](../images/create-a-codespace-on-main.png)
+
+    画面の表示が少し違う場合は、`Create codespace on main` と書かれたボタンをクリックしてください。
+
+5. ターミナルに `準備完了` と表示されたら、Codespaces の起動完了
+
+💡 コマンドは一行ずつ実行しましょう。ひとつひとつ実行結果を確かめながら進むのが上達への近道です。
+
+次に、Rails をインストールします。
 
 ```bash
-rails new review_app
-cd review_app
+gem install rails --no-document
+rails -v
+```
+
+`rails 8.x.x` のように表示されたら、Rails が使える状態です。
+
+続いて、第3週用の Rails アプリを作ります。
+
+```bash
+cd ~/
+rails new review_app3
+cd review_app3
+```
+
+`rails new review_app3` は、必要なファイルとライブラリを作るため時間がかかります。終わるまで待ってください。
+
+次に、<ruby>scaffold<rt>スキャフォールド</rt></ruby> で `articles` を作ります。
+
+```bash
 rails generate scaffold Article title:string body:text
+```
+
+`db/migrate/` に `xxxx_create_articles.rb` のようなファイルができているはずです。まず開いて、中身を確認してください。
+
+確認したら、マイグレーションを実行します。
+
+```bash
 rails db:migrate
 ```
+
+ここまでできたら、`review_app3` の中にある `db/migrate/` と `db/schema.rb` を開ける状態にしてください。
 
 ※ ここには後で、`db/migrate/` と `db/schema.rb` を開く位置がわかるスクリーンショットを追加します。
 
@@ -50,7 +90,7 @@ db/migrate/xxxxxx_create_articles.rb
 中身はだいたいこうなっています。
 
 ```ruby
-class CreateArticles < ActiveRecord::Migration[8.0]
+class CreateArticles < ActiveRecord::Migration[8.1]
   def change
     create_table :articles do |t|
       t.string :title
@@ -93,7 +133,7 @@ rails generate migration CreateCategories
 できたファイルを開いて、次のように書いてください。
 
 ```ruby
-class CreateCategories < ActiveRecord::Migration[8.0]
+class CreateCategories < ActiveRecord::Migration[8.1]
   def change
     create_table :categories do |t|
       t.string :name
@@ -144,7 +184,7 @@ rails generate migration AddCategoryIdToArticles
 できたファイルに、次のように書いてください。
 
 ```ruby
-class AddCategoryIdToArticles < ActiveRecord::Migration[8.0]
+class AddCategoryIdToArticles < ActiveRecord::Migration[8.1]
   def change
     add_column :articles, :category_id, :integer
   end
@@ -190,7 +230,7 @@ rails generate migration CreateComments
 できたファイルに、次のように書いてください。
 
 ```ruby
-class CreateComments < ActiveRecord::Migration[8.0]
+class CreateComments < ActiveRecord::Migration[8.1]
   def change
     create_table :comments do |t|
       t.integer :article_id
