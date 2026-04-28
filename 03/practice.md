@@ -59,11 +59,11 @@ orientation とこの練習は、全員が終える前提です。まずは `1�
 次に、Rails をインストールします。
 
 ```bash
-gem install rails --no-document
+gem install rails -v "~> 8.1.0" --no-document
 rails -v
 ```
 
-`rails 8.x.x` のように表示されたら、Rails が使える状態です。
+`rails 8.1.x` のように表示されたら、Rails が使える状態です。
 
 続いて、第3週用の Rails アプリを作ります。
 
@@ -91,9 +91,7 @@ rails db:migrate
 
 ここまでできたら、`review_app3` の中にある `db/migrate/` と `db/schema.rb` を開ける状態にしてください。
 
-※ ここには後で、`db/migrate/` と `db/schema.rb` を開く位置がわかるスクリーンショットを追加します。
-
-<!-- TODO: VS Code / Codespaces で db/migrate と db/schema.rb を並べて開く手順のスクリーンショットを追加する -->
+画面左のファイル一覧で、`review_app3` → `db` → `migrate` を開くとマイグレーションファイルが見えます。`db/schema.rb` も同じ `db` の中にあります。
 
 ---
 
@@ -108,6 +106,8 @@ db/migrate/xxxxxx_create_articles.rb
 ```
 
 中身はだいたいこうなっています。
+
+`ActiveRecord::Migration[8.1]` の `8.1` は、Rails 8.1 系で作ったマイグレーションという意味です。この行は、生成されたまま使います。
 
 ```ruby
 class CreateArticles < ActiveRecord::Migration[8.1]
@@ -257,6 +257,8 @@ erDiagram
 
 `db/schema.rb` には、次のように反映されます。
 
+カラムの並び順は環境によって少し違うことがあります。順番が違っても、`category_id`、`index_articles_on_category_id`、`add_foreign_key "articles", "categories"` があればOKです。
+
 ```ruby
 create_table "articles", force: :cascade do |t|
   t.text "body"
@@ -338,6 +340,8 @@ rails db:migrate
 
 `db/schema.rb` に、次のような部分が追加されます。
 
+カラムの並び順は環境によって少し違うことがあります。順番が違っても、`article_id`、`index_comments_on_article_id`、`add_foreign_key "comments", "articles"` があればOKです。
+
 ```ruby
 create_table "comments", force: :cascade do |t|
   t.integer "article_id", null: false
@@ -369,11 +373,25 @@ add_foreign_key "comments", "articles"
 
 ### `rails console` で見る
 
+まず、ターミナルで Rails console を開きます。
+
+```bash
+rails console
+```
+
+`irb(main):001>` のような表示になったら、次の Ruby コードを入力します。
+
 ```ruby
 Article.column_names
 ```
 
 `Article` は scaffold でモデルが作られているので、そのまま確認できます。
+
+確認が終わったら、次のように入力すると Rails console を終了できます。
+
+```ruby
+exit
+```
 
 一方で、いまの時点では `Category` と `Comment` のモデルファイルはまだ作っていません。なので、`categories` と `comments` の確認は `schema.rb` を中心に行ってください。
 

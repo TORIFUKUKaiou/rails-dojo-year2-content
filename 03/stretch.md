@@ -1,4 +1,4 @@
-# 第3週：Stretch ── migration と schema.rb を読み切る30問
+# 第3週：Stretch ── migration と schema.rb を読み切る40問
 
 ## 今日のゴール
 
@@ -10,6 +10,12 @@
 
 この課題は、[練習](practice.md) を終えた人向けです。  
 全部終わらなくても構いません。進めるところまで進めてください。
+
+この課題は、練習で作った `review_app3` の中で続けます。ターミナルが別の場所にいる場合は、先に次を実行してください。
+
+```bash
+cd ~/review_app3
+```
 
 ---
 
@@ -363,6 +369,12 @@ add_foreign_key "comments", "users"
 
 次の4テーブルを含む ER 図を `db_design.md` に書いてください。
 
+`db_design.md` がまだない場合は、先に作ります。
+
+```bash
+touch db_design.md
+```
+
 - `users`
 - `categories`
 - `articles`
@@ -668,6 +680,12 @@ rails generate model OrderItem --skip-migration
 
 次に `rails console` を開いて、以下を実行してください。
 
+```bash
+rails console
+```
+
+`irb(main):001>` のような表示になったら、次の Ruby コードを入力します。
+
 ```ruby
 user = User.first || User.create!(name: "Taro")
 product = Product.first || Product.create!(name: "Book", price: 1500, stock: 10)
@@ -687,7 +705,13 @@ OrderItem.create!(order_id: order.id, product_id: product.id, quantity: 2, unit_
 
 ## 課題28：注文合計を計算する
 
-`rails console` で、注文1件の合計金額を計算してください。
+課題27で開いた `rails console` の中で、注文1件の合計金額を計算してください。
+
+Rails console を閉じている場合は、もう一度開きます。
+
+```bash
+rails console
+```
 
 <details>
 <summary>解答例</summary>
@@ -754,6 +778,12 @@ belongs_to :product
 </details>
 
 ---
+
+## 読むだけ問題に進む前に
+
+ここから先は、コードを読んで考える問題です。
+
+課題31〜38では、新しいマイグレーションファイルを作らず、`rails db:migrate` も実行しません。問題文のコードを見て、`db_design.md` やノートに答えを書いてください。
 
 ## 課題31：間違い探し その1（`add_column` から `add_reference` へ）
 
@@ -967,6 +997,8 @@ Rails が `change` の内容を解釈しやすく、逆操作を推定できま�
 ## 課題39：第4週の association を先取りする
 
 今の外部キーをもとに、次のモデルに書く association を整理してください。
+
+ここでは、まだモデルファイルを編集しません。来週書く内容を、`db_design.md` やノートに整理するだけでOKです。
 
 - `User`
 - `Category`
