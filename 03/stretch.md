@@ -17,6 +17,10 @@
 cd ~/review_app3
 ```
 
+Rails 8.1 では、`CreateUsers` や `CreateProducts` のような `Create...` マイグレーションを作ったとき、`create_table` と `t.timestamps` が最初から入っていることがあります。その場合は、足りない行を追加して、問題文のコードと同じ形にそろえましょう。
+
+`schema.rb` のカラムの並び順は、問題文の例と少し違うことがあります。順番が違っても、必要なカラム、index、foreign key があればOKです。
+
 ---
 
 ## 今日の目標（目安）
@@ -178,10 +182,15 @@ rails db:migrate
 <details>
 <summary>解答例</summary>
 
-`schema.rb` の `categories` テーブルに次が追加されます。
+`schema.rb` の `categories` テーブルに `description` が追加されます。
 
 ```ruby
-t.text "description"
+create_table "categories", force: :cascade do |t|
+  t.datetime "created_at", null: false
+  t.text "description"
+  t.string "name"
+  t.datetime "updated_at", null: false
+end
 ```
 
 </details>
@@ -222,8 +231,8 @@ rails db:migrate
 
 ```ruby
 create_table "users", force: :cascade do |t|
-  t.string "name", null: false
   t.datetime "created_at", null: false
+  t.string "name", null: false
   t.datetime "updated_at", null: false
 end
 ```
@@ -567,7 +576,17 @@ rails db:migrate
 <details>
 <summary>解答例</summary>
 
-`schema.rb` に `products` テーブルが作成され、`name` `price` `stock` が確認できます。
+`schema.rb` に、次のような `products` テーブルが作成されます。
+
+```ruby
+create_table "products", force: :cascade do |t|
+  t.datetime "created_at", null: false
+  t.string "name", null: false
+  t.integer "price", null: false
+  t.integer "stock", default: 0, null: false
+  t.datetime "updated_at", null: false
+end
+```
 
 </details>
 
@@ -605,7 +624,20 @@ rails db:migrate
 <details>
 <summary>解答例</summary>
 
-`orders.user_id` と `index_orders_on_user_id`、`add_foreign_key "orders", "users"` が追加されます。
+`schema.rb` に、次のような `orders` テーブルが作成されます。
+
+```ruby
+create_table "orders", force: :cascade do |t|
+  t.datetime "created_at", null: false
+  t.datetime "ordered_at", null: false
+  t.string "status", default: "pending", null: false
+  t.datetime "updated_at", null: false
+  t.integer "user_id", null: false
+  t.index ["user_id"], name: "index_orders_on_user_id"
+end
+
+add_foreign_key "orders", "users"
+```
 
 </details>
 
@@ -644,7 +676,23 @@ rails db:migrate
 <details>
 <summary>解答例</summary>
 
-`order_items` に `order_id` と `product_id` が追加され、両方に index と外部キーが付きます。
+`schema.rb` に、次のような `order_items` テーブルが作成されます。
+
+```ruby
+create_table "order_items", force: :cascade do |t|
+  t.datetime "created_at", null: false
+  t.integer "order_id", null: false
+  t.integer "product_id", null: false
+  t.integer "quantity", null: false
+  t.integer "unit_price", null: false
+  t.datetime "updated_at", null: false
+  t.index ["order_id"], name: "index_order_items_on_order_id"
+  t.index ["product_id"], name: "index_order_items_on_product_id"
+end
+
+add_foreign_key "order_items", "orders"
+add_foreign_key "order_items", "products"
+```
 
 </details>
 
@@ -785,7 +833,11 @@ belongs_to :product
 
 課題31〜38では、新しいマイグレーションファイルを作らず、`rails db:migrate` も実行しません。問題文のコードを見て、`db_design.md` やノートに答えを書いてください。
 
+---
+
 ## 課題31：間違い探し その1（`add_column` から `add_reference` へ）
+
+この課題は読むだけです。マイグレーションファイルは作らず、`rails db:migrate` も実行しません。
 
 次は関連を追加する migration としては改善の余地があります。
 
@@ -817,6 +869,8 @@ end
 ---
 
 ## 課題32：間違い探し その2（`t.integer :article_id`）
+
+この課題は読むだけです。マイグレーションファイルは作らず、`rails db:migrate` も実行しません。
 
 次は `comments` 作成 migration の一部です。
 
@@ -851,6 +905,8 @@ end
 
 ## 課題33：間違い探し その3（`null` 制約）
 
+この課題は読むだけです。マイグレーションファイルは作らず、`rails db:migrate` も実行しません。
+
 次の migration を見て、改善点を書いてください。
 
 ```ruby
@@ -879,6 +935,8 @@ end
 ---
 
 ## 課題34：間違い探し その4（`foreign_key` 制約）
+
+この課題は読むだけです。マイグレーションファイルは作らず、`rails db:migrate` も実行しません。
 
 次の migration を見て、改善点を書いてください。
 
@@ -909,6 +967,8 @@ end
 
 ## 課題35：migration ファイル名の順序クイズ
 
+この課題は読むだけです。マイグレーションファイルは作らず、`rails db:migrate` も実行しません。
+
 次のファイル名を、実行される順に並べ替えてください。
 
 ```text
@@ -934,6 +994,8 @@ end
 
 ## 課題36：`remove_column` を読むだけ
 
+この課題は読むだけです。マイグレーションファイルは作らず、`rails db:migrate` も実行しません。
+
 次のコードを読んで、何が起こるか説明してください。実行は不要です。
 
 ```ruby
@@ -956,6 +1018,8 @@ end
 
 ## 課題37：`rename_column` を読むだけ
 
+この課題は読むだけです。マイグレーションファイルは作らず、`rails db:migrate` も実行しません。
+
 次のコードを読んで、何が起こるか説明してください。実行は不要です。
 
 ```ruby
@@ -977,6 +1041,8 @@ end
 ---
 
 ## 課題38：`change` で戻せる/戻せないを考える
+
+この課題は読むだけです。マイグレーションファイルは作らず、`rails db:migrate` も実行しません。
 
 次の2つは、どちらが `db:rollback` しやすいか考えてください。
 
