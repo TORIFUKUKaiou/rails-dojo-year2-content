@@ -105,7 +105,7 @@ rails db:migrate
 db/migrate/xxxxxx_create_articles.rb
 ```
 
-中身はだいたいこうなっています。
+Rails 8.1 で scaffold が作った中身は、次の形です。開いたファイルと見比べてください。
 
 `ActiveRecord::Migration[8.1]` の `8.1` は、Rails 8.1 系で作ったマイグレーションという意味です。この行は、生成されたまま使います。
 
@@ -115,6 +115,7 @@ class CreateArticles < ActiveRecord::Migration[8.1]
     create_table :articles do |t|
       t.string :title
       t.text :body
+
       t.timestamps
     end
   end
@@ -161,6 +162,7 @@ class CreateCategories < ActiveRecord::Migration[8.1]
   def change
     create_table :categories do |t|
       t.string :name
+
       t.timestamps
     end
   end
@@ -185,8 +187,8 @@ rails db:migrate
 
 ```ruby
 create_table "categories", force: :cascade do |t|
-  t.string "name"
   t.datetime "created_at", null: false
+  t.string "name"
   t.datetime "updated_at", null: false
 end
 ```
