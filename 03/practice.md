@@ -146,13 +146,15 @@ end
 
 前回のER図では、カテゴリを管理する `categories` テーブルが必要でした。
 
-まず、空のマイグレーションファイルを作ります。
+まず、マイグレーションファイルを作ります。
 
 ```bash
 rails generate migration CreateCategories
 ```
 
-`db/migrate/` 内にできた空のファイルを開いて、次のように書いてください。
+`db/migrate/` 内にできたファイルを開いて、次のように書いてください。
+
+Rails 8.1 では、`create_table :categories` と `t.timestamps` が最初から入っていることがあります。その場合は、足りない `t.string :name` を追加して、次の形にそろえましょう。
 
 ```ruby
 class CreateCategories < ActiveRecord::Migration[8.1]
@@ -280,13 +282,15 @@ add_foreign_key "articles", "categories"
 
 次は、コメントを保存する `comments` テーブルを作ります。
 
-まず、空のマイグレーションファイルを作ります。
+まず、マイグレーションファイルを作ります。
 
 ```bash
 rails generate migration CreateComments
 ```
 
 できたファイルに、次のように書いてください。
+
+Rails 8.1 では、`create_table :comments` と `t.timestamps` が最初から入っていることがあります。その場合は、`t.timestamps` の上に `t.references`、`t.string`、`t.text` の行を追加して、次の形にそろえましょう。
 
 ```ruby
 class CreateComments < ActiveRecord::Migration[8.1]
@@ -379,7 +383,7 @@ add_foreign_key "comments", "articles"
 rails console
 ```
 
-`irb(main):001>` のような表示になったら、次の Ruby コードを入力します。
+`review-app3(dev):001>` や `irb(main):001>` のような表示になったら、次の Ruby コードを入力します。
 
 ```ruby
 Article.column_names

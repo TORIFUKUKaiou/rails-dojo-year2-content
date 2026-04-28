@@ -684,7 +684,7 @@ rails generate model OrderItem --skip-migration
 rails console
 ```
 
-`irb(main):001>` のような表示になったら、次の Ruby コードを入力します。
+`review-app3(dev):001>` や `irb(main):001>` のような表示になったら、次の Ruby コードを入力します。
 
 ```ruby
 user = User.first || User.create!(name: "Taro")
