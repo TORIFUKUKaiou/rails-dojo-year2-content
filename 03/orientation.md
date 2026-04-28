@@ -16,6 +16,34 @@ ER図をもとにマイグレーションファイルを書き、テーブルの
 - `articles` には `category_id` が入る
 - `comments` には `article_id` が入る
 
+図で表すと、次の形です。
+
+```mermaid
+erDiagram
+    direction LR
+    CATEGORIES ||--o{ ARTICLES : "has many"
+    ARTICLES ||--o{ COMMENTS : "has many"
+
+    CATEGORIES {
+      int id PK
+      string name
+    }
+
+    ARTICLES {
+      int id PK
+      int category_id FK
+      string title
+      text body
+    }
+
+    COMMENTS {
+      int id PK
+      int article_id FK
+      string author_name
+      text body
+    }
+```
+
 前回やったのは「何を保存するかを決める」作業でした。
 
 今週やるのは、その設計を実際のデータベースの形にする作業です。
