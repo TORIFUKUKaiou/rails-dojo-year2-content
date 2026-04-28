@@ -129,6 +129,8 @@ end
 2. `t.string :title` は何をしているか
 3. `t.timestamps` は何をしているか
 
+自分なりの解答がまとまったら、「解答例」と比べてみましょう。
+
 <details>
 <summary>解答例</summary>
 
@@ -150,7 +152,7 @@ end
 rails generate migration CreateCategories
 ```
 
-できたファイルを開いて、次のように書いてください。
+`db/migrate/` 内にできた空のファイルを開いて、次のように書いてください。
 
 ```ruby
 class CreateCategories < ActiveRecord::Migration[8.1]
