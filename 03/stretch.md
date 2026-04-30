@@ -515,10 +515,69 @@ erDiagram
 <details>
 <summary>解答例</summary>
 
-- `articles.category_id` → `CATEGORIES ||--o{ ARTICLES`
-- `comments.article_id` → `ARTICLES ||--o{ COMMENTS`
-- `articles.user_id` → `USERS ||--o{ ARTICLES`
-- `comments.user_id` → `USERS ||--o{ COMMENTS`
+### `articles.category_id` は `categories.id` につながる
+
+```mermaid
+erDiagram
+    CATEGORIES ||--o{ ARTICLES : "has many"
+
+    CATEGORIES {
+      int id PK
+    }
+
+    ARTICLES {
+      int id PK
+      int category_id FK
+    }
+```
+
+### `comments.article_id` は `articles.id` につながる
+
+```mermaid
+erDiagram
+    ARTICLES ||--o{ COMMENTS : "has many"
+
+    ARTICLES {
+      int id PK
+    }
+
+    COMMENTS {
+      int id PK
+      int article_id FK
+    }
+```
+
+### `articles.user_id` は `users.id` につながる
+
+```mermaid
+erDiagram
+    USERS ||--o{ ARTICLES : "has many"
+
+    USERS {
+      int id PK
+    }
+
+    ARTICLES {
+      int id PK
+      int user_id FK
+    }
+```
+
+### `comments.user_id` は `users.id` につながる
+
+```mermaid
+erDiagram
+    USERS ||--o{ COMMENTS : "has many"
+
+    USERS {
+      int id PK
+    }
+
+    COMMENTS {
+      int id PK
+      int user_id FK
+    }
+```
 
 </details>
 
