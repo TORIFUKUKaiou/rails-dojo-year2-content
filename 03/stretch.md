@@ -874,6 +874,48 @@ total
 
 `User` `Product` `Order` `OrderItem` に、来週書くとしたら何を書くか整理してください。
 
+```mermaid
+erDiagram
+    direction LR
+    USERS ||--o{ ORDERS : "has many"
+    ORDERS ||--o{ ORDER_ITEMS : "has many"
+    PRODUCTS ||--o{ ORDER_ITEMS : "has many"
+
+    USERS {
+      int id PK
+      string name
+    }
+
+    ORDERS {
+      int id PK
+      int user_id FK
+      datetime ordered_at
+      string status
+    }
+
+    PRODUCTS {
+      int id PK
+      string name
+      int price
+      int stock
+    }
+
+    ORDER_ITEMS {
+      int id PK
+      int order_id FK
+      int product_id FK
+      int quantity
+      int unit_price
+    }
+```
+
+### ヒント
+
+- `orders` に `user_id` があるなら、`Order` は `belongs_to :user`
+- 逆向きに見ると、`User` は複数の `Order` を持つので `has_many :orders`
+- `belongs_to` は、自分のテーブルに相手を指す `*_id` があるときに書きます
+- `has_many` は、相手側のテーブルに自分を指す `*_id` があるときに書きます
+
 <details>
 <summary>解答例</summary>
 
