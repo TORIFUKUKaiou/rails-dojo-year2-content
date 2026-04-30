@@ -519,6 +519,7 @@ erDiagram
 
 ```mermaid
 erDiagram
+    direction LR
     CATEGORIES ||--o{ ARTICLES : "has many"
 
     CATEGORIES {
@@ -535,6 +536,7 @@ erDiagram
 
 ```mermaid
 erDiagram
+    direction LR
     ARTICLES ||--o{ COMMENTS : "has many"
 
     ARTICLES {
@@ -551,6 +553,7 @@ erDiagram
 
 ```mermaid
 erDiagram
+    direction LR
     USERS ||--o{ ARTICLES : "has many"
 
     USERS {
@@ -567,6 +570,7 @@ erDiagram
 
 ```mermaid
 erDiagram
+    direction LR
     USERS ||--o{ COMMENTS : "has many"
 
     USERS {
