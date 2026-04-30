@@ -354,6 +354,8 @@ end
 rails db:migrate
 ```
 
+`db/schema.rb` にどういった変更が加えられましたか。
+
 <details>
 <summary>解答例</summary>
 
@@ -445,7 +447,7 @@ erDiagram
 <details>
 <summary>解答例</summary>
 
-- `foreign_key: true` あり：存在しない親IDを防げる  
+- `foreign_key: true` あり：外部テーブルに存在しないIDの登録を防げる
 - `foreign_key: true` なし：参照先がない孤立データを保存できてしまう
 
 </details>
@@ -586,6 +588,8 @@ end
 rails db:migrate
 ```
 
+`db/schema.rb` にどういった変更が加えられましたか。
+
 <details>
 <summary>解答例</summary>
 
@@ -633,6 +637,8 @@ end
 ```bash
 rails db:migrate
 ```
+
+`db/schema.rb` にどういった変更が加えられましたか。
 
 <details>
 <summary>解答例</summary>
@@ -685,6 +691,8 @@ end
 ```bash
 rails db:migrate
 ```
+
+`db/schema.rb` にどういった変更が加えられましたか。
 
 <details>
 <summary>解答例</summary>
