@@ -782,9 +782,9 @@ add_foreign_key "order_items", "products"
 
 ---
 
-## 課題26：EC追加分を `schema.rb` で読む
+## 課題26：EC追加分を `db/schema.rb` で読む
 
-`schema.rb` を見て、次を確認してください。
+`db/schema.rb` を見て、次を確認してください。
 
 - `products` `orders` `order_items` の3テーブルがある
 - `orders.user_id` がある
@@ -801,7 +801,7 @@ add_foreign_key "order_items", "products"
 
 ## 課題27：`rails console` でサンプルデータを入れる
 
-まず、モデルファイルがない場合は作成します。
+まず、モデルファイルを作成します。
 
 ```bash
 rails generate model User --skip-migration
@@ -810,26 +810,35 @@ rails generate model Order --skip-migration
 rails generate model OrderItem --skip-migration
 ```
 
-次に `rails console` を開いて、以下を実行してください。
+以下のファイルが作成されたことを確認してください。
+
+- `app/models/user.rb`
+- `app/models/product.rb`
+- `app/models/order.rb`
+- `app/models/order_item.rb`
+
+次に以下を実行してください。
 
 ```bash
 rails console
 ```
 
-`review-app3(dev):001>` や `irb(main):001>` のような表示になったら、次の Ruby コードを入力します。
+`review-app3(dev):001>` のような表示になったら、次の Ruby コードを入力します。
 
 ```ruby
+OrderItem.count
 user = User.first || User.create!(name: "Taro")
 product = Product.first || Product.create!(name: "Book", price: 1500, stock: 10)
 order = Order.create!(user_id: user.id, ordered_at: Time.current, status: "pending")
 OrderItem.create!(order_id: order.id, product_id: product.id, quantity: 2, unit_price: product.price)
+OrderItem.count
 ```
 
 <details>
 <summary>解答例</summary>
 
 エラーなく作成できればOKです。  
-`OrderItem.count` が増え、`order_items` に1件追加されます。
+`OrderItem.count` が1件増え(例: 最初は0、最後は1)、`order_items` に1件追加されます。
 
 </details>
 
@@ -898,14 +907,14 @@ belongs_to :product
 
 `db_design.md` に次の2行を書いてください。
 
-1. `references` で何が自動作成されたか
-2. `schema.rb` のどこを見れば関連が読めるか
+1. マイグレーションファイルの `references` で何が自動作成されたか
+2. `db/schema.rb` のどこを見れば関連が読めるか
 
 <details>
 <summary>解答例</summary>
 
 1. `*_id` カラム、index、外部キー制約が自動作成される。  
-2. `create_table` の `*_id` と `t.index`、末尾の `add_foreign_key` を見る。
+2. `db/schema.rb` 内の `create_table` の `*_id` と `t.index`、末尾の `add_foreign_key` を見る。
 
 </details>
 
