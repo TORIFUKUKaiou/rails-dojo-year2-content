@@ -42,7 +42,7 @@ rails db:migrate
 
 ### 確認ポイント
 
-- `rollback` の直後に何が消えたか
+- `rollback` の直後に何が消えたか (`db/schema.rb` を確認)
 - `migrate` の後に何が戻ったか
 
 <details>
@@ -66,8 +66,8 @@ rails db:migrate
 
 ### 確認ポイント
 
-- 2本ぶん戻ること
-- もう一度 `migrate` で元に戻ること
+- 2本ぶん戻ること (`db/schema.rb` を確認)
+- もう一度 `migrate` で元に戻ること(すべてのマイグレーションファイルの内容が適用されること)
 
 <details>
 <summary>解答例</summary>
@@ -84,6 +84,7 @@ rails db:migrate
 次を実行してください。
 
 ```bash
+rails db:rollback
 rails db:migrate:status
 ```
 
@@ -103,6 +104,12 @@ rails db:migrate:status
 
 ## 課題4：マイグレーションの順序を読む
 
+次を実行してください。
+
+```bash
+rails db:migrate
+```
+
 `db/migrate/` のファイル名を見て、次を答えてください。
 
 1. いちばん古いファイル名
@@ -120,7 +127,7 @@ rails db:migrate:status
 
 ---
 
-## 課題5：`schema.rb` の `version` を確認する
+## 課題5：`db/schema.rb` の `version` を確認する
 
 `db/schema.rb` の先頭にある `version` を確認してください。
 
@@ -179,10 +186,12 @@ end
 rails db:migrate
 ```
 
+`db/schema.rb` にどういった変更が加えられましたか。
+
 <details>
 <summary>解答例</summary>
 
-`schema.rb` の `categories` テーブルに `description` が追加されます。
+`db/schema.rb` の `categories` テーブルに `description` が追加されます。
 
 ```ruby
 create_table "categories", force: :cascade do |t|
@@ -224,10 +233,12 @@ end
 rails db:migrate
 ```
 
+`db/schema.rb` にどういった変更が加えられましたか。
+
 <details>
 <summary>解答例</summary>
 
-`schema.rb` に次のテーブルが追加されます。
+`db/schema.rb` に次のテーブルが追加されます。
 
 ```ruby
 create_table "users", force: :cascade do |t|
@@ -241,7 +252,7 @@ end
 
 ---
 
-## 課題9：`users` の反映を `schema.rb` で確認する
+## 課題9：`users` の反映を `db/schema.rb` で確認する
 
 ### 確認ポイント
 
@@ -280,6 +291,8 @@ end
 ```bash
 rails db:migrate
 ```
+
+`db/schema.rb` にどういった変更が加えられましたか。
 
 <details>
 <summary>解答例</summary>
