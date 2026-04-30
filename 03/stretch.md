@@ -957,6 +957,17 @@ class AddUserToArticles < ActiveRecord::Migration[8.1]
 end
 ```
 
+`add_column :articles, :user_id, :integer` でも `user_id` カラム自体は作れます。
+
+しかし、関連を表す migration としては情報が足りません。
+
+- `users.id` を参照していることが migration から読み取りにくい
+- index が自動作成されない
+- 外部キー制約が付かないので、存在しない `user_id` を保存できてしまう
+- `users.id` の型と合わせる意識が抜けやすい
+
+Rails で「別テーブルへの参照」を表すときは、`add_reference :articles, :user, foreign_key: true` と書く方が自然です。
+
 </details>
 
 ---
@@ -992,6 +1003,17 @@ create_table :comments do |t|
 end
 ```
 
+`t.integer :article_id` でも `article_id` カラム自体は作れます。
+
+しかし、関連を表すカラムとしては情報が足りません。
+
+- `articles.id` を参照していることが migration から読み取りにくい
+- index が自動作成されない
+- 外部キー制約が付かないので、存在しない `article_id` を保存できてしまう
+- `articles.id` の型と合わせる意識が抜けやすい
+
+Rails でテーブル作成時に関連を持たせる場合は、`t.references :article, foreign_key: true` と書く方が自然です。
+
 </details>
 
 ---
@@ -1022,6 +1044,15 @@ class AddCategoryToArticles < ActiveRecord::Migration[8.1]
   end
 end
 ```
+
+`add_reference :articles, :category` だけでも `category_id` と index は作られます。
+
+ただし、次の点が弱くなります。
+
+- `null: false` がないので、カテゴリが空の記事を保存できてしまう
+- `foreign_key: true` がないので、存在しない `category_id` を保存できてしまう
+
+ER図で「記事はカテゴリに属する」と決めているなら、`null: false` と `foreign_key: true` を明示して、データベース側でも守るのが安全です。
 
 </details>
 
@@ -1054,6 +1085,14 @@ class AddArticleToComments < ActiveRecord::Migration[8.1]
 end
 ```
 
+`null: false` だけでは、「空ではない」ことしか守れません。
+
+たとえば `article_id = 9999` のように、実際には存在しない記事IDを入れられる可能性があります。
+
+`foreign_key: true` を付けると、`comments.article_id` が必ず `articles.id` に存在する値になるように、データベースがチェックしてくれます。
+
+Rails の model 側でもチェックはできますが、外部キー制約はデータベースそのものにルールを持たせるためのものです。
+
 </details>
 
 ---
@@ -1080,6 +1119,12 @@ end
 2. `20260417091500_create_users.rb`
 3. `20260417093000_add_user_to_articles.rb`
 4. `20260417094500_add_user_to_comments.rb`
+
+Rails は、migration ファイル名の先頭にある14桁の日時を見て実行順を決めます。
+
+`20260417090500` は `2026年4月17日 09:05:00`、`20260417094500` は `2026年4月17日 09:45:00` を表します。
+
+そのため、日時が古いファイルから新しいファイルへ順番に実行されます。
 
 </details>
 
@@ -1164,9 +1209,44 @@ Rails が `change` の内容を解釈しやすく、逆操作を推定できま�
 - `Article`
 - `Comment`
 
+```mermaid
+erDiagram
+    direction LR
+    USERS ||--o{ ARTICLES : "has many"
+    USERS ||--o{ COMMENTS : "has many"
+    CATEGORIES ||--o{ ARTICLES : "has many"
+    ARTICLES ||--o{ COMMENTS : "has many"
+
+    USERS {
+      int id PK
+      string name
+    }
+
+    CATEGORIES {
+      int id PK
+      string name
+    }
+
+    ARTICLES {
+      int id PK
+      int category_id FK
+      int user_id FK
+      string title
+    }
+
+    COMMENTS {
+      int id PK
+      int article_id FK
+      int user_id FK
+      string author_name
+    }
+```
+
 ### ヒント
 
 - 例: `articles` に `category_id` があるなら、`Article` は `belongs_to :category`
+- 逆向きに見ると、`Category` は複数の `Article` を持つので `has_many :articles`
+- `has_many` は、相手側のテーブルに自分を指す `*_id` があるときに書きます
 
 <details>
 <summary>解答例</summary>
