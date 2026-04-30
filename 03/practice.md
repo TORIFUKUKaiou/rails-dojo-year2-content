@@ -137,7 +137,7 @@ end
 
 1. `articles` テーブルを作っている
 2. `title` という文字列のカラムを作っている
-3. `created_at` と `updated_at` を作っている
+3. `created_at`カラム と `updated_at`カラム を作っている
 
 </details>
 
@@ -201,13 +201,13 @@ end
 
 次は、記事がどのカテゴリに属するかを表す外部キーを追加します。
 
-まず、空のマイグレーションファイルを作ります。
+まず、マイグレーションファイルのひな型を作ります。
 
 ```bash
 rails generate migration AddCategoryToArticles
 ```
 
-できたファイルに、次のように書いてください。
+できたファイルに、次のように書いてください。 `add_reference` の行を追加します。
 
 ```ruby
 class AddCategoryToArticles < ActiveRecord::Migration[8.1]
@@ -252,7 +252,7 @@ erDiagram
 
 ### 確認ポイント
 
-- `articles` テーブルに `category_id` が増えているか
+- `db/schema.rb` を確認し、 `articles` テーブルに `category_id` が増えているか
 - `db/schema.rb` の `articles` に `category_id` と `index_articles_on_category_id` があるか
 - `db/schema.rb` の末尾に `add_foreign_key "articles", "categories"` があるか
 
@@ -336,8 +336,8 @@ rails db:migrate
 
 ### 確認ポイント
 
-- `comments` テーブルができているか
-- `article_id` `author_name` `body` が入っているか
+- `db/schema.rb` を確認し、 `comments` テーブルができているか
+- `comments` テーブルのカラムに、`article_id` `author_name` `body` があるか
 - `db/schema.rb` の `comments` に `index_comments_on_article_id` があるか
 - `db/schema.rb` の末尾に `add_foreign_key "comments", "articles"` があるか
 
@@ -365,11 +365,11 @@ add_foreign_key "comments", "articles"
 
 ---
 
-## 5. `schema.rb` と `rails console` で確認する
+## 5. `db/schema.rb` と `rails console` で確認する
 
 最後に、いまのデータベースの形を確認します。
 
-### `schema.rb` を見る
+### `db/schema.rb` を見る
 
 次の3つがあることを確認してください。
 
@@ -385,7 +385,7 @@ add_foreign_key "comments", "articles"
 rails console
 ```
 
-`review-app3(dev):001>` や `irb(main):001>` のような表示になったら、次の Ruby コードを入力します。
+`review-app3(dev):001>` のような表示になったら、次の Ruby コードを入力します。
 
 ```ruby
 Article.column_names
@@ -411,8 +411,8 @@ exit
 <details>
 <summary>解答例</summary>
 
-1. `comments.article_id`
-2. `articles.category_id`
+1. `comments` テーブルの `article_id` カラム
+2. `articles` テーブルの `category_id` カラム
 
 </details>
 
