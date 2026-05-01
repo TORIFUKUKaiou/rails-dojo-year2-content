@@ -719,3 +719,665 @@ end
 - 注文は1つの支払いを持つ
 
 </details>
+
+---
+
+## 次の題材：コース選択と宿題提出
+
+次は、学生がコースを受講し、授業ごとに宿題を提出する仕組みを作ります。
+
+```mermaid
+erDiagram
+  direction LR
+  STUDENTS ||--o{ ENROLLMENTS : has_many
+  COURSES ||--o{ ENROLLMENTS : has_many
+  COURSES ||--o{ LESSONS : has_many
+  STUDENTS ||--o{ SUBMISSIONS : has_many
+  LESSONS ||--o{ SUBMISSIONS : has_many
+
+  STUDENTS {
+    integer id
+    string name
+    string email
+  }
+  COURSES {
+    integer id
+    string title
+    text description
+  }
+  ENROLLMENTS {
+    integer id
+    integer student_id
+    integer course_id
+    string status
+  }
+  LESSONS {
+    integer id
+    integer course_id
+    string title
+    integer position
+  }
+  SUBMISSIONS {
+    integer id
+    integer student_id
+    integer lesson_id
+    text body
+    integer score
+  }
+```
+
+---
+
+## 準備：コース選択用の Rails アプリを作る
+
+ターミナルで次のコマンドを実行してください。
+コマンドはまとめて貼り付けず、一行ずつ確かめながら入力しましょう。
+
+```bash
+cd ~
+rails new school_assoc_app
+cd school_assoc_app
+```
+
+次に、コース選択と宿題提出で使うモデルを scaffold で作ります。
+
+```bash
+rails generate scaffold Student name:string email:string
+rails generate scaffold Course title:string description:text
+rails generate scaffold Enrollment student:references course:references status:string
+rails generate scaffold Lesson course:references title:string position:integer
+rails generate scaffold Submission student:references lesson:references body:text score:integer
+rails db:migrate
+```
+
+---
+
+## 課題21：`schema.rb` でテーブルを確認する
+
+`db/schema.rb` を開いて、次のテーブルがあることを確認してください。
+
+- `students`
+- `courses`
+- `enrollments`
+- `lessons`
+- `submissions`
+
+<details>
+<summary>確認するところ</summary>
+
+```ruby
+create_table "students"
+create_table "courses"
+create_table "enrollments"
+create_table "lessons"
+create_table "submissions"
+```
+
+順番は違ってもOKです。
+
+</details>
+
+---
+
+## 課題22：外部キーを確認する
+
+`db/schema.rb` を見て、外部キーになっているカラムを探してください。
+
+<details>
+<summary>解答例</summary>
+
+- `enrollments.student_id`
+- `enrollments.course_id`
+- `lessons.course_id`
+- `submissions.student_id`
+- `submissions.lesson_id`
+
+`add_foreign_key` も確認します。
+
+```ruby
+add_foreign_key "enrollments", "courses"
+add_foreign_key "enrollments", "students"
+add_foreign_key "lessons", "courses"
+add_foreign_key "submissions", "lessons"
+add_foreign_key "submissions", "students"
+```
+
+</details>
+
+---
+
+## 課題23：自動で作られた `belongs_to` を確認する
+
+次のファイルを開いて、`belongs_to` が書かれていることを確認してください。
+
+- `app/models/enrollment.rb`
+- `app/models/lesson.rb`
+- `app/models/submission.rb`
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+class Enrollment < ApplicationRecord
+  belongs_to :student
+  belongs_to :course
+end
+```
+
+```ruby
+class Lesson < ApplicationRecord
+  belongs_to :course
+end
+```
+
+```ruby
+class Submission < ApplicationRecord
+  belongs_to :student
+  belongs_to :lesson
+end
+```
+
+</details>
+
+---
+
+## 課題24：`Student` から `Enrollment` をたどれるようにする
+
+1人の学生は、複数の受講登録を持ちます。
+
+`app/models/student.rb` に association を追加してください。
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+class Student < ApplicationRecord
+  has_many :enrollments
+end
+```
+
+</details>
+
+---
+
+## 課題25：`Course` から `Enrollment` をたどれるようにする
+
+1つのコースは、複数の受講登録を持ちます。
+
+`app/models/course.rb` に association を追加してください。
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+class Course < ApplicationRecord
+  has_many :enrollments
+end
+```
+
+</details>
+
+---
+
+## 課題26：学生とコースと受講登録を作る
+
+`rails console` を起動してください。
+
+```bash
+rails console
+```
+
+次の Ruby を実行して、学生、コース、受講登録を作ってください。
+
+```ruby
+student = Student.create!(name: "佐藤", email: "sato@example.com")
+course = Course.create!(title: "Rails基礎", description: "Railsの基本を学ぶ")
+Enrollment.create!(student: student, course: course, status: "active")
+```
+
+<details>
+<summary>確認すること</summary>
+
+```ruby
+student.enrollments.count
+course.enrollments.count
+```
+
+どちらも `1` になればOKです。
+
+</details>
+
+---
+
+## 課題27：`Student` から `Course` を直接たどれるようにする
+
+今は、学生からコースを見るには `student.enrollments` を経由する必要があります。
+
+`has_many :through` を使って、`student.courses` と書けるようにしてください。
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+class Student < ApplicationRecord
+  has_many :enrollments
+  has_many :courses, through: :enrollments
+end
+```
+
+</details>
+
+---
+
+## 課題28：`Course` から `Student` を直接たどれるようにする
+
+コースから、そのコースを受講している学生をたどれるようにしてください。
+
+`app/models/course.rb` に `has_many :through` を追加します。
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+class Course < ApplicationRecord
+  has_many :enrollments
+  has_many :students, through: :enrollments
+end
+```
+
+</details>
+
+---
+
+## 課題29：`student.courses` と `course.students` を確認する
+
+モデルを変更したので、`rails console` を開き直してください。
+
+```ruby
+exit
+```
+
+```bash
+rails console
+```
+
+次の Ruby を実行してください。
+
+```ruby
+student = Student.first
+course = Course.first
+
+student.courses.pluck(:title)
+course.students.pluck(:name)
+```
+
+<details>
+<summary>確認すること</summary>
+
+```ruby
+["Rails基礎"]
+```
+
+```ruby
+["佐藤"]
+```
+
+のように表示されればOKです。
+
+</details>
+
+---
+
+## 課題30：`Course` から `Lesson` をたどれるようにする
+
+1つのコースには、複数の授業があります。
+
+`app/models/course.rb` に association を追加してください。
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+class Course < ApplicationRecord
+  has_many :enrollments
+  has_many :students, through: :enrollments
+  has_many :lessons
+end
+```
+
+</details>
+
+---
+
+## 課題31：授業データを作る
+
+モデルを変更したので、`rails console` を開き直してください。
+
+```ruby
+exit
+```
+
+```bash
+rails console
+```
+
+次の Ruby を実行して、授業データを作ってください。
+
+```ruby
+course = Course.first
+
+Lesson.create!(course: course, title: "association入門", position: 1)
+Lesson.create!(course: course, title: "中間テーブル", position: 2)
+```
+
+<details>
+<summary>確認すること</summary>
+
+```ruby
+course.lessons.count
+course.lessons.pluck(:title)
+```
+
+`course.lessons.count` が `2` になればOKです。
+
+</details>
+
+---
+
+## 課題32：`Student` から `Submission` をたどれるようにする
+
+1人の学生は、複数の宿題提出を持ちます。
+
+`app/models/student.rb` に association を追加してください。
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+class Student < ApplicationRecord
+  has_many :enrollments
+  has_many :courses, through: :enrollments
+  has_many :submissions
+end
+```
+
+</details>
+
+---
+
+## 課題33：`Lesson` から `Submission` をたどれるようにする
+
+1つの授業には、複数の宿題提出があります。
+
+`app/models/lesson.rb` に association を追加してください。
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+class Lesson < ApplicationRecord
+  belongs_to :course
+  has_many :submissions
+end
+```
+
+</details>
+
+---
+
+## 課題34：宿題提出データを作る
+
+モデルを変更したので、`rails console` を開き直してください。
+
+```ruby
+exit
+```
+
+```bash
+rails console
+```
+
+次の Ruby を実行してください。
+
+```ruby
+student = Student.first
+lesson = Lesson.find_by(title: "association入門")
+
+Submission.create!(student: student, lesson: lesson, body: "提出しました", score: 80)
+```
+
+<details>
+<summary>確認すること</summary>
+
+```ruby
+student.submissions.count
+lesson.submissions.count
+```
+
+どちらも `1` になればOKです。
+
+</details>
+
+---
+
+## 課題35：`Lesson` から提出した学生をたどれるようにする
+
+宿題提出を通して、授業から提出した学生をたどれるようにしてください。
+
+`has_many :through` を使って、`lesson.students` と書けるようにします。
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+class Lesson < ApplicationRecord
+  belongs_to :course
+  has_many :submissions
+  has_many :students, through: :submissions
+end
+```
+
+</details>
+
+---
+
+## 課題36：`lesson.students` を確認する
+
+モデルを変更したので、`rails console` を開き直してください。
+
+```ruby
+exit
+```
+
+```bash
+rails console
+```
+
+次の Ruby を実行してください。
+
+```ruby
+lesson = Lesson.find_by(title: "association入門")
+lesson.students.pluck(:name)
+```
+
+<details>
+<summary>確認すること</summary>
+
+```ruby
+["佐藤"]
+```
+
+のように表示されればOKです。
+
+</details>
+
+---
+
+## 課題37：`Student` から提出済みの授業をたどれるようにする
+
+学生から、宿題を提出した授業を直接たどれるようにしてください。
+
+ただし、`Student` にはすでに `has_many :courses, through: :enrollments` があります。
+今回は提出済みの授業なので、名前を `submitted_lessons` にします。
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+class Student < ApplicationRecord
+  has_many :enrollments
+  has_many :courses, through: :enrollments
+  has_many :submissions
+  has_many :submitted_lessons, through: :submissions, source: :lesson
+end
+```
+
+`submitted_lessons` という名前は、`lessons` テーブル名と一致しません。
+そのため、`source: :lesson` で、実際には `Submission` の `lesson` をたどることを Rails に伝えます。
+
+</details>
+
+---
+
+## 課題38：`submitted_lessons` を確認する
+
+`rails console` を開き直して、次の Ruby を実行してください。
+
+```ruby
+exit
+```
+
+```bash
+rails console
+```
+
+```ruby
+student = Student.first
+student.submitted_lessons.pluck(:title)
+```
+
+<details>
+<summary>確認すること</summary>
+
+```ruby
+["association入門"]
+```
+
+のように表示されればOKです。
+
+</details>
+
+---
+
+## 課題39：コースの提出数をモデルのメソッドにする
+
+コースに対して、宿題提出が合計何件あるかを返す `submission_count` メソッドを作ってください。
+
+コースは複数の授業を持ち、授業は複数の宿題提出を持ちます。
+
+<details>
+<summary>解答例</summary>
+
+`app/models/course.rb` を次のようにします。
+
+```ruby
+class Course < ApplicationRecord
+  has_many :enrollments
+  has_many :students, through: :enrollments
+  has_many :lessons
+
+  def submission_count
+    lessons.sum do |lesson|
+      lesson.submissions.count
+    end
+  end
+end
+```
+
+モデルを変更したので、`rails console` を開き直します。
+
+```ruby
+exit
+```
+
+```bash
+rails console
+```
+
+次の Ruby で確認します。
+
+```ruby
+course = Course.first
+course.submission_count
+```
+
+`1` になればOKです。
+
+</details>
+
+---
+
+## 課題40：削除時の動きを考える
+
+コースを削除したとき、そのコースの受講登録、授業、宿題提出も一緒に削除したいです。
+
+どの association に `dependent: :destroy` を付ければよいでしょうか。
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+class Student < ApplicationRecord
+  has_many :enrollments, dependent: :destroy
+  has_many :courses, through: :enrollments
+  has_many :submissions, dependent: :destroy
+  has_many :submitted_lessons, through: :submissions, source: :lesson
+end
+```
+
+```ruby
+class Course < ApplicationRecord
+  has_many :enrollments, dependent: :destroy
+  has_many :students, through: :enrollments
+  has_many :lessons, dependent: :destroy
+
+  def submission_count
+    lessons.sum do |lesson|
+      lesson.submissions.count
+    end
+  end
+end
+```
+
+```ruby
+class Lesson < ApplicationRecord
+  belongs_to :course
+  has_many :submissions, dependent: :destroy
+  has_many :students, through: :submissions
+end
+```
+
+モデルを変更したので、確認する場合は `rails console` を開き直します。
+
+```ruby
+exit
+```
+
+```bash
+rails console
+```
+
+次の Ruby を実行します。
+
+```ruby
+course = Course.first
+course.destroy
+
+Enrollment.count
+Lesson.count
+Submission.count
+```
+
+今回作ったデータだけなら、最後はすべて `0` になればOKです。
+
+</details>
