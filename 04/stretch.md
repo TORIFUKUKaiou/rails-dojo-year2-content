@@ -10,7 +10,7 @@ erDiagram
   USERS ||--o{ ORDERS : has_many
   ORDERS ||--o{ ORDER_ITEMS : has_many
   PRODUCTS ||--o{ ORDER_ITEMS : has_many
-  ORDERS ||--|| PAYMENTS : has_one
+  ORDERS ||--o| PAYMENTS : has_one
 
   USERS {
     integer id
@@ -422,6 +422,14 @@ end
 `rails console` を開き直して、次の Ruby を実行してください。
 
 ```ruby
+exit
+```
+
+```bash
+rails console
+```
+
+```ruby
 product = Product.find_by(name: "キーボード")
 product.orders
 product.orders.count
@@ -499,7 +507,7 @@ rails console
 
 ```ruby
 order = Order.first
-Payment.create!(order: order, amount: 14000, method: "card")
+Payment.create!(order: order, amount: order.total_price, method: "card")
 ```
 
 <details>
@@ -611,6 +619,14 @@ end
 ## 課題19：削除の動きを確認する
 
 `rails console` を開き直して、注文を削除したときに注文明細と支払いも削除されるか確認してください。
+
+```ruby
+exit
+```
+
+```bash
+rails console
+```
 
 ```ruby
 order = Order.first
