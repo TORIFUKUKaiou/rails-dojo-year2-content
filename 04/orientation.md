@@ -122,14 +122,6 @@ end
 - `app/models/category.rb`
 - `app/models/comment.rb`
 
-第1週で <ruby>scaffold<rt>スキャフォールド</rt></ruby> を使ったので、`article.rb` はすでにあります。
-
-ただし `category.rb` と `comment.rb` は、まだない可能性があります。その場合は自分で作ります。
-
-※ ここには後で、`app/models/` フォルダの位置がわかるスクリーンショットを追加します。
-
-<!-- TODO: VS Code / Codespaces で app/models を開いた状態のスクリーンショットを追加する -->
-
 ---
 
 ## アソシエーションを書くと何がうれしいか
