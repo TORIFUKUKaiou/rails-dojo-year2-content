@@ -8,30 +8,72 @@
 
 ## 準備
 
-1. Codespacesを起動する
-2. `review_app` ディレクトリに移動する
-3. `app/models/` を開く
-4. `db/schema.rb` も開いて、外部キーを見返せるようにする
+この練習は、GitHub Codespaces 上で行います。
 
-もし `review_app` がない場合は、第1週から第3週の内容を参考に作り直してください。
+前回の続きは使わず、 **新しく Codespace を作って** 始めてください。
 
-※ ここには後で、`app/models/` と `db/schema.rb` を並べて開く位置がわかるスクリーンショットを追加します。
+生徒ごとに前回の状態が違うため、第4週用に `review_app4` という Rails アプリを新しく作ります。
 
-<!-- TODO: VS Code / Codespaces で app/models と db/schema.rb を並べて開く手順のスクリーンショットを追加する -->
+1. GitHubにログインする
+2. [このリポジトリ](https://github.com/TORIFUKUKaiou/rails-dojo-year2-content/)を開く（リンクを右クリックして、「リンクを新しいタブで開く」）
+3. リポジトリの `Code` ボタン → `Codespaces` タブを開く
+4. `Create a codespace on main(+)` をクリックする
+
+    ![](../images/create-a-codespace-on-main.png)
+
+    ---
+
+    **緑のボタンがある場合**は、この手順でも構いません。`Create codespace on main` をクリックしてください。
+
+    ![](https://raw.githubusercontent.com/TORIFUKUKaiou/rails-dojo-year1-content/refs/heads/main/images/create-codespace-on-main.png)
+    ---
+
+5. ターミナルに `準備完了` と表示されたら、Codespaces の起動完了
+
+💡 コマンドは一行ずつ実行しましょう。ひとつひとつ実行結果を確かめながら進むのが上達への近道です。
+
+次に、Rails をインストールします。
+
+```bash
+gem install rails -v "~> 8.1.0" --no-document
+rails -v
+```
+
+`rails 8.1.x` のように表示されたら、Rails が使える状態です。
+
+続いて、第4週用の Rails アプリを作ります。
+
+```bash
+cd ~/
+rails new review_app4
+cd review_app4
+```
+
+`rails new review_app4` は、必要なファイルとライブラリを作るため時間がかかります。終わるまで待ってください。
+
+次に、<ruby>scaffold<rt>スキャフォールド</rt></ruby> で、今回使う `Category` `Article` `Comment` を作ります。
+
+```bash
+rails generate scaffold Category name:string
+rails generate scaffold Article title:string body:text category:references
+rails generate scaffold Comment article:references author_name:string body:text
+```
+
+`category:references` によって、`articles` テーブルに `category_id` が作られます。
+
+`article:references` によって、`comments` テーブルに `article_id` が作られます。
+
+確認したら、マイグレーションを実行します。
+
+```bash
+rails db:migrate
+```
+
+ここまでできたら、`review_app4` の中にある `app/models/` と `db/schema.rb` を開ける状態にしてください。
 
 ---
 
-## 今日の目標（達成ライン）
-
-- `必須（全員）`：1〜4 を終える（外部キーを確認する、Category/Comment のモデルを作る、Article/Category/Comment に association を書く、console で確認する）
-- `推奨（余裕がある人）`：5 まで進む（関連を自分の言葉で説明する）
-- `発展（早く終わった人）`：[Stretch](stretch.md) に進む
-
-orientation とこの練習は、全員が終える前提です。まずは `必須` を確実に終えましょう。
-
----
-
-## 1. `schema.rb` から外部キーを確認する（15分）
+## 1. `schema.rb` から外部キーを確認する
 
 まずは `db/schema.rb` を見て、次の2つのカラムを探してください。
 
@@ -55,44 +97,50 @@ orientation とこの練習は、全員が終える前提です。まずは `必
 
 ---
 
-## 2. `Category` と `Comment` のモデルファイルを作る（20分）
+## 2. モデルファイルを確認する
 
-`Article` は <ruby>scaffold<rt>スキャフォールド</rt></ruby> で作られているので、すでに `app/models/article.rb` があります。
+準備で scaffold を実行したので、次の3つのモデルファイルが作られています。
 
-一方で、`Category` と `Comment` は migration は作りましたが、モデルファイルはまだないかもしれません。
-
-その場合は、次の2つのファイルを作ってください。
-
+- `app/models/article.rb`
 - `app/models/category.rb`
 - `app/models/comment.rb`
 
-中身は最初はこれだけで構いません。
+まず、それぞれのファイルを開いてください。
+
+`app/models/article.rb` には、すでに次のような行が入っているはずです。
+
+```ruby
+class Article < ApplicationRecord
+  belongs_to :category
+end
+```
+
+`app/models/comment.rb` には、すでに次のような行が入っているはずです。
+
+```ruby
+class Comment < ApplicationRecord
+  belongs_to :article
+end
+```
+
+`category:references` や `article:references` を使って scaffold したので、Rails が `belongs_to` を自動で書いてくれています。
+
+一方で、`app/models/category.rb` はまだ次のように空に近い状態です。
 
 ```ruby
 class Category < ApplicationRecord
 end
 ```
 
-```ruby
-class Comment < ApplicationRecord
-end
-```
-
 ### 確認ポイント
 
-- `app/models/article.rb`
-- `app/models/category.rb`
-- `app/models/comment.rb`
-
-の3つがそろっているか確認してください。
-
-※ ここには後で、新しい model ファイルを作る手順のスクリーンショットを追加します。
-
-<!-- TODO: app/models/category.rb と app/models/comment.rb を新規作成する操作のスクリーンショットを追加する -->
+- `Article` に `belongs_to :category` があるか
+- `Comment` に `belongs_to :article` があるか
+- `Category` にはまだ association が書かれていないこと
 
 ---
 
-## 3. `Article` と `Category` を関連づける（25分）
+## 3. `Article` と `Category` を関連づける
 
 まずは、記事とカテゴリの関係を書きます。
 
@@ -100,7 +148,7 @@ end
 
 ```ruby
 class Article < ApplicationRecord
-  belongs_to :category, optional: true
+  belongs_to :category
 end
 ```
 
@@ -112,7 +160,9 @@ class Category < ApplicationRecord
 end
 ```
 
-今回は `Article` に `optional: true` を付けています。最初に scaffold で作った記事の中には、まだカテゴリが設定されていないものがある可能性があるからです。
+`Article` の `belongs_to :category` は scaffold がすでに作っています。
+
+ここでは、逆向きの `has_many :articles` を `Category` に追加します。
 
 ### やってみよう
 
@@ -120,8 +170,7 @@ end
 
 ```ruby
 category = Category.create!(name: "Rails")
-article = Article.first || Article.create!(title: "関連づけの練習", body: "association を確認する", category: category)
-article.update!(category: category)
+article = Article.create!(title: "関連づけの練習", body: "association を確認する", category: category)
 
 article.category
 category.articles
@@ -137,7 +186,7 @@ category.articles
 
 ---
 
-## 4. `Article` と `Comment` を関連づける（30分）
+## 4. `Article` と `Comment` を関連づける
 
 次は、記事とコメントの関係を書きます。
 
@@ -145,7 +194,7 @@ category.articles
 
 ```ruby
 class Article < ApplicationRecord
-  belongs_to :category, optional: true
+  belongs_to :category
   has_many :comments
 end
 ```
@@ -163,6 +212,7 @@ end
 さっきの `rails console` の続きで、次を試してください。
 
 ```ruby
+article = Article.last
 comment = Comment.create!(article: article, author_name: "田中", body: "コメントの練習")
 
 article.comments
@@ -180,7 +230,7 @@ comment.article
 
 ---
 
-## 5. 自分の言葉で説明する（20分）
+## 5. 自分の言葉で説明する
 
 最後に、次の4つを自分の言葉で説明してみましょう。
 
@@ -211,9 +261,11 @@ comment.article
 今日やったこと：
 
 1. `schema.rb` から外部キーを確認した
-2. `Category` と `Comment` のモデルファイルを作った
-3. `Article` と `Category` の association を書いた
+2. scaffold が作ったモデルファイルを確認した
+3. `Article` と `Category` の association を確認し、`Category` に `has_many` を書いた
 4. `Article` と `Comment` の association を書いた
 5. `rails console` で関連データを確認した
+
+[Stretch](stretch.md) へ進みましょう。
 
 次週からは、このつながりを使いながら scaffold なし CRUD に入ります。
