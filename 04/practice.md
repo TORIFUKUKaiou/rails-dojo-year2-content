@@ -73,7 +73,7 @@ rails db:migrate
 
 ---
 
-## 1. `schema.rb` から外部キーを確認する
+## 1. `db/schema.rb` から外部キーを確認する
 
 まずは `db/schema.rb` を見て、次の2つのカラムを探してください。
 
@@ -97,7 +97,7 @@ rails db:migrate
 
 ---
 
-## 2. モデルファイルを確認する
+## 2. scaffold が作った `belongs_to` を確認する
 
 準備で scaffold を実行したので、次の3つのモデルファイルが作られています。
 
@@ -138,13 +138,10 @@ end
 - `Comment` に `belongs_to :article` があるか
 - `Category` にはまだ association が書かれていないこと
 
----
+<details>
+<summary>確認例</summary>
 
-## 3. `Article` と `Category` を関連づける
-
-まずは、記事とカテゴリの関係を書きます。
-
-`app/models/article.rb` を開いて、次のようにしてください。
+`app/models/article.rb`
 
 ```ruby
 class Article < ApplicationRecord
@@ -152,7 +149,25 @@ class Article < ApplicationRecord
 end
 ```
 
-`app/models/category.rb` は、次のようにします。
+`app/models/comment.rb`
+
+```ruby
+class Comment < ApplicationRecord
+  belongs_to :article
+end
+```
+
+</details>
+
+---
+
+## 3. `Category` に `has_many :articles` を書く
+
+まずは、記事とカテゴリの関係を書きます。
+
+`Article` の `belongs_to :category` は scaffold がすでに作っています。
+
+`app/models/category.rb` を開いて、次のようにしてください。
 
 ```ruby
 class Category < ApplicationRecord
@@ -160,13 +175,26 @@ class Category < ApplicationRecord
 end
 ```
 
-`Article` の `belongs_to :category` は scaffold がすでに作っています。
+<details>
+<summary>確認ポイント</summary>
 
-ここでは、逆向きの `has_many :articles` を `Category` に追加します。
+- `Category` には `has_many :articles` を書く
+- `Article` にはすでに `belongs_to :category` がある
+- `articles.category_id` があるので、記事はカテゴリに属する
 
-### やってみよう
+</details>
 
-書けたら、`rails console` を起動して次を試してください。
+---
+
+## 4. `rails console` でカテゴリから記事をたどる
+
+`rails console` を起動します。
+
+```bash
+rails console
+```
+
+`review-app4(dev):001>` のような表示になったら、次の Ruby コードを入力します。
 
 ```ruby
 category = Category.create!(name: "Rails")
@@ -186,9 +214,11 @@ category.articles
 
 ---
 
-## 4. `Article` と `Comment` を関連づける
+## 5. `Article` に `has_many :comments` を書く
 
 次は、記事とコメントの関係を書きます。
+
+`Comment` の `belongs_to :article` は scaffold がすでに作っています。
 
 `app/models/article.rb` を次のようにします。
 
@@ -199,15 +229,18 @@ class Article < ApplicationRecord
 end
 ```
 
-`app/models/comment.rb` は、次のようにします。
+<details>
+<summary>確認ポイント</summary>
 
-```ruby
-class Comment < ApplicationRecord
-  belongs_to :article
-end
-```
+- `Article` には `belongs_to :category` と `has_many :comments` の2行がある
+- `Comment` にはすでに `belongs_to :article` がある
+- `comments.article_id` があるので、コメントは記事に属する
 
-### やってみよう
+</details>
+
+---
+
+## 6. `rails console` で記事からコメントをたどる
 
 さっきの `rails console` の続きで、次を試してください。
 
@@ -224,31 +257,111 @@ comment.article
 - `article.comments` でコメント一覧が見えるか
 - `comment.article` で元の記事が見えるか
 
-※ ここには後で、`article.comments` と `comment.article` の実行結果例をスクリーンショット付きで追加します。
+<details>
+<summary>確認例</summary>
 
-<!-- TODO: rails console で article.comments と comment.article を実行した結果例のスクリーンショットを追加する -->
+`article.comments` は、その記事についたコメントの一覧を返します。
+
+`comment.article` は、そのコメントが属している記事を返します。
+
+</details>
 
 ---
 
-## 5. 自分の言葉で説明する
+## 7. コメントを複数作って確認する
+
+1つの記事に、コメントを2件追加してみましょう。
+
+```ruby
+article = Article.last
+
+Comment.create!(article: article, author_name: "佐藤", body: "1つ目のコメント")
+Comment.create!(article: article, author_name: "鈴木", body: "2つ目のコメント")
+
+article.comments.count
+article.comments.each do |comment|
+  puts "#{comment.author_name}: #{comment.body}"
+end
+```
+
+<details>
+<summary>確認例</summary>
+
+`article.comments.count` が増えます。
+
+`article.comments.each` で、その記事についたコメントを1件ずつ取り出せます。
+
+</details>
+
+---
+
+## 8. カテゴリに記事を複数入れて確認する
+
+1つのカテゴリに、記事を2件追加してみましょう。
+
+```ruby
+category = Category.create!(name: "Ruby")
+
+Article.create!(title: "Rubyの基礎", body: "変数と条件分岐", category: category)
+Article.create!(title: "Rubyの繰り返し", body: "times と each", category: category)
+
+category.articles.count
+category.articles.each do |article|
+  puts article.title
+end
+```
+
+<details>
+<summary>確認例</summary>
+
+`category.articles.count` が増えます。
+
+`category.articles.each` で、そのカテゴリに属する記事を1件ずつ取り出せます。
+
+</details>
+
+---
+
+## 9. 外部キーと association を対応させる
+
+`db/schema.rb` と model ファイルを見ながら、次の表を完成させてください。
+
+| 外部キー | `belongs_to` を書くモデル | `has_many` を書くモデル |
+|---|---|---|
+| `articles.category_id` | ？ | ？ |
+| `comments.article_id` | ？ | ？ |
+
+<details>
+<summary>解答例</summary>
+
+| 外部キー | `belongs_to` を書くモデル | `has_many` を書くモデル |
+|---|---|---|
+| `articles.category_id` | `Article` | `Category` |
+| `comments.article_id` | `Comment` | `Article` |
+
+</details>
+
+---
+
+## 10. 自分の言葉で説明する
 
 最後に、次の4つを自分の言葉で説明してみましょう。
 
-1. なぜ `Article` に `belongs_to :category` を書くのか
+1. なぜ `Article` に `belongs_to :category` があるのか
 2. なぜ `Category` に `has_many :articles` を書くのか
-3. なぜ `Comment` に `belongs_to :article` を書くのか
+3. なぜ `Comment` に `belongs_to :article` があるのか
 4. なぜ `Article` に `has_many :comments` を書くのか
 
-`schema.rb` を見ながら説明して構いません。
+`db/schema.rb` を見ながら説明して構いません。
 
 <details>
 <summary>説明例</summary>
 
-`articles` テーブルには `category_id` があるので、記事は1つのカテゴリに属します。だから `Article` に `belongs_to :category` を書きます。
+`articles` テーブルには `category_id` があるので、記事は1つのカテゴリに属します。だから `Article` に `belongs_to :category` があります。
 
 カテゴリ1つに対して記事は複数入るので、`Category` には `has_many :articles` を書きます。
 
-同じように、`comments` テーブルには `article_id` があるので、コメントは1つの記事に属します。だから `Comment` に `belongs_to :article` を書きます。
+同じように、`comments` テーブルには `article_id` があるので、コメントは1つの記事に属します。だから `Comment` に `belongs_to :article` があります。
 
 記事1つに対してコメントは複数つくので、`Article` には `has_many :comments` を書きます。
 
@@ -260,10 +373,10 @@ comment.article
 
 今日やったこと：
 
-1. `schema.rb` から外部キーを確認した
-2. scaffold が作ったモデルファイルを確認した
-3. `Article` と `Category` の association を確認し、`Category` に `has_many` を書いた
-4. `Article` と `Comment` の association を書いた
+1. `db/schema.rb` から外部キーを確認した
+2. scaffold が作った `belongs_to` を確認した
+3. `Category` に `has_many :articles` を書いた
+4. `Article` に `has_many :comments` を書いた
 5. `rails console` で関連データを確認した
 
 [Stretch](stretch.md) へ進みましょう。
