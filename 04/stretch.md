@@ -43,6 +43,14 @@ erDiagram
   }
 ```
 
+この図では、次のテーブルを使います。
+
+- `users`：注文するユーザー
+- `products`：販売する商品
+- `orders`：ユーザーの注文
+- `order_items`：注文に含まれる商品と数量
+- `payments`：注文に対する支払い
+
 ---
 
 ## 準備：ECサイト用の Rails アプリを作る
@@ -765,6 +773,14 @@ erDiagram
     integer score
   }
 ```
+
+この図では、次のテーブルを使います。
+
+- `students`：受講する学生
+- `courses`：学生が受講するコース
+- `enrollments`：学生がどのコースを受講しているかを表す中間テーブル
+- `lessons`：コースに含まれる授業
+- `submissions`：学生が授業に対して提出した宿題
 
 ---
 
