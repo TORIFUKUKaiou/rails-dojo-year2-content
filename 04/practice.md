@@ -242,7 +242,19 @@ end
 
 ## 6. `rails console` で記事からコメントをたどる
 
-さっきの `rails console` の続きで、次を試してください。
+モデルファイルを書き換えたので、`rails console` を開いている場合は一度終了します。
+
+```ruby
+exit
+```
+
+もう一度 `rails console` を起動します。
+
+```bash
+rails console
+```
+
+`review-app4(dev):001>` のような表示になったら、次の Ruby コードを入力します。
 
 ```ruby
 article = Article.last
