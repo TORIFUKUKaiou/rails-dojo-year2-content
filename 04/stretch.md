@@ -1397,3 +1397,679 @@ Submission.count
 今回作ったデータだけなら、最後はすべて `0` になればOKです。
 
 </details>
+---
+
+## 次の題材：問い合わせ対応
+
+最後は、顧客からの問い合わせと、担当者の割り当てを題材にします。
+
+```mermaid
+erDiagram
+  direction LR
+  CUSTOMERS ||--o{ TICKETS : has_many
+  TICKETS ||--o{ MESSAGES : has_many
+  TICKETS ||--o{ ASSIGNMENTS : has_many
+  AGENTS ||--o{ ASSIGNMENTS : has_many
+
+  CUSTOMERS {
+    integer id
+    string name
+    string email
+  }
+  TICKETS {
+    integer id
+    integer customer_id
+    string title
+    string status
+  }
+  MESSAGES {
+    integer id
+    integer ticket_id
+    text body
+    string sender
+  }
+  AGENTS {
+    integer id
+    string name
+    string email
+  }
+  ASSIGNMENTS {
+    integer id
+    integer ticket_id
+    integer agent_id
+    string role
+  }
+```
+
+この図では、次のテーブルを使います。
+
+- `customers`：問い合わせをする顧客
+- `tickets`：顧客からの問い合わせ
+- `messages`：問い合わせに対するやりとり
+- `agents`：問い合わせを担当するスタッフ
+- `assignments`：問い合わせと担当者をつなぐ中間テーブル
+
+---
+
+## 準備：問い合わせ対応用の Rails アプリを作る
+
+ターミナルで次のコマンドを実行してください。
+コマンドはまとめて貼り付けず、一行ずつ確かめながら入力しましょう。
+
+```bash
+cd ~
+rails new support_assoc_app
+cd support_assoc_app
+```
+
+次に、問い合わせ対応で使うモデルを scaffold で作ります。
+
+```bash
+rails generate scaffold Customer name:string email:string
+rails generate scaffold Ticket customer:references title:string status:string
+rails generate scaffold Message ticket:references body:text sender:string
+rails generate scaffold Agent name:string email:string
+rails generate scaffold Assignment ticket:references agent:references role:string
+rails db:migrate
+```
+
+---
+
+## 課題41：`schema.rb` でテーブルを確認する
+
+`db/schema.rb` を開いて、次のテーブルがあることを確認してください。
+
+- `customers`
+- `tickets`
+- `messages`
+- `agents`
+- `assignments`
+
+<details>
+<summary>確認するところ</summary>
+
+```ruby
+create_table "customers"
+create_table "tickets"
+create_table "messages"
+create_table "agents"
+create_table "assignments"
+```
+
+順番は違ってもOKです。
+
+</details>
+
+---
+
+## 課題42：外部キーを確認する
+
+`db/schema.rb` を見て、外部キーになっているカラムを探してください。
+
+<details>
+<summary>解答例</summary>
+
+- `tickets.customer_id`
+- `messages.ticket_id`
+- `assignments.ticket_id`
+- `assignments.agent_id`
+
+`add_foreign_key` も確認します。
+
+```ruby
+add_foreign_key "assignments", "agents"
+add_foreign_key "assignments", "tickets"
+add_foreign_key "messages", "tickets"
+add_foreign_key "tickets", "customers"
+```
+
+</details>
+
+---
+
+## 課題43：自動で作られた `belongs_to` を確認する
+
+次のファイルを開いて、`belongs_to` が書かれていることを確認してください。
+
+- `app/models/ticket.rb`
+- `app/models/message.rb`
+- `app/models/assignment.rb`
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+class Ticket < ApplicationRecord
+  belongs_to :customer
+end
+```
+
+```ruby
+class Message < ApplicationRecord
+  belongs_to :ticket
+end
+```
+
+```ruby
+class Assignment < ApplicationRecord
+  belongs_to :ticket
+  belongs_to :agent
+end
+```
+
+</details>
+
+---
+
+## 課題44：`Customer` から `Ticket` をたどれるようにする
+
+1人の顧客は、複数の問い合わせを持ちます。
+
+`app/models/customer.rb` に association を追加してください。
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+class Customer < ApplicationRecord
+  has_many :tickets
+end
+```
+
+</details>
+
+---
+
+## 課題45：顧客と問い合わせを作る
+
+`rails console` を起動してください。
+
+```bash
+rails console
+```
+
+次の Ruby を実行して、顧客と問い合わせを作ってください。
+
+```ruby
+customer = Customer.create!(name: "山田", email: "yamada@example.com")
+ticket = Ticket.create!(customer: customer, title: "ログインできない", status: "open")
+
+customer.tickets.count
+```
+
+<details>
+<summary>確認すること</summary>
+
+`customer.tickets.count` が `1` になればOKです。
+
+</details>
+
+---
+
+## 課題46：`Ticket` から `Message` をたどれるようにする
+
+1つの問い合わせには、複数のメッセージがあります。
+
+`app/models/ticket.rb` に association を追加してください。
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+class Ticket < ApplicationRecord
+  belongs_to :customer
+  has_many :messages
+end
+```
+
+</details>
+
+---
+
+## 課題47：メッセージを作る
+
+モデルを変更したので、`rails console` を開き直してください。
+
+```ruby
+exit
+```
+
+```bash
+rails console
+```
+
+次の Ruby を実行してください。
+
+```ruby
+ticket = Ticket.first
+
+Message.create!(ticket: ticket, body: "ログインできません", sender: "customer")
+Message.create!(ticket: ticket, body: "パスワード再設定を試してください", sender: "agent")
+```
+
+<details>
+<summary>確認すること</summary>
+
+```ruby
+ticket.messages.count
+ticket.messages.pluck(:sender)
+```
+
+`ticket.messages.count` が `2` になればOKです。
+
+</details>
+
+---
+
+## 課題48：問い合わせのメッセージ数をモデルのメソッドにする
+
+問い合わせに対して、メッセージが何件あるかを返す `message_count` メソッドを作ってください。
+
+<details>
+<summary>解答例</summary>
+
+`app/models/ticket.rb` を次のようにします。
+
+```ruby
+class Ticket < ApplicationRecord
+  belongs_to :customer
+  has_many :messages
+
+  def message_count
+    messages.count
+  end
+end
+```
+
+モデルを変更したので、`rails console` を開き直します。
+
+```ruby
+exit
+```
+
+```bash
+rails console
+```
+
+次の Ruby で確認します。
+
+```ruby
+ticket = Ticket.first
+ticket.message_count
+```
+
+`2` になればOKです。
+
+</details>
+
+---
+
+## 課題49：`Ticket` から `Assignment` をたどれるようにする
+
+1つの問い合わせには、複数の担当者割り当てがあります。
+
+`app/models/ticket.rb` に association を追加してください。
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+class Ticket < ApplicationRecord
+  belongs_to :customer
+  has_many :messages
+  has_many :assignments
+
+  def message_count
+    messages.count
+  end
+end
+```
+
+</details>
+
+---
+
+## 課題50：`Agent` から `Assignment` をたどれるようにする
+
+1人の担当者は、複数の担当者割り当てを持ちます。
+
+`app/models/agent.rb` に association を追加してください。
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+class Agent < ApplicationRecord
+  has_many :assignments
+end
+```
+
+</details>
+
+---
+
+## 課題51：担当者と割り当てを作る
+
+モデルを変更したので、`rails console` を開き直してください。
+
+```ruby
+exit
+```
+
+```bash
+rails console
+```
+
+次の Ruby を実行してください。
+
+```ruby
+ticket = Ticket.first
+agent = Agent.create!(name: "鈴木", email: "suzuki@example.com")
+
+Assignment.create!(ticket: ticket, agent: agent, role: "owner")
+```
+
+<details>
+<summary>確認すること</summary>
+
+```ruby
+ticket.assignments.count
+agent.assignments.count
+```
+
+どちらも `1` になればOKです。
+
+</details>
+
+---
+
+## 課題52：`Ticket` から `Agent` を直接たどれるようにする
+
+問い合わせから、その問い合わせを担当する担当者を直接たどれるようにしてください。
+
+`has_many :through` を使って、`ticket.agents` と書けるようにします。
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+class Ticket < ApplicationRecord
+  belongs_to :customer
+  has_many :messages
+  has_many :assignments
+  has_many :agents, through: :assignments
+
+  def message_count
+    messages.count
+  end
+end
+```
+
+</details>
+
+---
+
+## 課題53：`Agent` から `Ticket` を直接たどれるようにする
+
+担当者から、その担当者が割り当てられた問い合わせを直接たどれるようにしてください。
+
+`app/models/agent.rb` に `has_many :through` を追加します。
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+class Agent < ApplicationRecord
+  has_many :assignments
+  has_many :tickets, through: :assignments
+end
+```
+
+</details>
+
+---
+
+## 課題54：`ticket.agents` と `agent.tickets` を確認する
+
+モデルを変更したので、`rails console` を開き直してください。
+
+```ruby
+exit
+```
+
+```bash
+rails console
+```
+
+次の Ruby を実行してください。
+
+```ruby
+ticket = Ticket.first
+agent = Agent.first
+
+ticket.agents.pluck(:name)
+agent.tickets.pluck(:title)
+```
+
+<details>
+<summary>確認すること</summary>
+
+```ruby
+["鈴木"]
+```
+
+```ruby
+["ログインできない"]
+```
+
+のように表示されればOKです。
+
+</details>
+
+---
+
+## 課題55：`sender` カラムの役割を説明する
+
+`messages.sender` には、`"customer"` や `"agent"` を入れています。
+
+このカラムは association でしょうか。それとも普通のデータでしょうか。
+
+<details>
+<summary>解答例</summary>
+
+`sender` は association ではなく、普通の文字列データです。
+
+```ruby
+Message.create!(ticket: ticket, body: "ログインできません", sender: "customer")
+```
+
+`ticket_id` のように、別のテーブルの `id` を参照するカラムではありません。
+そのため、`belongs_to :sender` のようには書きません。
+
+</details>
+
+---
+
+## 課題56：問い合わせを消したときのメッセージを考える
+
+問い合わせを削除したとき、その問い合わせに属するメッセージも一緒に削除したいです。
+
+`Ticket` の association を書き換えてください。
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+class Ticket < ApplicationRecord
+  belongs_to :customer
+  has_many :messages, dependent: :destroy
+  has_many :assignments
+  has_many :agents, through: :assignments
+
+  def message_count
+    messages.count
+  end
+end
+```
+
+</details>
+
+---
+
+## 課題57：問い合わせを消したときの担当者割り当てを考える
+
+問い合わせを削除したとき、担当者割り当ても一緒に削除したいです。
+
+`Ticket` の association をもう一度書き換えてください。
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+class Ticket < ApplicationRecord
+  belongs_to :customer
+  has_many :messages, dependent: :destroy
+  has_many :assignments, dependent: :destroy
+  has_many :agents, through: :assignments
+
+  def message_count
+    messages.count
+  end
+end
+```
+
+</details>
+
+---
+
+## 課題58：顧客を消したときの問い合わせを考える
+
+顧客を削除したとき、その顧客の問い合わせも一緒に削除したいです。
+
+`Customer` の association を書き換えてください。
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+class Customer < ApplicationRecord
+  has_many :tickets, dependent: :destroy
+end
+```
+
+</details>
+
+---
+
+## 課題59：削除の動きを確認する
+
+モデルを変更したので、`rails console` を開き直してください。
+
+```ruby
+exit
+```
+
+```bash
+rails console
+```
+
+次の Ruby を実行してください。
+
+```ruby
+customer = Customer.first
+customer.destroy
+
+Ticket.count
+Message.count
+Assignment.count
+Agent.count
+```
+
+<details>
+<summary>確認すること</summary>
+
+今回作ったデータだけなら、次のようになります。
+
+```ruby
+Ticket.count
+#=> 0
+
+Message.count
+#=> 0
+
+Assignment.count
+#=> 0
+
+Agent.count
+#=> 1
+```
+
+顧客を消すと問い合わせ、メッセージ、担当者割り当ては消えます。
+担当者そのものは、問い合わせとは別に存在するので残ります。
+
+</details>
+
+---
+
+## 課題60：問い合わせ対応の association を説明する
+
+最後に、今回作った association を自分の言葉で説明してください。
+
+次の4つを説明できればOKです。
+
+- `Customer` と `Ticket`
+- `Ticket` と `Message`
+- `Ticket` と `Assignment`
+- `Agent` と `Assignment`
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+class Customer < ApplicationRecord
+  has_many :tickets, dependent: :destroy
+end
+```
+
+```ruby
+class Ticket < ApplicationRecord
+  belongs_to :customer
+  has_many :messages, dependent: :destroy
+  has_many :assignments, dependent: :destroy
+  has_many :agents, through: :assignments
+
+  def message_count
+    messages.count
+  end
+end
+```
+
+```ruby
+class Message < ApplicationRecord
+  belongs_to :ticket
+end
+```
+
+```ruby
+class Agent < ApplicationRecord
+  has_many :assignments
+  has_many :tickets, through: :assignments
+end
+```
+
+```ruby
+class Assignment < ApplicationRecord
+  belongs_to :ticket
+  belongs_to :agent
+end
+```
+
+- 顧客は複数の問い合わせを持つ
+- 問い合わせは1人の顧客に属する
+- 問い合わせは複数のメッセージを持つ
+- 問い合わせと担当者は、担当者割り当てを通してつながる
+- 顧客を削除すると、問い合わせ、メッセージ、担当者割り当ても削除される
+- 担当者そのものは削除されない
+
+</details>
+
