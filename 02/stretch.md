@@ -891,7 +891,9 @@ cd review_app2
 rails generate scaffold Article title:string body:text
 ```
 
-💡 `rails new review_app2` は2分程度かかります。終わるまで待ってください。  
+> [!TIP]
+> **待ち時間の目安**
+> `rails new review_app2` は2分程度かかります。終わるまで待ってください。
 
 `db/migrate/` に新しいファイルができているはずです。`xxxx_create_articles.rb` を開いて、中身を確認してください。
 
@@ -1270,7 +1272,9 @@ rails new mini_shop
 cd mini_shop
 ```
 
-💡 `rails new mini_shop`は、 2分程度かかります。終わるまで待ってください。
+> [!TIP]
+> **待ち時間の目安**
+> `rails new mini_shop`は、 2分程度かかります。終わるまで待ってください。
 
 <details>
 <summary>[!IMPORTANT] 確認ポイント</summary>
