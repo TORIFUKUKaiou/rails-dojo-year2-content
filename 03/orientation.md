@@ -273,7 +273,8 @@ erDiagram
 4. `add_reference` で外部キーを追加できることを知った
 5. `db/migrate/` と `db/schema.rb` の役割の違いを確認した
 
-覚えておくこと：
+> [!IMPORTANT]
+> 
 
 - マイグレーションは「データベースの変更をコードで残す仕組み」
 - `db/migrate/` は変更の履歴

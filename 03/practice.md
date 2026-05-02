@@ -54,7 +54,9 @@ orientation とこの練習は、全員が終える前提です。まずは `1�
 
 5. ターミナルに `準備完了` と表示されたら、Codespaces の起動完了
 
-💡 コマンドは一行ずつ実行しましょう。ひとつひとつ実行結果を確かめながら進むのが上達への近道です。
+> [!TIP]
+> **コマンドは一行ずつ実行しよう**
+> ひとつひとつ実行結果を確かめながら進むのが、上達への近道です。エラーが起きても原因を見つけやすくなります。
 
 次に、Rails をインストールします。
 
@@ -175,7 +177,7 @@ end
 rails db:migrate
 ```
 
-### 確認ポイント
+> [!IMPORTANT]
 
 - `db/schema.rb` に `categories` テーブルが増えているか
 - `name` `created_at` `updated_at` が入っているか
@@ -250,7 +252,7 @@ erDiagram
     }
 ```
 
-### 確認ポイント
+> [!IMPORTANT]
 
 - `db/schema.rb` を確認し、 `articles` テーブルに `category_id` が増えているか
 - `db/schema.rb` の `articles` に `category_id` と `index_articles_on_category_id` があるか
@@ -334,7 +336,7 @@ erDiagram
 rails db:migrate
 ```
 
-### 確認ポイント
+> [!IMPORTANT]
 
 - `db/schema.rb` を確認し、 `comments` テーブルができているか
 - `comments` テーブルのカラムに、`article_id` `author_name` `body` があるか

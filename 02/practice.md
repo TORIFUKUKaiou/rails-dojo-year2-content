@@ -179,7 +179,8 @@ ER図の記法にはIE記法やIDEF1X記法などがありますが、この授�
 
 「どの記事についたコメントか」をあとからわかるようにするには、どんなカラムが必要ですか？
 
-ヒント：orientation で学んだ「外部キー」を思い出してください。
+> [!TIP]
+> orientation で学んだ「外部キー」を思い出してください。
 
 <details>
 <summary>解答例</summary>
@@ -276,7 +277,8 @@ erDiagram
 
 `category_id` はどのテーブルに入りますか？ 理由もセットで書いてください。
 
-ヒント：「外部キーは多い側に置く」を思い出してください。
+> [!TIP]
+> 「外部キーは多い側に置く」を思い出してください。
 
 <details>
 <summary>例</summary>
@@ -400,7 +402,8 @@ erDiagram
 ```
 ~~~
 
-ポイント：
+> [!IMPORTANT]
+> 
 
 - `articles` は `categories` に属するので、`articles` 側に `category_id` を置く
 - `comments` は `articles` に属するので、`comments` 側に `article_id` を置く

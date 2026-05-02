@@ -170,7 +170,8 @@ comment.article
 3. 反対側に `has_many` を書くことを知った
 4. association を書くと関連データに自然にたどれることを確認した
 
-覚えておくこと：
+> [!IMPORTANT]
+> 
 
 - 外部キーがある側が `belongs_to`
 - 反対側が `has_many`

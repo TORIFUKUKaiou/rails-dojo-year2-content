@@ -880,7 +880,9 @@ rails -v
 `--no-document` は、説明書のような追加ファイルを入れずに Rails 本体だけをインストールする指定です。
 
 ターミナルで以下を順番に実行してください。
-💡 コマンドは一行ずつ実行しましょう。エラーが出たときのリカバリがしやすいです。
+> [!TIP]
+> **コマンドは一行ずつ実行しよう**
+> ひとつひとつ実行結果を確かめながら進むのが、上達への近道です。エラーが起きても原因を見つけやすくなります。
 
 ```bash
 cd ~/
@@ -913,7 +915,7 @@ rails db:migrate
 ```
 
 <details>
-<summary>確認ポイント</summary>
+<summary>[!IMPORTANT] 確認ポイント</summary>
 
 `rails console` で `Article.column_names` を実行し、`["id", "title", "body", "created_at", "updated_at"]` のように表示されれば成功。`exit` で抜けます。
 
@@ -1104,7 +1106,7 @@ rails db:migrate
 ```
 
 <details>
-<summary>確認ポイント</summary>
+<summary>[!IMPORTANT] 確認ポイント</summary>
 
 マイグレーションファイルに `t.references :article, null: false, foreign_key: true` があれば成功。
 
@@ -1144,7 +1146,7 @@ Category.create(name: "Rails")
 作ったあと、`Category.all` で確認してください。
 
 <details>
-<summary>確認ポイント</summary>
+<summary>[!IMPORTANT] 確認ポイント</summary>
 
 `Category.all` で、`name: "Rails"` のレコードが表示されれば成功。
 
@@ -1165,7 +1167,7 @@ category.id == article.category_id
 ```
 
 <details>
-<summary>確認ポイント</summary>
+<summary>[!IMPORTANT] 確認ポイント</summary>
 
 `article.category_id` がカテゴリの `id` になり、`category.id == article.category_id` が `true` になれば成功。
 
@@ -1184,7 +1186,7 @@ Comment.create(article: article, author_name: "田中", body: "わかりやす�
 ```
 
 <details>
-<summary>確認ポイント</summary>
+<summary>[!IMPORTANT] 確認ポイント</summary>
 
 `Comment.all` で、`article_id` が `article.id` になっているレコードが表示されれば成功。
 
@@ -1205,7 +1207,7 @@ Comment.column_names
 問題9で書いた ER図と見比べてください。ER図で設計したカラムが、実際のテーブルに反映されていますか？
 
 <details>
-<summary>確認ポイント</summary>
+<summary>[!IMPORTANT] 確認ポイント</summary>
 
 - `categories` に `name` がある
 - `articles` に `category_id` がある
@@ -1258,7 +1260,9 @@ ER図で書いた設計が、そのままデータベースのテーブルにな
 ### 問題42：mini_shop を作る
 
 ターミナルで以下を順番に実行してください。
-💡 コマンドは一行ずつ実行しましょう。エラーが出たときのリカバリがしやすいです。
+> [!TIP]
+> **コマンドは一行ずつ実行しよう**
+> ひとつひとつ実行結果を確かめながら進むのが、上達への近道です。エラーが起きても原因を見つけやすくなります。
 
 ```bash
 cd ~/
@@ -1269,7 +1273,7 @@ cd mini_shop
 💡 `rails new mini_shop`は、 2分程度かかります。終わるまで待ってください。
 
 <details>
-<summary>確認ポイント</summary>
+<summary>[!IMPORTANT] 確認ポイント</summary>
 
 `mini_shop` ディレクトリが作られ、中に `app/` `config/` `db/` などがあれば成功。
 
@@ -1292,7 +1296,7 @@ rails db:migrate
 ```
 
 <details>
-<summary>確認ポイント</summary>
+<summary>[!IMPORTANT] 確認ポイント</summary>
 
 `rails console` で `User.column_names` を実行し、`"name"` と `"email"` が含まれていれば成功。
 
@@ -1327,7 +1331,7 @@ rails db:migrate
 ```
 
 <details>
-<summary>確認ポイント</summary>
+<summary>[!IMPORTANT] 確認ポイント</summary>
 
 `rails console` で `Product.column_names` を実行し、`"name"` と `"price"` が含まれていれば成功。
 
@@ -1368,7 +1372,7 @@ rails db:migrate
 ```
 
 <details>
-<summary>確認ポイント</summary>
+<summary>[!IMPORTANT] 確認ポイント</summary>
 
 - マイグレーションに `t.references :user, null: false, foreign_key: true` がある
 - `app/models/order.rb` に `belongs_to :user` が自動で書かれている
@@ -1418,7 +1422,7 @@ rails db:migrate
 ```
 
 <details>
-<summary>確認ポイント</summary>
+<summary>[!IMPORTANT] 確認ポイント</summary>
 
 - マイグレーションに `t.references :order` と `t.references :product` の両方がある
 - `app/models/order_item.rb` に `belongs_to :order` と `belongs_to :product` が自動で書かれている
@@ -1472,7 +1476,7 @@ erDiagram
 - `order_items` に `order_id` と `product_id` と `quantity` があるか
 
 <details>
-<summary>確認ポイント</summary>
+<summary>[!IMPORTANT] 確認ポイント</summary>
 
 ER図で設計した4テーブルが、そのままマイグレーションファイルになっています。
 
@@ -1494,7 +1498,7 @@ Product.create(name: "SQLの本", price: 2800)
 ```
 
 <details>
-<summary>確認ポイント</summary>
+<summary>[!IMPORTANT] 確認ポイント</summary>
 
 `User.count` が 2、`Product.count` が 3 であれば成功。
 
@@ -1512,7 +1516,7 @@ order = Order.create(user: user, ordered_at: Time.now)
 ```
 
 <details>
-<summary>確認ポイント</summary>
+<summary>[!IMPORTANT] 確認ポイント</summary>
 
 `order.user.name` で `"田中"` が返ってくれば成功。
 
@@ -1532,7 +1536,7 @@ OrderItem.create(order: order, product: Product.find_by(name: "Railsの本"), qu
 ```
 
 <details>
-<summary>確認ポイント</summary>
+<summary>[!IMPORTANT] 確認ポイント</summary>
 
 ```ruby
 OrderItem.count
@@ -1565,7 +1569,7 @@ puts "合計：#{total}円"
 ```
 
 <details>
-<summary>確認ポイント</summary>
+<summary>[!IMPORTANT] 確認ポイント</summary>
 
 `合計：9500円` と表示されれば成功。
 

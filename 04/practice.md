@@ -30,7 +30,9 @@
 
 5. ターミナルに `準備完了` と表示されたら、Codespaces の起動完了
 
-💡 コマンドは一行ずつ実行しましょう。ひとつひとつ実行結果を確かめながら進むのが上達への近道です。
+> [!TIP]
+> **コマンドは一行ずつ実行しよう**
+> ひとつひとつ実行結果を確かめながら進むのが、上達への近道です。エラーが起きても原因を見つけやすくなります。
 
 次に、Rails をインストールします。
 
@@ -132,7 +134,7 @@ class Category < ApplicationRecord
 end
 ```
 
-### 確認ポイント
+> [!IMPORTANT]
 
 - `Article` に `belongs_to :category` があるか
 - `Comment` に `belongs_to :article` があるか
@@ -176,7 +178,7 @@ end
 ```
 
 <details>
-<summary>確認ポイント</summary>
+<summary>[!IMPORTANT] 確認ポイント</summary>
 
 - `Category` には `has_many :articles` を書く
 - `Article` にはすでに `belongs_to :category` がある
@@ -230,7 +232,7 @@ end
 ```
 
 <details>
-<summary>確認ポイント</summary>
+<summary>[!IMPORTANT] 確認ポイント</summary>
 
 - `Article` には `belongs_to :category` と `has_many :comments` の2行がある
 - `Comment` にはすでに `belongs_to :article` がある
@@ -264,7 +266,7 @@ article.comments
 comment.article
 ```
 
-### 確認ポイント
+> [!IMPORTANT]
 
 - `article.comments` でコメント一覧が見えるか
 - `comment.article` で元の記事が見えるか

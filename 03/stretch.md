@@ -40,7 +40,7 @@ rails db:rollback
 rails db:migrate
 ```
 
-### 確認ポイント
+> [!IMPORTANT]
 
 - `rollback` の直後に何が消えたか (`db/schema.rb` を確認)
 - `migrate` の後に何が戻ったか
@@ -64,7 +64,7 @@ rails db:rollback STEP=2
 rails db:migrate
 ```
 
-### 確認ポイント
+> [!IMPORTANT]
 
 - 2本ぶん戻ること (`db/schema.rb` を確認)
 - もう一度 `migrate` で元に戻ること(すべてのマイグレーションファイルの内容が適用されること)
@@ -254,7 +254,7 @@ end
 
 ## 課題9：`users` の反映を `db/schema.rb` で確認する
 
-### 確認ポイント
+> [!IMPORTANT]
 
 - `users` テーブルがあるか
 - `name` が `null: false` になっているか
@@ -909,7 +909,7 @@ erDiagram
     }
 ```
 
-### ヒント
+> [!TIP]
 
 - `orders` に `user_id` があるなら、`Order` は `belongs_to :user`
 - 逆向きに見ると、`User` は複数の `Order` を持つので `has_many :orders`
@@ -1284,7 +1284,7 @@ erDiagram
     }
 ```
 
-### ヒント
+> [!TIP]
 
 - 例: `articles` に `category_id` があるなら、`Article` は `belongs_to :category`
 - 逆向きに見ると、`Category` は複数の `Article` を持つので `has_many :articles`
