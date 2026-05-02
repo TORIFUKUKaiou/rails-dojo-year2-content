@@ -178,7 +178,7 @@ end
 ```
 
 <details>
-<summary>[!IMPORTANT] 確認ポイント</summary>
+<summary>✅ 確認ポイント</summary>
 
 - `Category` には `has_many :articles` を書く
 - `Article` にはすでに `belongs_to :category` がある
@@ -232,7 +232,7 @@ end
 ```
 
 <details>
-<summary>[!IMPORTANT] 確認ポイント</summary>
+<summary>✅ 確認ポイント</summary>
 
 - `Article` には `belongs_to :category` と `has_many :comments` の2行がある
 - `Comment` にはすでに `belongs_to :article` がある
