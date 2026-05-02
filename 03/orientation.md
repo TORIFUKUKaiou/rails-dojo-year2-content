@@ -274,11 +274,9 @@ erDiagram
 5. `db/migrate/` と `db/schema.rb` の役割の違いを確認した
 
 > [!IMPORTANT]
-> 
-
-- マイグレーションは「データベースの変更をコードで残す仕組み」
-- `db/migrate/` は変更の履歴
-- `db/schema.rb` は今の完成形
-- 普通のカラム追加は `add_column`
-- 外部キーの追加は `add_reference`
-- 今週のカラムが、来週の `has_many / belongs_to` につながる
+> - マイグレーションは「データベースの変更をコードで残す仕組み」
+> - `db/migrate/` は変更の履歴
+> - `db/schema.rb` は今の完成形
+> - 普通のカラム追加は `add_column`
+> - 外部キーの追加は `add_reference`
+> - 今週のカラムが、来週の `has_many / belongs_to` につながる

@@ -171,10 +171,7 @@ comment.article
 4. association を書くと関連データに自然にたどれることを確認した
 
 > [!IMPORTANT]
-> 
-
-- 外部キーがある側が `belongs_to`
-- 反対側が `has_many`
-- DBで作った関係を、Railsのモデルに写すのが今週の作業
-
+> - 外部キーがある側が `belongs_to`
+> - 反対側が `has_many`
+> - DBで作った関係を、Railsのモデルに写すのが今週の作業
 [練習](practice.md) へ進みましょう。

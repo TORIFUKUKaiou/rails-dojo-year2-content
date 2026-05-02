@@ -732,11 +732,8 @@ scaffold が最初に作る `index.html.erb` には、記事が0件のときの�
 一覧画面に `created_at` を追加してください。
 
 > [!TIP]
-> 
-
-- `article.created_at`
-- 最初はそのまま表示して構いません
-
+> - `article.created_at`
+> - 最初はそのまま表示して構いません
 <details>
 <summary>解答例</summary>
 
@@ -897,10 +894,7 @@ scaffold が最初に作る `index.html.erb` には、記事が0件のときの�
 一覧画面では本文を全部出さず、最初の40文字くらいだけ表示してください。
 
 > [!TIP]
-> 
-
-- `article.body[0, 40]`
-
+> - `article.body[0, 40]`
 <details>
 <summary>解答例</summary>
 

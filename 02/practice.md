@@ -403,11 +403,8 @@ erDiagram
 ~~~
 
 > [!IMPORTANT]
-> 
-
-- `articles` は `categories` に属するので、`articles` 側に `category_id` を置く
-- `comments` は `articles` に属するので、`comments` 側に `article_id` を置く
-
+> - `articles` は `categories` に属するので、`articles` 側に `category_id` を置く
+> - `comments` は `articles` に属するので、`comments` 側に `article_id` を置く
 </details>
 
 ---
