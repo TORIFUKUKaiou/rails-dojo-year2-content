@@ -51,6 +51,11 @@ erDiagram
 - `order_items`：注文に含まれる商品と数量
 - `payments`：注文に対する支払い
 
+> [!NOTE]
+> この図は、このあと完成させる最終形です。
+> scaffold 直後は、`Payment` 側の `belongs_to :order` だけが自動で作られています。
+> `Order` 側の `has_one :payment` は、後の課題で自分で追加します。
+
 ---
 
 ## 準備：ECサイト用の Rails アプリを作る
@@ -313,6 +318,11 @@ mouse.order_items.count
 
 `order_items` の `quantity` と `unit_price` を使って、注文合計を返す `total_price` メソッドを作ってください。
 
+> [!NOTE]
+> `order_items.sum do |item| ... end` は、Ruby のブロックを使って1行ずつ計算しています。
+> `sum(:unit_price)` のようにカラム名を渡す書き方とは違います。
+> 今回は `quantity * unit_price` のように計算が必要なので、ブロックを使います。
+
 <details>
 <summary>解答例</summary>
 
@@ -474,6 +484,7 @@ product.orders.count
 今回、外部キーの `order_id` は `payments` テーブルにあります。
 そのため、`Payment` 側は `belongs_to :order` になります。
 一方で、`Order` から見ると支払いは1つだけなので、`has_one :payment` になります。
+1つだけなので、確認するときも `order.payment` のように単数形で書きます。`order.payments` ではありません。
 
 この場合、`Order` と `Payment` にはどの association を書けばよいでしょうか。
 
@@ -636,6 +647,10 @@ end
 ## 課題19：削除の動きを確認する
 
 `rails console` を開き直して、注文を削除したときに注文明細と支払いも削除されるか確認してください。
+
+> [!IMPORTANT]
+> `dependent: :destroy` は、親のデータを削除したときに、関連する子のデータも本当に削除します。
+> `destroy` を実行する前に、必ず `count` や関連データを確認してから進めましょう。
 
 ```ruby
 exit
@@ -2081,4 +2096,3 @@ end
 - 担当者そのものは削除されない
 
 </details>
-
