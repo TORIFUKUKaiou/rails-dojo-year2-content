@@ -318,11 +318,6 @@ mouse.order_items.count
 
 `order_items` の `quantity` と `unit_price` を使って、注文合計を返す `total_price` メソッドを作ってください。
 
-> [!NOTE]
-> `order_items.sum do |item| ... end` は、Ruby のブロックを使って1行ずつ計算しています。
-> `sum(:unit_price)` のようにカラム名を渡す書き方とは違います。
-> 今回は `quantity * unit_price` のように計算が必要なので、ブロックを使います。
-
 <details>
 <summary>解答例</summary>
 
@@ -340,6 +335,11 @@ class Order < ApplicationRecord
   end
 end
 ```
+
+> [!NOTE]
+> `order_items.sum do |item| ... end` は、Ruby のブロックを使って1行ずつ計算しています。
+> `sum(:unit_price)` のようにカラム名を渡す書き方とは違います。
+> 今回は `quantity * unit_price` のように計算が必要なので、ブロックを使います。
 
 モデルを変更したので、`rails console` を開き直します。
 
