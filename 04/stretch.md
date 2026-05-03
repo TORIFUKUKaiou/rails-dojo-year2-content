@@ -272,6 +272,15 @@ end
 
 `rails console` で、商品と注文明細を作ってください。
 
+> [!IMPORTANT]
+> **データがあるか確認しよう**
+> もし `rails console` を開き直した場合は、まずデータがあるか確認してください。
+> ```ruby
+> User.count
+> Order.count
+> ```
+> どちらも **1以上** である必要があります。もし 0 なら、課題5のデータ作成をもう一度行ってください。
+
 ```ruby
 user = User.first
 order = user.orders.first
