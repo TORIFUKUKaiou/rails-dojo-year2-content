@@ -135,10 +135,9 @@ end
 ```
 
 > [!IMPORTANT]
-
-- `Article` に `belongs_to :category` があるか
-- `Comment` に `belongs_to :article` があるか
-- `Category` にはまだ association が書かれていないこと
+> - `Article` に `belongs_to :category` があるか
+> - `Comment` に `belongs_to :article` があるか
+> - `Category` にはまだ association が書かれていないこと
 
 <details>
 <summary>確認例</summary>
