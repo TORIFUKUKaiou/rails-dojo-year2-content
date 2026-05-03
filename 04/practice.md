@@ -272,9 +272,8 @@ comment.article
 ```
 
 > [!IMPORTANT]
-
-- `article.comments` でコメント一覧が見えるか
-- `comment.article` で元の記事が見えるか
+> - `article.comments` でコメント一覧が見えるか
+> - `comment.article` で元の記事が見えるか
 
 <details>
 <summary>確認例</summary>
