@@ -1928,6 +1928,9 @@ Message.create!(ticket: ticket, body: "ログインできません", sender: "cu
 `ticket_id` のように、別のテーブルの `id` を参照するカラムではありません。
 そのため、`belongs_to :sender` のようには書きません。
 
+現場では、文字列で `"customer"` / `"agent"` と分ける代わりに、送信者を別のテーブルに関連づける設計もあります。
+ただし今回は、association と普通の文字列データの違いを見分けることを優先します。
+
 </details>
 
 ---
@@ -1963,6 +1966,10 @@ end
 問い合わせを削除したとき、担当者割り当ても一緒に削除したいです。
 
 `Ticket` の association をもう一度書き換えてください。
+
+> [!TIP]
+> モデルが長くなってきたら、まず association を上にまとめ、その下にメソッドを書くと読みやすくなります。
+> 今回の `Ticket` では、`belongs_to` / `has_many` を先に書き、そのあとに `message_count` を書いています。
 
 <details>
 <summary>解答例</summary>
@@ -2006,6 +2013,11 @@ end
 ## 課題59：削除の動きを確認する
 
 モデルを変更したので、`rails console` を開き直してください。
+
+> [!NOTE]
+> `Agent.count` は `1` のまま残ります。
+> 担当者は問い合わせの「部品」ではなく、独立したデータだからです。
+> 削除されるのは、問い合わせに属する `messages` と `assignments` です。
 
 ```ruby
 exit
