@@ -222,7 +222,7 @@ category.articles
 
 `Comment` の `belongs_to :article` は scaffold がすでに作っています。
 
-`app/models/article.rb` を次のようにします。
+`app/models/article.rb` を開きます。**既存の `belongs_to :category` は消さずに残したまま**、その下に `has_many :comments` を追記してください。
 
 ```ruby
 class Article < ApplicationRecord
@@ -256,7 +256,13 @@ exit
 rails console
 ```
 
-`review-app4(dev):001>` のような表示になったら、次の Ruby コードを入力します。
+`review-app4(dev):001>` のような表示になったら、まず記事が保存されているか確認しましょう。
+
+```ruby
+Article.count
+```
+
+**1以上**であればOKです。続いて次のコードを入力します。
 
 ```ruby
 article = Article.last
