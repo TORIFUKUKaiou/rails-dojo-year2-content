@@ -806,6 +806,11 @@ erDiagram
 - `lessons`：コースに含まれる授業
 - `submissions`：学生が授業に対して提出した宿題
 
+> [!NOTE]
+> `enrollments` は「学生がどのコースを受講しているか」を表します。
+> `submissions` は「学生がどの授業に宿題を提出したか」を表します。
+> どちらも学生に関係しますが、受講登録と宿題提出は別の出来事なので、別の中間テーブルに分けています。
+
 ---
 
 ## 準備：コース選択用の Rails アプリを作る
@@ -1051,6 +1056,10 @@ student.courses.pluck(:title)
 course.students.pluck(:name)
 ```
 
+> [!TIP]
+> `pluck(:title)` は、データの中から `title` カラムだけを取り出して配列にします。
+> 関連データが正しく取れているかを、Rails console で素早く確認したいときに便利です。
+
 <details>
 <summary>確認すること</summary>
 
@@ -1181,10 +1190,15 @@ rails console
 
 ```ruby
 student = Student.first
-lesson = Lesson.find_by(title: "association入門")
+lesson = Lesson.find_by!(title: "association入門")
 
 Submission.create!(student: student, lesson: lesson, body: "提出しました", score: 80)
 ```
+
+> [!TIP]
+> `find_by!` は、見つからなかったときにエラーを出します。
+> 課題31で授業名を打ち間違えていると、ここで原因に気づきやすくなります。
+> `find_by` だけだと、見つからないときに `nil` が返るため、その後の処理で原因が分かりにくくなります。
 
 <details>
 <summary>確認すること</summary>
@@ -1236,7 +1250,7 @@ rails console
 次の Ruby を実行してください。
 
 ```ruby
-lesson = Lesson.find_by(title: "association入門")
+lesson = Lesson.find_by!(title: "association入門")
 lesson.students.pluck(:name)
 ```
 
@@ -1259,6 +1273,11 @@ lesson.students.pluck(:name)
 
 ただし、`Student` にはすでに `has_many :courses, through: :enrollments` があります。
 今回は提出済みの授業なので、名前を `submitted_lessons` にします。
+
+> [!NOTE]
+> 考え方はこれまでの `has_many :through` と同じです。
+> 違うのは、`submitted_lessons` という名前が、実際の association 名である `lesson` と一致していない点です。
+> そのため、`source: :lesson` で「`submissions` の先にある `lesson` をたどる」と Rails に教えます。
 
 <details>
 <summary>解答例</summary>
