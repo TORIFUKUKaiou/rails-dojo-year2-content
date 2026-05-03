@@ -336,10 +336,9 @@ class Order < ApplicationRecord
 end
 ```
 
-> [!NOTE]
-> `order_items.sum do |item| ... end` は、Ruby のブロックを使って1行ずつ計算しています。
-> `sum(:unit_price)` のようにカラム名を渡す書き方とは違います。
-> 今回は `quantity * unit_price` のように計算が必要なので、ブロックを使います。
+`order_items.sum do |item| ... end` は、Ruby のブロックを使って1行ずつ計算しています。
+`sum(:unit_price)` のようにカラム名を渡す書き方とは違います。
+今回は `quantity * unit_price` のように計算が必要なので、ブロックを使います。
 
 モデルを変更したので、`rails console` を開き直します。
 
