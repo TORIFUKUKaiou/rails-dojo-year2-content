@@ -2,6 +2,12 @@
 
 この課題は、[練習](practice.md) を終えた人向けの発展課題です。
 
+> [!IMPORTANT]
+> この Stretch には、orientation でまだ詳しく扱っていない内容も含まれています。
+> たとえば、`has_one`、`has_many :through`、`dependent: :destroy` などです。
+> まずは自分でコードを読み、実行結果を確認しながら考えてください。
+> そのうえで、Google検索をしたり、生成AIに「Rails の has_many through とは？」のように相談したりしながら、解答にたどり着く練習もしてみましょう。
+
 まずは、ECサイトの注文まわりを題材にして、association を練習します。
 
 ```mermaid
@@ -409,6 +415,10 @@ order = Order.first
 order.products
 order.products.pluck(:name)
 ```
+
+> [!TIP]
+> `pluck(:name)` は、データの中から `name` カラムだけを取り出して配列にします。
+> 関連データが正しく取れているかを、Rails console で素早く確認したいときに便利です。
 
 <details>
 <summary>確認すること</summary>
