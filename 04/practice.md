@@ -73,6 +73,32 @@ rails db:migrate
 
 ここまでできたら、`review_app4` の中にある `app/models/` と `db/schema.rb` を開ける状態にしてください。
 
+今回の演習アプリでは、次の関係をモデルに書いていきます。
+
+```mermaid
+erDiagram
+  direction LR
+  CATEGORIES ||--o{ ARTICLES : has_many
+  ARTICLES ||--o{ COMMENTS : has_many
+
+  CATEGORIES {
+    integer id
+    string name
+  }
+  ARTICLES {
+    integer id
+    integer category_id
+    string title
+    text body
+  }
+  COMMENTS {
+    integer id
+    integer article_id
+    string author_name
+    text body
+  }
+```
+
 ---
 
 ## 1. `db/schema.rb` から外部キーを確認する
@@ -168,7 +194,7 @@ end
 
 `Article` の `belongs_to :category` は scaffold がすでに作っています。
 
-`app/models/category.rb` を開いて、次のようにしてください。
+`app/models/category.rb` を次のように変更してください。
 
 ```ruby
 class Category < ApplicationRecord
