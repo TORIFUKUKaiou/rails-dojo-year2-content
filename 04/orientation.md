@@ -15,6 +15,30 @@
 - `comments` テーブルを作った
 - `comments` に `article_id` が入っている
 
+```mermaid
+erDiagram
+  direction LR
+  CATEGORIES ||--o{ ARTICLES : has_many
+  ARTICLES ||--o{ COMMENTS : has_many
+
+  CATEGORIES {
+    integer id
+    string name
+  }
+  ARTICLES {
+    integer id
+    integer category_id
+    string title
+    text body
+  }
+  COMMENTS {
+    integer id
+    integer article_id
+    string author_name
+    text body
+  }
+```
+
 つまり、データベース側では、もう「どのデータがどこにつながるか」は表現できています。
 
 今週やるのは、その関係をRailsのモデルに書くことです。
@@ -33,10 +57,6 @@
 - コメントは1つの記事に属する
 
 こうした関係を、Railsでは `belongs_to` や `has_many` で書きます。
-
-※ ここには後で、DB の外部キーと model の association の対応図を追加します。
-
-<!-- TODO: category_id / article_id と belongs_to / has_many の対応関係を図で示す -->
 
 ---
 
@@ -174,4 +194,5 @@ comment.article
 > - 外部キーがある側が `belongs_to`
 > - 反対側が `has_many`
 > - DBで作った関係を、Railsのモデルに写すのが今週の作業
+
 [練習](practice.md) へ進みましょう。
