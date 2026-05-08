@@ -27,3 +27,4 @@
 ## 第5週
 
 - [scaffoldなしCRUD（1）：ArticleでCRUDを一周する](05/orientation.md)
+- [練習：ArticleでscaffoldなしCRUDを一周する](05/practice.md)
