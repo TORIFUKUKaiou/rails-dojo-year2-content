@@ -23,3 +23,7 @@
 - [データベース設計（3）：アソシエーション](04/orientation.md)
 - [練習：`has_many` と `belongs_to` を書く](04/practice.md)
 - [Stretch：association を深くする](04/stretch.md)
+
+## 第5週
+
+- [scaffoldなしCRUD（1）：ArticleでCRUDを一周する](05/orientation.md)
