@@ -59,6 +59,10 @@ rails -v
 
 `rails 8.1.x` のように表示されたら、Rails が使える状態です。
 
+> [!NOTE]
+> 環境によっては、`Required ruby-... is not installed.` のような表示が出ることがあります。
+> そのあとに `Rails 8.1.x` と表示されていれば、この練習は続けて構いません。
+
 続いて、第5週用の Rails アプリを作ります。
 
 ```bash
