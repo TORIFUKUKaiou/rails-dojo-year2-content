@@ -1,4 +1,4 @@
-# 第4週：Stretch ── association を深くする
+# 第4週：Stretch ── association の理解を深める
 
 この課題は、[練習](practice.md) を終えた人向けの発展課題です。
 
