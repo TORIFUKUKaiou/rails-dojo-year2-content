@@ -947,4 +947,6 @@ end
 4. フォームから送られた値を `article_params` で受け取った
 5. ブラウザで一覧・詳細・作成・編集・削除を確認した
 
+余裕があれば、[Stretch](stretch.md) へ進みましょう。
+
 次週は、今日作ったCRUDを読み直し、壊れたところを直しながら、`routes`、`controller`、`params`、`form`、`redirect_to`、`render` を説明できる状態に近づけます。

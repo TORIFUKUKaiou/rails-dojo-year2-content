@@ -28,3 +28,4 @@
 
 - [scaffoldなしCRUD（1）：ArticleでCRUDを一周する](05/orientation.md)
 - [練習：ArticleでscaffoldなしCRUDを一周する](05/practice.md)
+- [Stretch：Article CRUDを少しずつ改造する](05/stretch.md)
