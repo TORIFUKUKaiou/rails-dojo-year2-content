@@ -12,7 +12,7 @@ Practice で作った `manual_crud_app` をそのまま使います。
 
 > [!IMPORTANT]
 > この Stretch には、orientation や Practice でまだ詳しく扱っていない内容も含まれています。
-> たとえば、`order`、`truncate`、`strftime`、`created_at`、`updated_at` などです。
+> たとえば、`order`、`truncate`、`strftime` などです。
 > まずは自分でコードを読み、実行結果を確認しながら考えてください。
 > そのうえで、Google検索をしたり、生成AIに「Rails の truncate とは？」のように相談したりしながら、解答にたどり着く練習もしてみましょう。
 
@@ -111,6 +111,10 @@ rails server
 
 今の一覧は、作成された順に表示されています。
 新しい記事が上に来るように変更してください。
+
+> [!TIP]
+> `order` は、データを並び替えて取り出すためのメソッドです。
+> `created_at: :desc` は「作成日時の新しい順」という意味です。
 
 <details>
 <summary>解答例</summary>
@@ -267,6 +271,10 @@ app/views/articles/index.html.erb
 
 一覧画面では、本文を全部表示せず、先頭から30文字くらいで短く表示してください。
 
+> [!TIP]
+> `truncate` は、長い文字列を短く表示するための Rails の helper です。
+> `length: 30` と書くと、省略記号を含めて最大30文字になるように表示します。
+
 <details>
 <summary>解答例</summary>
 
@@ -378,6 +386,10 @@ app/views/articles/show.html.erb
 ## 課題6：詳細画面に作成日時を表示する
 
 詳細画面に、記事を作成した日時を表示してください。
+
+> [!TIP]
+> `strftime` は、日時の表示形式を整えるためのメソッドです。
+> `%Y-%m-%d %H:%M` は、`2026-05-18 13:45` のような形で表示する指定です。
 
 <details>
 <summary>解答例</summary>
