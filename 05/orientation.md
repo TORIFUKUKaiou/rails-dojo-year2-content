@@ -116,20 +116,9 @@ erDiagram
 
 ## リクエストの流れ
 
-Railsアプリでは、ブラウザからリクエストが来ると、だいたい次の順番で処理されます。
+Railsでは、ブラウザから届いたリクエストを、routes、controller、model、viewが順番に受け渡しながら処理し、最後にHTMLを返します。
 
-```mermaid
-flowchart LR
-  browser["ブラウザ<br>/articles"]
-  routes["config/routes.rb<br>URLをcontrollerへ振り分ける"]
-  controller["ArticlesController#index<br>処理を書く"]
-  model["Article<br>データを扱う"]
-  db["database<br>articlesテーブル"]
-  view["app/views/articles/index.html.erb<br>HTMLを作る"]
-
-  browser --> routes --> controller --> model --> db
-  db --> model --> controller --> view --> browser
-```
+![Railsアプリケーションのリクエスト処理の流れ](../images/mvc.jpg)
 
 この流れは、`show`、`new`、`create`、`edit`、`update`、`destroy` でも基本は同じです。
 
