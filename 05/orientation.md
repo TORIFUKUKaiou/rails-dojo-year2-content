@@ -43,16 +43,16 @@ end
 
 ## CRUDとは
 
-CRUDは、Webアプリでよく使う4つの基本操作です。
+CRUDは、Webアプリでデータを扱うための4つの基本操作です。
 
-| 操作 | 意味 | Railsでよく使うアクション |
+| 操作 | 意味 | Railsで対応するアクション |
 |---|---|---|
 | Create | 作成する | `new`, `create` |
 | Read | 読む | `index`, `show` |
 | Update | 更新する | `edit`, `update` |
 | Delete | 削除する | `destroy` |
 
-Railsでは、1つのデータを扱うために、次の7つのアクションをよく使います。
+Railsでは、1つのデータを扱う処理を、次の7つのアクションに分けて考えます。
 
 | アクション | 役割 |
 |---|---|
@@ -139,7 +139,7 @@ flowchart LR
 
 ## `resources :articles`
 
-Railsでは、`config/routes.rb` に次のように書くと、CRUDでよく使うルートがまとめて作られます。
+Railsでは、`config/routes.rb` に次のように書くと、CRUDに必要なルートがまとめて作られます。
 
 ```ruby
 resources :articles
@@ -232,7 +232,7 @@ end
 
 ## `redirect_to` と `render`
 
-controllerでは、処理のあとに次のどちらかをよく使います。
+controllerでは、処理のあとに次のどちらかを使って、次に表示する画面を決めます。
 
 | 書き方 | 意味 |
 |---|---|
@@ -289,7 +289,7 @@ flowchart LR
 
 > [!IMPORTANT]
 > - CRUDは、作成・読み取り・更新・削除の基本操作
-> - Railsでは `index` / `show` / `new` / `create` / `edit` / `update` / `destroy` をよく使う
+> - Railsでは `index` / `show` / `new` / `create` / `edit` / `update` / `destroy` の7つのアクションに分けてCRUDを扱う
 > - `resources :articles` はCRUDのルートをまとめて作る
 > - scaffoldなしで作ることで、Railsが何をしているか見えやすくなる
 > - 今週は全体を一周し、第6週で細部を読み直す
