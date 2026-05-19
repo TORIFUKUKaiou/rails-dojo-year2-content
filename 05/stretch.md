@@ -2745,6 +2745,24 @@ DELETE /articles/:article_id/comments/:id comments#destroy
 
 ブラウザで `/articles` にアクセスしたとき、どのファイルがどの順番で関係するか説明してください。
 
+次の図も参考にしてください。
+
+```mermaid
+sequenceDiagram
+  participant Browser as ブラウザ
+  participant Routes as routes.rb
+  participant Controller as ArticlesController
+  participant Model as Article
+  participant View as index.html.erb
+
+  Browser->>Routes: GET /articles
+  Routes->>Controller: articles#index
+  Controller->>Model: Article.all
+  Model-->>Controller: 記事一覧
+  Controller->>View: @articles
+  View-->>Browser: 記事一覧HTML
+```
+
 <details>
 <summary>解答例</summary>
 
@@ -2770,6 +2788,24 @@ Railsでは、URLを見てcontroller actionが決まり、そのactionで用意�
 ノートやメモ用ファイルに、自分の言葉で整理してください。
 
 ブラウザで記事詳細画面を開いたとき、どのファイルがどの順番で関係するか説明してください。
+
+次の図も参考にしてください。
+
+```mermaid
+sequenceDiagram
+  participant Browser as ブラウザ
+  participant Routes as routes.rb
+  participant Controller as ArticlesController
+  participant Model as Article
+  participant View as show.html.erb
+
+  Browser->>Routes: GET /articles/:id
+  Routes->>Controller: articles#show
+  Controller->>Model: Article.find(params[:id])
+  Model-->>Controller: 記事1件
+  Controller->>View: @article
+  View-->>Browser: 記事詳細HTML
+```
 
 <details>
 <summary>解答例</summary>
@@ -2799,6 +2835,25 @@ Railsでは、URLを見てcontroller actionが決まり、そのactionで用意�
 
 記事作成フォームで `作成する` を押したとき、どの処理が動くか説明してください。
 
+次の図も参考にしてください。
+
+```mermaid
+sequenceDiagram
+  participant Browser as ブラウザ
+  participant Routes as routes.rb
+  participant Controller as ArticlesController
+  participant Params as article_params
+  participant Model as Article
+
+  Browser->>Routes: POST /articles
+  Routes->>Controller: articles#create
+  Controller->>Params: 保存してよい値を取り出す
+  Params-->>Controller: title, body, category_id
+  Controller->>Model: Article.new(article_params)
+  Controller->>Model: @article.save
+  Controller-->>Browser: redirect_to @article
+```
+
 <details>
 <summary>解答例</summary>
 
@@ -2827,6 +2882,27 @@ Railsでは、URLを見てcontroller actionが決まり、そのactionで用意�
 ノートやメモ用ファイルに、自分の言葉で整理してください。
 
 コメント投稿フォームで `投稿する` を押したとき、どの処理が動くか説明してください。
+
+次の図も参考にしてください。
+
+```mermaid
+sequenceDiagram
+  participant Browser as ブラウザ
+  participant Routes as routes.rb
+  participant Controller as CommentsController
+  participant ArticleModel as Article
+  participant Params as comment_params
+  participant CommentModel as Comment
+
+  Browser->>Routes: POST /articles/:article_id/comments
+  Routes->>Controller: comments#create
+  Controller->>ArticleModel: Article.find(params[:article_id])
+  ArticleModel-->>Controller: 記事1件
+  Controller->>Params: 保存してよい値を取り出す
+  Params-->>Controller: author_name, body
+  Controller->>CommentModel: @article.comments.create!(comment_params)
+  Controller-->>Browser: redirect_to article_path(@article)
+```
 
 <details>
 <summary>解答例</summary>
