@@ -2089,3 +2089,594 @@ erDiagram
 ここまでできれば、Article CRUDにCategoryとCommentを追加できています。
 
 </details>
+
+---
+
+## 課題31：空のコメントを投稿したときの動きを観察する
+
+記事詳細画面を開き、`名前` と `コメント` を空のまま `投稿する` を押してください。
+
+確認すること：
+
+- エラーになるか
+- 記事詳細画面に戻るか
+- 空のコメントが表示されるか
+- コメント数が増えるか
+
+<details>
+<summary>確認すること</summary>
+
+今のコードでは、空のコメントも保存されます。
+
+これは、まだ「空の値を保存しない」というルールを書いていないためです。
+このような入力チェックは validation と呼ばれます。
+
+第5週では validation を深く扱いません。
+ここでは「今のままだと空のコメントも保存される」と観察できればOKです。
+
+</details>
+
+---
+
+## 課題32：コメントに作成日時を表示する
+
+コメント一覧に、コメントの作成日時を表示してください。
+
+表示例：
+
+```text
+2026-05-19 14:30
+```
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/views/articles/show.html.erb
+```
+
+変更前：
+
+```erb
+<% @article.comments.each do |comment| %>
+  <div>
+    <p><%= comment.author_name %></p>
+    <p><%= comment.body %></p>
+  </div>
+<% end %>
+```
+
+変更後：
+
+```erb
+<% @article.comments.each do |comment| %>
+  <div>
+    <p><%= comment.author_name %></p>
+    <p><%= comment.body %></p>
+    <p><%= comment.created_at.strftime("%Y-%m-%d %H:%M") %></p>
+  </div>
+<% end %>
+```
+
+この時点での正解全体：
+
+```erb
+<h1><%= @article.title %></h1>
+
+<p>ID：<%= @article.id %></p>
+<p>カテゴリ：<%= @article.category&.name || "未設定" %></p>
+
+<p><%= @article.body %></p>
+
+<p>作成日時：<%= @article.created_at.strftime("%Y-%m-%d %H:%M") %></p>
+<p>更新日時：<%= @article.updated_at.strftime("%Y-%m-%d %H:%M") %></p>
+
+<h2>コメント</h2>
+
+<p>コメント数：<%= @article.comments.count %>件</p>
+
+<% @article.comments.each do |comment| %>
+  <div>
+    <p><%= comment.author_name %></p>
+    <p><%= comment.body %></p>
+    <p><%= comment.created_at.strftime("%Y-%m-%d %H:%M") %></p>
+  </div>
+<% end %>
+
+<h2>コメントを投稿する</h2>
+
+<%= form_with model: [@article, Comment.new] do |form| %>
+  <div>
+    <%= form.label :author_name, "名前" %><br>
+    <%= form.text_field :author_name %>
+  </div>
+
+  <div>
+    <%= form.label :body, "コメント" %><br>
+    <%= form.text_area :body %>
+  </div>
+
+  <div>
+    <%= form.submit "投稿する" %>
+  </div>
+<% end %>
+
+<p><%= link_to "編集", edit_article_path(@article) %></p>
+
+<%= button_to "削除", article_path(@article), method: :delete %>
+
+<p><%= link_to "一覧に戻る", articles_path %></p>
+```
+
+</details>
+
+---
+
+## 課題33：コメントを新しい順に表示する
+
+コメント一覧を、新しく投稿されたコメントから表示してください。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/views/articles/show.html.erb
+```
+
+変更前：
+
+```erb
+<% @article.comments.each do |comment| %>
+```
+
+変更後：
+
+```erb
+<% @article.comments.order(created_at: :desc).each do |comment| %>
+```
+
+この時点での正解全体：
+
+```erb
+<h1><%= @article.title %></h1>
+
+<p>ID：<%= @article.id %></p>
+<p>カテゴリ：<%= @article.category&.name || "未設定" %></p>
+
+<p><%= @article.body %></p>
+
+<p>作成日時：<%= @article.created_at.strftime("%Y-%m-%d %H:%M") %></p>
+<p>更新日時：<%= @article.updated_at.strftime("%Y-%m-%d %H:%M") %></p>
+
+<h2>コメント</h2>
+
+<p>コメント数：<%= @article.comments.count %>件</p>
+
+<% @article.comments.order(created_at: :desc).each do |comment| %>
+  <div>
+    <p><%= comment.author_name %></p>
+    <p><%= comment.body %></p>
+    <p><%= comment.created_at.strftime("%Y-%m-%d %H:%M") %></p>
+  </div>
+<% end %>
+
+<h2>コメントを投稿する</h2>
+
+<%= form_with model: [@article, Comment.new] do |form| %>
+  <div>
+    <%= form.label :author_name, "名前" %><br>
+    <%= form.text_field :author_name %>
+  </div>
+
+  <div>
+    <%= form.label :body, "コメント" %><br>
+    <%= form.text_area :body %>
+  </div>
+
+  <div>
+    <%= form.submit "投稿する" %>
+  </div>
+<% end %>
+
+<p><%= link_to "編集", edit_article_path(@article) %></p>
+
+<%= button_to "削除", article_path(@article), method: :delete %>
+
+<p><%= link_to "一覧に戻る", articles_path %></p>
+```
+
+ブラウザで記事詳細画面を開き、新しいコメントが上に表示されることを確認してください。
+
+</details>
+
+---
+
+## 課題34：コメント削除用のルートを追加する
+
+コメントを削除できるように、nested route に `destroy` を追加してください。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+config/routes.rb
+```
+
+変更前：
+
+```ruby
+Rails.application.routes.draw do
+  resources :articles do
+    resources :comments, only: [:create]
+  end
+end
+```
+
+変更後：
+
+```ruby
+Rails.application.routes.draw do
+  resources :articles do
+    resources :comments, only: [:create, :destroy]
+  end
+end
+```
+
+この時点での正解全体：
+
+```ruby
+Rails.application.routes.draw do
+  resources :articles do
+    resources :comments, only: [:create, :destroy]
+  end
+end
+```
+
+確認コマンド：
+
+```bash
+rails routes -g comment
+```
+
+次のようなルートがあればOKです。
+
+```text
+article_comments POST   /articles/:article_id/comments(.:format)     comments#create
+ article_comment DELETE /articles/:article_id/comments/:id(.:format) comments#destroy
+```
+
+</details>
+
+---
+
+## 課題35：`CommentsController#destroy` を作る
+
+コメントを削除するための `destroy` action を追加してください。
+
+削除したあとは、元の記事詳細画面へ戻るようにします。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/controllers/comments_controller.rb
+```
+
+変更前：
+
+```ruby
+class CommentsController < ApplicationController
+  def create
+    @article = Article.find(params[:article_id])
+    @article.comments.create!(comment_params)
+
+    redirect_to article_path(@article)
+  end
+
+  private
+
+  def comment_params
+    params.require(:comment).permit(:author_name, :body)
+  end
+end
+```
+
+変更後：
+
+```ruby
+class CommentsController < ApplicationController
+  def create
+    @article = Article.find(params[:article_id])
+    @article.comments.create!(comment_params)
+
+    redirect_to article_path(@article)
+  end
+
+  def destroy
+    @article = Article.find(params[:article_id])
+    @comment = @article.comments.find(params[:id])
+    @comment.destroy
+
+    redirect_to article_path(@article)
+  end
+
+  private
+
+  def comment_params
+    params.require(:comment).permit(:author_name, :body)
+  end
+end
+```
+
+この時点での正解全体：
+
+```ruby
+class CommentsController < ApplicationController
+  def create
+    @article = Article.find(params[:article_id])
+    @article.comments.create!(comment_params)
+
+    redirect_to article_path(@article)
+  end
+
+  def destroy
+    @article = Article.find(params[:article_id])
+    @comment = @article.comments.find(params[:id])
+    @comment.destroy
+
+    redirect_to article_path(@article)
+  end
+
+  private
+
+  def comment_params
+    params.require(:comment).permit(:author_name, :body)
+  end
+end
+```
+
+`@article.comments.find(params[:id])` と書くと、「その記事に属しているコメント」から探します。
+別の記事のコメントを間違って削除しにくくするための書き方です。
+
+</details>
+
+---
+
+## 課題36：記事詳細画面にコメント削除ボタンを追加する
+
+各コメントの下に、コメント削除ボタンを表示してください。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/views/articles/show.html.erb
+```
+
+変更前：
+
+```erb
+<% @article.comments.order(created_at: :desc).each do |comment| %>
+  <div>
+    <p><%= comment.author_name %></p>
+    <p><%= comment.body %></p>
+    <p><%= comment.created_at.strftime("%Y-%m-%d %H:%M") %></p>
+  </div>
+<% end %>
+```
+
+変更後：
+
+```erb
+<% @article.comments.order(created_at: :desc).each do |comment| %>
+  <div>
+    <p><%= comment.author_name %></p>
+    <p><%= comment.body %></p>
+    <p><%= comment.created_at.strftime("%Y-%m-%d %H:%M") %></p>
+    <%= button_to "コメント削除", article_comment_path(@article, comment), method: :delete %>
+  </div>
+<% end %>
+```
+
+この時点での正解全体：
+
+```erb
+<h1><%= @article.title %></h1>
+
+<p>ID：<%= @article.id %></p>
+<p>カテゴリ：<%= @article.category&.name || "未設定" %></p>
+
+<p><%= @article.body %></p>
+
+<p>作成日時：<%= @article.created_at.strftime("%Y-%m-%d %H:%M") %></p>
+<p>更新日時：<%= @article.updated_at.strftime("%Y-%m-%d %H:%M") %></p>
+
+<h2>コメント</h2>
+
+<p>コメント数：<%= @article.comments.count %>件</p>
+
+<% @article.comments.order(created_at: :desc).each do |comment| %>
+  <div>
+    <p><%= comment.author_name %></p>
+    <p><%= comment.body %></p>
+    <p><%= comment.created_at.strftime("%Y-%m-%d %H:%M") %></p>
+    <%= button_to "コメント削除", article_comment_path(@article, comment), method: :delete %>
+  </div>
+<% end %>
+
+<h2>コメントを投稿する</h2>
+
+<%= form_with model: [@article, Comment.new] do |form| %>
+  <div>
+    <%= form.label :author_name, "名前" %><br>
+    <%= form.text_field :author_name %>
+  </div>
+
+  <div>
+    <%= form.label :body, "コメント" %><br>
+    <%= form.text_area :body %>
+  </div>
+
+  <div>
+    <%= form.submit "投稿する" %>
+  </div>
+<% end %>
+
+<p><%= link_to "編集", edit_article_path(@article) %></p>
+
+<%= button_to "削除", article_path(@article), method: :delete %>
+
+<p><%= link_to "一覧に戻る", articles_path %></p>
+```
+
+`article_comment_path(@article, comment)` は、どの記事の、どのコメントを削除するかを表しています。
+
+</details>
+
+---
+
+## 課題37：コメント削除後、記事詳細画面へ戻ることを確認する
+
+ブラウザで記事詳細画面を開き、コメントを1つ削除してください。
+
+確認すること：
+
+- `コメント削除` ボタンを押せる
+- 削除後、同じ記事詳細画面へ戻る
+- 削除したコメントが表示されなくなる
+- コメント数が減る
+
+<details>
+<summary>確認すること</summary>
+
+ここまでできれば、コメントの削除ができています。
+
+もし `No route matches` が出た場合は、`config/routes.rb` を確認してください。
+もし `The action 'destroy' could not be found` が出た場合は、`CommentsController` に `destroy` action があるか確認してください。
+
+</details>
+
+---
+
+## 課題38：記事を削除したとき、コメントがどうなるかを観察する
+
+コメントがついている記事を削除してください。
+
+確認すること：
+
+- 記事削除ボタンを押す
+- エラーになるか
+- 一覧画面へ戻るか
+- コメントが残るか
+
+<details>
+<summary>確認すること</summary>
+
+今の状態では、コメントがついている記事を削除するとエラーになります。
+
+理由は、`comments` テーブルの `article_id` が `articles` テーブルの `id` を参照しているからです。
+コメントが記事を参照しているのに、先に記事だけ消そうとすると、データベース側で止められます。
+
+これは悪いエラーではありません。
+「関連するデータをどう扱うか」をまだRailsに教えていない、ということです。
+
+</details>
+
+---
+
+## 課題39：`dependent: :destroy` を追加する
+
+記事を削除したとき、その記事のコメントも一緒に削除されるようにしてください。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/models/article.rb
+```
+
+変更前：
+
+```ruby
+class Article < ApplicationRecord
+  belongs_to :category, optional: true
+  has_many :comments
+end
+```
+
+変更後：
+
+```ruby
+class Article < ApplicationRecord
+  belongs_to :category, optional: true
+  has_many :comments, dependent: :destroy
+end
+```
+
+この時点での正解全体：
+
+```ruby
+class Article < ApplicationRecord
+  belongs_to :category, optional: true
+  has_many :comments, dependent: :destroy
+end
+```
+
+`dependent: :destroy` は、親のデータを削除したとき、関連する子のデータも削除する指定です。
+
+今回の場合は、記事を削除すると、その記事についているコメントも削除されます。
+コメントだけが残って、どの記事のコメントかわからなくなる状態を防げます。
+
+</details>
+
+---
+
+## 課題40：記事削除時にコメントも削除されることを確認する
+
+コメントがついている記事を削除してください。
+
+確認すること：
+
+- 記事削除ボタンを押す
+- エラーにならず、記事一覧画面へ戻る
+- 削除した記事が一覧から消える
+- 削除した記事についていたコメントも削除される
+
+<details>
+<summary>確認すること</summary>
+
+ブラウザで記事を削除できればOKです。
+
+より詳しく確認したい場合は、削除前に `rails console` で記事IDとコメント数を確認してから削除します。
+
+次の `1` は、削除する記事のIDに置き換えてください。
+
+```ruby
+article_id = 1
+article = Article.find(article_id)
+article.comments.count
+```
+
+記事を削除したあと、同じ `article_id` のコメントが残っていないことを確認します。
+
+```ruby
+Comment.where(article_id: article_id).count
+```
+
+`0` と表示されれば、その記事のコメントも削除されています。
+
+ここまでできれば、Article CRUDにCategoryとCommentを追加し、関連データの削除まで確認できています。
+
+</details>
