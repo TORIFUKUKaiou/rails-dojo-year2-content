@@ -1033,8 +1033,11 @@ app/views/articles/index.html.erb
 ```
 
 > [!TIP]
-> `article.category&.name` は、カテゴリがある場合だけカテゴリ名を取り出します。
-> カテゴリがない場合は `nil` になるので、`|| "未設定"` で表示を補っています。
+> `&.` は safe navigation operator と呼ばれる書き方です。
+> `article.category` がある場合は、そのまま `.name` を呼び出します。
+> `article.category` が `nil` の場合は、エラーにせず `nil` を返します。
+> そのため、カテゴリがない記事でも画面が止まりません。
+> 最後の `|| "未設定"` は、左側が `nil` のときに `"未設定"` を表示するための書き方です。
 
 </details>
 
@@ -1091,6 +1094,10 @@ app/views/articles/show.html.erb
 
 <p><%= link_to "一覧に戻る", articles_path %></p>
 ```
+
+> [!TIP]
+> `@article.category&.name || "未設定"` も、課題15と同じ考え方です。
+> カテゴリがある記事はカテゴリ名を表示し、カテゴリがない記事は `"未設定"` と表示します。
 
 </details>
 
