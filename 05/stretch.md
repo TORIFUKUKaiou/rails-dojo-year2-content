@@ -1526,3 +1526,566 @@ app/views/articles/edit.html.erb
 ここまでできれば、Article CRUDにCategoryを追加できています。
 
 </details>
+
+---
+
+## 課題21：`Comment` モデルを作る
+
+記事にコメントを付けられるようにします。
+まず、コメントを保存する `Comment` モデルを作ってください。
+
+```bash
+rails generate model Comment article:references author_name:string body:text
+rails db:migrate
+```
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/models/comment.rb
+```
+
+この時点での正解全体：
+
+```ruby
+class Comment < ApplicationRecord
+  belongs_to :article
+end
+```
+
+確認すること：
+
+- `app/models/comment.rb` ができている
+- `db/schema.rb` に `comments` テーブルがある
+- `comments` テーブルに `article_id`、`author_name`、`body` がある
+- `add_foreign_key "comments", "articles"` がある
+
+</details>
+
+---
+
+## 課題22：`Article` と `Comment` の association を書く
+
+1つの記事には、複数のコメントがあります。
+1つのコメントは、1つの記事に属します。
+
+`Comment` 側の `belongs_to :article` は、model生成時に自動で作られています。
+ここでは、`Article` 側に `has_many :comments` を追加します。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/models/article.rb
+```
+
+変更前：
+
+```ruby
+class Article < ApplicationRecord
+  belongs_to :category, optional: true
+end
+```
+
+変更後：
+
+```ruby
+class Article < ApplicationRecord
+  belongs_to :category, optional: true
+  has_many :comments
+end
+```
+
+この時点での正解全体：
+
+```ruby
+class Article < ApplicationRecord
+  belongs_to :category, optional: true
+  has_many :comments
+end
+```
+
+対象ファイル：
+
+```text
+app/models/comment.rb
+```
+
+この時点での正解全体：
+
+```ruby
+class Comment < ApplicationRecord
+  belongs_to :article
+end
+```
+
+</details>
+
+---
+
+## 課題23：console で記事にコメントを作る
+
+`rails console` で、記事にコメントを作ります。
+
+`rails server` が動いているターミナルとは別のターミナルで実行してください。
+
+```bash
+rails console
+```
+
+<details>
+<summary>解答例</summary>
+
+Rails console で次を実行します。
+
+```ruby
+article = Article.first
+article.comments.create!(author_name: "田中", body: "最初のコメントです")
+article.comments.create!(author_name: "佐藤", body: "2つ目のコメントです")
+
+article.comments.count
+```
+
+最後に `2` と表示されればOKです。
+
+確認できたら、console を終了します。
+
+```ruby
+exit
+```
+
+</details>
+
+---
+
+## 課題24：記事詳細画面にコメント一覧を表示する
+
+記事詳細画面に、その記事についたコメントを表示してください。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/views/articles/show.html.erb
+```
+
+変更前：
+
+```erb
+<p>更新日時：<%= @article.updated_at.strftime("%Y-%m-%d %H:%M") %></p>
+
+<p><%= link_to "編集", edit_article_path(@article) %></p>
+```
+
+変更後：
+
+```erb
+<p>更新日時：<%= @article.updated_at.strftime("%Y-%m-%d %H:%M") %></p>
+
+<h2>コメント</h2>
+
+<% @article.comments.each do |comment| %>
+  <div>
+    <p><%= comment.author_name %></p>
+    <p><%= comment.body %></p>
+  </div>
+<% end %>
+
+<p><%= link_to "編集", edit_article_path(@article) %></p>
+```
+
+この時点での正解全体：
+
+```erb
+<h1><%= @article.title %></h1>
+
+<p>ID：<%= @article.id %></p>
+<p>カテゴリ：<%= @article.category&.name || "未設定" %></p>
+
+<p><%= @article.body %></p>
+
+<p>作成日時：<%= @article.created_at.strftime("%Y-%m-%d %H:%M") %></p>
+<p>更新日時：<%= @article.updated_at.strftime("%Y-%m-%d %H:%M") %></p>
+
+<h2>コメント</h2>
+
+<% @article.comments.each do |comment| %>
+  <div>
+    <p><%= comment.author_name %></p>
+    <p><%= comment.body %></p>
+  </div>
+<% end %>
+
+<p><%= link_to "編集", edit_article_path(@article) %></p>
+
+<%= button_to "削除", article_path(@article), method: :delete %>
+
+<p><%= link_to "一覧に戻る", articles_path %></p>
+```
+
+ブラウザで記事詳細画面を開き、console で作ったコメントが表示されることを確認してください。
+
+</details>
+
+---
+
+## 課題25：記事詳細画面にコメント数を表示する
+
+コメント一覧の上に、コメント数を表示してください。
+
+例：
+
+```text
+コメント数：2件
+```
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/views/articles/show.html.erb
+```
+
+変更前：
+
+```erb
+<h2>コメント</h2>
+
+<% @article.comments.each do |comment| %>
+```
+
+変更後：
+
+```erb
+<h2>コメント</h2>
+
+<p>コメント数：<%= @article.comments.count %>件</p>
+
+<% @article.comments.each do |comment| %>
+```
+
+この時点での正解全体：
+
+```erb
+<h1><%= @article.title %></h1>
+
+<p>ID：<%= @article.id %></p>
+<p>カテゴリ：<%= @article.category&.name || "未設定" %></p>
+
+<p><%= @article.body %></p>
+
+<p>作成日時：<%= @article.created_at.strftime("%Y-%m-%d %H:%M") %></p>
+<p>更新日時：<%= @article.updated_at.strftime("%Y-%m-%d %H:%M") %></p>
+
+<h2>コメント</h2>
+
+<p>コメント数：<%= @article.comments.count %>件</p>
+
+<% @article.comments.each do |comment| %>
+  <div>
+    <p><%= comment.author_name %></p>
+    <p><%= comment.body %></p>
+  </div>
+<% end %>
+
+<p><%= link_to "編集", edit_article_path(@article) %></p>
+
+<%= button_to "削除", article_path(@article), method: :delete %>
+
+<p><%= link_to "一覧に戻る", articles_path %></p>
+```
+
+</details>
+
+---
+
+## 課題26：コメント投稿用のルートを追加する
+
+記事詳細画面からコメントを投稿できるようにします。
+まず、`comments#create` に向かうルートを追加します。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+config/routes.rb
+```
+
+変更前：
+
+```ruby
+Rails.application.routes.draw do
+  resources :articles
+end
+```
+
+変更後：
+
+```ruby
+Rails.application.routes.draw do
+  resources :articles do
+    resources :comments, only: [:create]
+  end
+end
+```
+
+この時点での正解全体：
+
+```ruby
+Rails.application.routes.draw do
+  resources :articles do
+    resources :comments, only: [:create]
+  end
+end
+```
+
+確認します。
+
+```bash
+rails routes -g comment
+```
+
+次のようなルートが出ればOKです。
+
+```text
+article_comments POST /articles/:article_id/comments(.:format) comments#create
+```
+
+> [!TIP]
+> `/articles/:article_id/comments` は、「どの記事に対するコメントか」をURLに含めた形です。
+> `:article_id` には、記事のIDが入ります。
+
+</details>
+
+---
+
+## 課題27：`CommentsController#create` を作る
+
+コメントを保存する `CommentsController#create` を作ります。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/controllers/comments_controller.rb
+```
+
+この時点での正解全体：
+
+```ruby
+class CommentsController < ApplicationController
+  def create
+    @article = Article.find(params[:article_id])
+    @article.comments.create!(comment_params)
+
+    redirect_to article_path(@article)
+  end
+
+  private
+
+  def comment_params
+    params.require(:comment).permit(:author_name, :body)
+  end
+end
+```
+
+> [!TIP]
+> `params[:article_id]` は、`/articles/:article_id/comments` の `:article_id` に入った値です。
+> どの記事にコメントするのかを、この値で探しています。
+
+</details>
+
+---
+
+## 課題28：記事詳細画面にコメント投稿フォームを追加する
+
+記事詳細画面から、コメントを投稿できるようにします。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/views/articles/show.html.erb
+```
+
+変更前：
+
+```erb
+<% @article.comments.each do |comment| %>
+  <div>
+    <p><%= comment.author_name %></p>
+    <p><%= comment.body %></p>
+  </div>
+<% end %>
+
+<p><%= link_to "編集", edit_article_path(@article) %></p>
+```
+
+変更後：
+
+```erb
+<% @article.comments.each do |comment| %>
+  <div>
+    <p><%= comment.author_name %></p>
+    <p><%= comment.body %></p>
+  </div>
+<% end %>
+
+<h2>コメントを投稿する</h2>
+
+<%= form_with model: [@article, Comment.new] do |form| %>
+  <div>
+    <%= form.label :author_name, "名前" %><br>
+    <%= form.text_field :author_name %>
+  </div>
+
+  <div>
+    <%= form.label :body, "コメント" %><br>
+    <%= form.text_area :body %>
+  </div>
+
+  <div>
+    <%= form.submit "投稿する" %>
+  </div>
+<% end %>
+
+<p><%= link_to "編集", edit_article_path(@article) %></p>
+```
+
+この時点での正解全体：
+
+```erb
+<h1><%= @article.title %></h1>
+
+<p>ID：<%= @article.id %></p>
+<p>カテゴリ：<%= @article.category&.name || "未設定" %></p>
+
+<p><%= @article.body %></p>
+
+<p>作成日時：<%= @article.created_at.strftime("%Y-%m-%d %H:%M") %></p>
+<p>更新日時：<%= @article.updated_at.strftime("%Y-%m-%d %H:%M") %></p>
+
+<h2>コメント</h2>
+
+<p>コメント数：<%= @article.comments.count %>件</p>
+
+<% @article.comments.each do |comment| %>
+  <div>
+    <p><%= comment.author_name %></p>
+    <p><%= comment.body %></p>
+  </div>
+<% end %>
+
+<h2>コメントを投稿する</h2>
+
+<%= form_with model: [@article, Comment.new] do |form| %>
+  <div>
+    <%= form.label :author_name, "名前" %><br>
+    <%= form.text_field :author_name %>
+  </div>
+
+  <div>
+    <%= form.label :body, "コメント" %><br>
+    <%= form.text_area :body %>
+  </div>
+
+  <div>
+    <%= form.submit "投稿する" %>
+  </div>
+<% end %>
+
+<p><%= link_to "編集", edit_article_path(@article) %></p>
+
+<%= button_to "削除", article_path(@article), method: :delete %>
+
+<p><%= link_to "一覧に戻る", articles_path %></p>
+```
+
+> [!TIP]
+> `form_with model: [@article, Comment.new]` と書くと、`/articles/:article_id/comments` に送信するフォームになります。
+> 記事にぶら下がるコメントを作るための書き方です。
+
+</details>
+
+---
+
+## 課題29：コメントを投稿する
+
+ブラウザで記事詳細画面を開き、コメントを投稿してください。
+
+確認すること：
+
+- `名前` と `コメント` を入力できる
+- `投稿する` を押すと、同じ記事詳細画面に戻る
+- 投稿したコメントがコメント一覧に表示される
+- コメント数が増える
+
+<details>
+<summary>確認すること</summary>
+
+ここまでできれば、記事詳細画面からコメントを追加できています。
+
+もし `No route matches` が出た場合は、`config/routes.rb` を確認してください。
+もし `uninitialized constant CommentsController` が出た場合は、`app/controllers/comments_controller.rb` のファイル名とクラス名を確認してください。
+
+</details>
+
+---
+
+## 課題30：ここまでの関係を確認する
+
+ここまでで、`Article`、`Category`、`Comment` の3つのmodelが出てきました。
+最後に、関係を整理します。
+
+```mermaid
+erDiagram
+  direction LR
+  CATEGORIES ||--o{ ARTICLES : has_many
+  ARTICLES ||--o{ COMMENTS : has_many
+
+  CATEGORIES {
+    integer id
+    string name
+  }
+  ARTICLES {
+    integer id
+    integer category_id
+    string title
+    text body
+  }
+  COMMENTS {
+    integer id
+    integer article_id
+    string author_name
+    text body
+  }
+```
+
+<details>
+<summary>確認すること</summary>
+
+- `Category` は複数の `Article` を持つ
+- `Article` は1つの `Category` に属する
+- `Article` は複数の `Comment` を持つ
+- `Comment` は1つの `Article` に属する
+- カテゴリは `rails console` で作成している
+- コメントは記事詳細画面から作成している
+
+ここまでできれば、Article CRUDにCategoryとCommentを追加できています。
+
+</details>
