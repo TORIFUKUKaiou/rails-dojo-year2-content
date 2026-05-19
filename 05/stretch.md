@@ -2680,3 +2680,316 @@ Comment.where(article_id: article_id).count
 ここまでできれば、Article CRUDにCategoryとCommentを追加し、関連データの削除まで確認できています。
 
 </details>
+
+---
+
+## 課題41：Article のCRUDルートを整理する
+
+考察問題です。
+この課題では、コマンドを実行しません。
+ノートやメモ用ファイルに、自分の言葉で整理してください。
+
+`Article` のCRUDで使ったURL、HTTPメソッド、controller actionを書き出してください。
+
+<details>
+<summary>解答例</summary>
+
+```text
+GET    /articles          articles#index
+GET    /articles/:id      articles#show
+GET    /articles/new      articles#new
+POST   /articles          articles#create
+GET    /articles/:id/edit articles#edit
+PATCH  /articles/:id      articles#update
+DELETE /articles/:id      articles#destroy
+```
+
+URLだけでなく、HTTPメソッドも一緒に見ることが大切です。
+同じ `/articles/:id` でも、`GET` なら詳細表示、`PATCH` なら更新、`DELETE` なら削除になります。
+
+</details>
+
+---
+
+## 課題42：Comment のルートを整理する
+
+考察問題です。
+この課題では、コマンドを実行しません。
+ノートやメモ用ファイルに、自分の言葉で整理してください。
+
+`Comment` で使ったURL、HTTPメソッド、controller actionを書き出してください。
+
+<details>
+<summary>解答例</summary>
+
+```text
+POST   /articles/:article_id/comments     comments#create
+DELETE /articles/:article_id/comments/:id comments#destroy
+```
+
+コメントは、記事にぶら下がるデータとして作りました。
+そのため、URLの中に `article_id` が入っています。
+
+`comments#create` では、どの記事にコメントを追加するのかを `params[:article_id]` で受け取ります。
+`comments#destroy` でも、どの記事のどのコメントを削除するのかをURLから受け取ります。
+
+</details>
+
+---
+
+## 課題43：`/articles` にアクセスしたときの流れを説明する
+
+考察問題です。
+この課題では、コマンドを実行しません。
+ノートやメモ用ファイルに、自分の言葉で整理してください。
+
+ブラウザで `/articles` にアクセスしたとき、どのファイルがどの順番で関係するか説明してください。
+
+<details>
+<summary>解答例</summary>
+
+```text
+1. ブラウザで /articles にアクセスする
+2. config/routes.rb が articles#index へ振り分ける
+3. ArticlesController#index が動く
+4. @articles = Article.all などで記事を取得する
+5. app/views/articles/index.html.erb が表示される
+6. ブラウザに記事一覧が表示される
+```
+
+Railsでは、URLを見てcontroller actionが決まり、そのactionで用意した変数をviewで表示します。
+
+</details>
+
+---
+
+## 課題44：`/articles/:id` にアクセスしたときの流れを説明する
+
+考察問題です。
+この課題では、コマンドを実行しません。
+ノートやメモ用ファイルに、自分の言葉で整理してください。
+
+ブラウザで記事詳細画面を開いたとき、どのファイルがどの順番で関係するか説明してください。
+
+<details>
+<summary>解答例</summary>
+
+```text
+1. ブラウザで /articles/1 のようなURLにアクセスする
+2. config/routes.rb が articles#show へ振り分ける
+3. params[:id] に記事IDが入る
+4. ArticlesController#show が動く
+5. @article = Article.find(params[:id]) で記事を1件取得する
+6. app/views/articles/show.html.erb が表示される
+7. ブラウザに記事詳細、カテゴリ名、コメント一覧が表示される
+```
+
+`params[:id]` は、URLの `:id` に入った値です。
+`/articles/1` なら `params[:id]` は `1` になります。
+
+</details>
+
+---
+
+## 課題45：記事作成フォーム送信時の流れを説明する
+
+考察問題です。
+この課題では、コマンドを実行しません。
+ノートやメモ用ファイルに、自分の言葉で整理してください。
+
+記事作成フォームで `作成する` を押したとき、どの処理が動くか説明してください。
+
+<details>
+<summary>解答例</summary>
+
+```text
+1. app/views/articles/new.html.erb のフォームに入力する
+2. 作成するボタンを押す
+3. POST /articles が送信される
+4. config/routes.rb が articles#create へ振り分ける
+5. ArticlesController#create が動く
+6. article_params で保存してよい値だけ取り出す
+7. Article.new(article_params) で記事を作る
+8. @article.save でデータベースに保存する
+9. 保存できたら redirect_to @article で詳細画面へ移動する
+```
+
+フォームから送られた値をそのまま全部保存するのではなく、`article_params` を通して保存する値を決めています。
+
+</details>
+
+---
+
+## 課題46：コメント投稿フォーム送信時の流れを説明する
+
+考察問題です。
+この課題では、コマンドを実行しません。
+ノートやメモ用ファイルに、自分の言葉で整理してください。
+
+コメント投稿フォームで `投稿する` を押したとき、どの処理が動くか説明してください。
+
+<details>
+<summary>解答例</summary>
+
+```text
+1. app/views/articles/show.html.erb のコメントフォームに入力する
+2. 投稿するボタンを押す
+3. POST /articles/:article_id/comments が送信される
+4. config/routes.rb が comments#create へ振り分ける
+5. CommentsController#create が動く
+6. Article.find(params[:article_id]) で記事を取得する
+7. comment_params で保存してよい値だけ取り出す
+8. @article.comments.create!(comment_params) で記事にコメントを追加する
+9. redirect_to article_path(@article) で記事詳細画面へ戻る
+```
+
+記事作成と違い、コメント投稿では `params[:article_id]` が重要です。
+どの記事にコメントするのかをURLから受け取っています。
+
+</details>
+
+---
+
+## 課題47：`article_params` と `comment_params` の違いを説明する
+
+考察問題です。
+この課題では、コマンドを実行しません。
+ノートやメモ用ファイルに、自分の言葉で整理してください。
+
+`article_params` と `comment_params` は、どちらも strong parameters です。
+何が違うのか説明してください。
+
+<details>
+<summary>解答例</summary>
+
+`article_params` は、記事を作成・更新するときに使います。
+
+```ruby
+params.require(:article).permit(:title, :body, :category_id)
+```
+
+`comment_params` は、コメントを作成するときに使います。
+
+```ruby
+params.require(:comment).permit(:author_name, :body)
+```
+
+違いは、受け取るデータの名前と、保存を許可するカラムです。
+
+`article_params` は `article` の値を受け取り、`title`、`body`、`category_id` を許可します。
+`comment_params` は `comment` の値を受け取り、`author_name`、`body` を許可します。
+
+</details>
+
+---
+
+## 課題48：`belongs_to` と `has_many` の違いを説明する
+
+考察問題です。
+この課題では、コマンドを実行しません。
+ノートやメモ用ファイルに、自分の言葉で整理してください。
+
+今回のアプリで使った `belongs_to` と `has_many` を例にして、違いを説明してください。
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+class Article < ApplicationRecord
+  belongs_to :category, optional: true
+  has_many :comments, dependent: :destroy
+end
+```
+
+```ruby
+class Category < ApplicationRecord
+  has_many :articles
+end
+```
+
+```ruby
+class Comment < ApplicationRecord
+  belongs_to :article
+end
+```
+
+`belongs_to` は、「1つの相手に属する」という関係です。
+`Article` は1つの `Category` に属します。
+`Comment` は1つの `Article` に属します。
+
+`has_many` は、「複数の相手を持つ」という関係です。
+`Category` は複数の `Article` を持ちます。
+`Article` は複数の `Comment` を持ちます。
+
+</details>
+
+---
+
+## 課題49：`dependent: :destroy` が必要な理由を説明する
+
+考察問題です。
+この課題では、コマンドを実行しません。
+ノートやメモ用ファイルに、自分の言葉で整理してください。
+
+なぜ `has_many :comments, dependent: :destroy` が必要だったのか説明してください。
+
+<details>
+<summary>解答例</summary>
+
+記事を削除したとき、その記事についているコメントをどうするかをRailsに教えるためです。
+
+`dependent: :destroy` がないと、コメントが記事を参照したまま残ります。
+その状態で記事だけを削除しようとすると、外部キー制約によりエラーになります。
+
+```ruby
+has_many :comments, dependent: :destroy
+```
+
+このように書くと、記事を削除するときに、その記事のコメントも先に削除されます。
+そのため、どの記事にも属さないコメントが残ることを防げます。
+
+</details>
+
+---
+
+## 課題50：今日作ったアプリのER図を書く
+
+考察問題です。
+この課題では、コマンドを実行しません。
+ノートやメモ用ファイルに、自分の言葉で整理してください。
+
+`Article`、`Category`、`Comment` の関係をMermaidで書いてください。
+
+<details>
+<summary>解答例</summary>
+
+```mermaid
+erDiagram
+  direction LR
+  CATEGORIES ||--o{ ARTICLES : has_many
+  ARTICLES ||--o{ COMMENTS : has_many
+
+  CATEGORIES {
+    integer id
+    string name
+  }
+  ARTICLES {
+    integer id
+    integer category_id
+    string title
+    text body
+  }
+  COMMENTS {
+    integer id
+    integer article_id
+    string author_name
+    text body
+  }
+```
+
+`categories` と `articles` は1対多です。
+`articles` と `comments` も1対多です。
+
+ここまで整理できれば、CRUD、controller、view、model、association、nested route のつながりを一通り確認できています。
+
+</details>
