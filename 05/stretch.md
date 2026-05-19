@@ -758,3 +758,766 @@ end
 `permit` に書いていない項目は、フォームから送られてきても保存されません。
 
 </details>
+
+---
+
+## 課題11：`Category` モデルを作る
+
+記事にカテゴリを付けられるようにします。
+まず、カテゴリを保存する `Category` モデルを作ってください。
+
+```bash
+rails generate model Category name:string
+rails db:migrate
+```
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/models/category.rb
+```
+
+この時点での正解全体：
+
+```ruby
+class Category < ApplicationRecord
+end
+```
+
+確認すること：
+
+- `app/models/category.rb` ができている
+- `db/schema.rb` に `categories` テーブルがある
+- `categories` テーブルに `name` カラムがある
+
+</details>
+
+---
+
+## 課題12：`Article` に `category_id` を追加する
+
+`articles` テーブルに、どのカテゴリに属するかを保存する `category_id` を追加します。
+
+```bash
+rails generate migration AddCategoryToArticles category:references
+```
+
+生成された migration ファイルを開いてください。
+ファイル名は環境によって違います。
+
+```text
+db/migrate/xxxx_add_category_to_articles.rb
+```
+
+既存の記事には、まだカテゴリがありません。
+そのため、今回は `null: true` にして、カテゴリなしの記事も許可します。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+db/migrate/xxxx_add_category_to_articles.rb
+```
+
+変更前：
+
+```ruby
+add_reference :articles, :category, null: false, foreign_key: true
+```
+
+変更後：
+
+```ruby
+add_reference :articles, :category, null: true, foreign_key: true
+```
+
+この時点での正解全体：
+
+```ruby
+class AddCategoryToArticles < ActiveRecord::Migration[8.1]
+  def change
+    add_reference :articles, :category, null: true, foreign_key: true
+  end
+end
+```
+
+書けたら migration を実行します。
+
+```bash
+rails db:migrate
+```
+
+確認すること：
+
+- `db/schema.rb` の `articles` テーブルに `category_id` がある
+- `index_articles_on_category_id` がある
+- `add_foreign_key "articles", "categories"` がある
+
+もし生成された時点で `null: true` になっている場合は、そのままで構いません。
+
+</details>
+
+---
+
+## 課題13：model に association を書く
+
+`Article` と `Category` の関係を書きます。
+
+1つのカテゴリには、複数の記事があります。
+1つの記事は、1つのカテゴリに属します。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/models/category.rb
+```
+
+変更前：
+
+```ruby
+class Category < ApplicationRecord
+end
+```
+
+変更後：
+
+```ruby
+class Category < ApplicationRecord
+  has_many :articles
+end
+```
+
+この時点での正解全体：
+
+```ruby
+class Category < ApplicationRecord
+  has_many :articles
+end
+```
+
+対象ファイル：
+
+```text
+app/models/article.rb
+```
+
+変更前：
+
+```ruby
+class Article < ApplicationRecord
+end
+```
+
+変更後：
+
+```ruby
+class Article < ApplicationRecord
+  belongs_to :category, optional: true
+end
+```
+
+この時点での正解全体：
+
+```ruby
+class Article < ApplicationRecord
+  belongs_to :category, optional: true
+end
+```
+
+> [!TIP]
+> `optional: true` は、カテゴリがまだ入っていない記事も許可するために付けています。
+> 今回は既存の記事がある状態で途中からカテゴリを追加するため、この形にします。
+
+</details>
+
+---
+
+## 課題14：console でカテゴリと記事を結びつける
+
+`rails console` でカテゴリを作り、既存の記事にカテゴリを設定します。
+
+`rails server` が動いているターミナルとは別のターミナルで実行してください。
+
+```bash
+rails console
+```
+
+<details>
+<summary>解答例</summary>
+
+Rails console で次を実行します。
+
+```ruby
+news = Category.create!(name: "お知らせ")
+diary = Category.create!(name: "日記")
+
+article = Article.first
+article.update!(category: news)
+
+Article.first.category.name
+```
+
+最後に `"お知らせ"` と表示されればOKです。
+
+確認できたら、console を終了します。
+
+```ruby
+exit
+```
+
+</details>
+
+---
+
+## 課題15：一覧画面にカテゴリ名を表示する
+
+一覧画面に、記事のカテゴリ名を表示してください。
+
+カテゴリがない記事は、`未設定` と表示します。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/views/articles/index.html.erb
+```
+
+変更前：
+
+```erb
+<h2><%= article.title %></h2>
+<p><%= truncate(article.body, length: 30) %></p>
+```
+
+変更後：
+
+```erb
+<h2><%= article.title %></h2>
+<p>カテゴリ：<%= article.category&.name || "未設定" %></p>
+<p><%= truncate(article.body, length: 30) %></p>
+```
+
+この時点での正解全体：
+
+```erb
+<h1>記事一覧</h1>
+
+<p>記事数：<%= @articles.count %>件</p>
+
+<p><%= link_to "新規作成", new_article_path %></p>
+
+<% if @articles.empty? %>
+  <p>記事はまだありません。</p>
+<% else %>
+  <% @articles.each do |article| %>
+    <div>
+      <h2><%= article.title %></h2>
+      <p>カテゴリ：<%= article.category&.name || "未設定" %></p>
+      <p><%= truncate(article.body, length: 30) %></p>
+      <p><%= link_to "詳細", article_path(article) %></p>
+      <p><%= link_to "編集", edit_article_path(article) %></p>
+      <%= button_to "削除", article_path(article), method: :delete %>
+    </div>
+  <% end %>
+<% end %>
+```
+
+> [!TIP]
+> `article.category&.name` は、カテゴリがある場合だけカテゴリ名を取り出します。
+> カテゴリがない場合は `nil` になるので、`|| "未設定"` で表示を補っています。
+
+</details>
+
+---
+
+## 課題16：詳細画面にカテゴリ名を表示する
+
+詳細画面にも、記事のカテゴリ名を表示してください。
+
+カテゴリがない記事は、`未設定` と表示します。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/views/articles/show.html.erb
+```
+
+変更前：
+
+```erb
+<p>ID：<%= @article.id %></p>
+
+<p><%= @article.body %></p>
+```
+
+変更後：
+
+```erb
+<p>ID：<%= @article.id %></p>
+<p>カテゴリ：<%= @article.category&.name || "未設定" %></p>
+
+<p><%= @article.body %></p>
+```
+
+この時点での正解全体：
+
+```erb
+<h1><%= @article.title %></h1>
+
+<p>ID：<%= @article.id %></p>
+<p>カテゴリ：<%= @article.category&.name || "未設定" %></p>
+
+<p><%= @article.body %></p>
+
+<p>作成日時：<%= @article.created_at.strftime("%Y-%m-%d %H:%M") %></p>
+<p>更新日時：<%= @article.updated_at.strftime("%Y-%m-%d %H:%M") %></p>
+
+<p><%= link_to "編集", edit_article_path(@article) %></p>
+
+<%= button_to "削除", article_path(@article), method: :delete %>
+
+<p><%= link_to "一覧に戻る", articles_path %></p>
+```
+
+</details>
+
+---
+
+## 課題17：新規作成フォームでカテゴリを選べるようにする
+
+記事を作るときに、カテゴリを選べるようにします。
+
+まず、controller の `new` でカテゴリ一覧を用意します。
+次に、`new.html.erb` にカテゴリ選択欄を追加します。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/controllers/articles_controller.rb
+```
+
+変更前：
+
+```ruby
+def new
+  @article = Article.new
+end
+```
+
+変更後：
+
+```ruby
+def new
+  @article = Article.new
+  @categories = Category.order(:name)
+end
+```
+
+この時点での正解全体：
+
+```ruby
+class ArticlesController < ApplicationController
+  def index
+    @articles = Article.order(created_at: :desc)
+  end
+
+  def show
+    @article = Article.find(params[:id])
+  end
+
+  def new
+    @article = Article.new
+    @categories = Category.order(:name)
+  end
+
+  def create
+    @article = Article.new(article_params)
+
+    if @article.save
+      redirect_to @article
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+
+  def edit
+    @article = Article.find(params[:id])
+  end
+
+  def update
+    @article = Article.find(params[:id])
+
+    if @article.update(article_params)
+      redirect_to @article
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    @article = Article.find(params[:id])
+    @article.destroy
+
+    redirect_to articles_path
+  end
+
+  private
+
+  def article_params
+    params.require(:article).permit(:title, :body)
+  end
+end
+```
+
+対象ファイル：
+
+```text
+app/views/articles/new.html.erb
+```
+
+変更前：
+
+```erb
+<div>
+  <%= form.label :body, "本文" %><br>
+  <%= form.text_area :body %>
+</div>
+```
+
+変更後：
+
+```erb
+<div>
+  <%= form.label :body, "本文" %><br>
+  <%= form.text_area :body %>
+</div>
+
+<div>
+  <%= form.label :category_id, "カテゴリ" %><br>
+  <%= form.collection_select :category_id, @categories, :id, :name, include_blank: "選択してください" %>
+</div>
+```
+
+この時点での正解全体：
+
+```erb
+<h1>記事を作成する</h1>
+
+<%= form_with model: @article do |form| %>
+  <div>
+    <%= form.label :title, "タイトル" %><br>
+    <%= form.text_field :title %>
+  </div>
+
+  <div>
+    <%= form.label :body, "本文" %><br>
+    <%= form.text_area :body %>
+  </div>
+
+  <div>
+    <%= form.label :category_id, "カテゴリ" %><br>
+    <%= form.collection_select :category_id, @categories, :id, :name, include_blank: "選択してください" %>
+  </div>
+
+  <div>
+    <%= form.submit "作成する" %>
+  </div>
+<% end %>
+
+<p><%= link_to "一覧に戻る", articles_path %></p>
+```
+
+ブラウザで `/articles/new` を開き、カテゴリの選択欄が表示されることを確認してください。
+
+</details>
+
+---
+
+## 課題18：作成時にカテゴリを保存できるようにする
+
+フォームにカテゴリ選択欄を追加しても、`article_params` で許可しなければ保存されません。
+
+`category_id` を保存できるようにしてください。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/controllers/articles_controller.rb
+```
+
+変更前：
+
+```ruby
+def article_params
+  params.require(:article).permit(:title, :body)
+end
+```
+
+変更後：
+
+```ruby
+def article_params
+  params.require(:article).permit(:title, :body, :category_id)
+end
+```
+
+この時点での正解全体：
+
+```ruby
+class ArticlesController < ApplicationController
+  def index
+    @articles = Article.order(created_at: :desc)
+  end
+
+  def show
+    @article = Article.find(params[:id])
+  end
+
+  def new
+    @article = Article.new
+    @categories = Category.order(:name)
+  end
+
+  def create
+    @article = Article.new(article_params)
+
+    if @article.save
+      redirect_to @article
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+
+  def edit
+    @article = Article.find(params[:id])
+  end
+
+  def update
+    @article = Article.find(params[:id])
+
+    if @article.update(article_params)
+      redirect_to @article
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    @article = Article.find(params[:id])
+    @article.destroy
+
+    redirect_to articles_path
+  end
+
+  private
+
+  def article_params
+    params.require(:article).permit(:title, :body, :category_id)
+  end
+end
+```
+
+ブラウザでカテゴリ付きの記事を作成してください。
+作成後の詳細画面で、カテゴリ名が表示されればOKです。
+
+</details>
+
+---
+
+## 課題19：編集フォームでカテゴリを変更できるようにする
+
+編集画面でも、カテゴリを選べるようにします。
+
+まず、controller の `edit` でカテゴリ一覧を用意します。
+次に、`edit.html.erb` にカテゴリ選択欄を追加します。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/controllers/articles_controller.rb
+```
+
+変更前：
+
+```ruby
+def edit
+  @article = Article.find(params[:id])
+end
+```
+
+変更後：
+
+```ruby
+def edit
+  @article = Article.find(params[:id])
+  @categories = Category.order(:name)
+end
+```
+
+この時点での正解全体：
+
+```ruby
+class ArticlesController < ApplicationController
+  def index
+    @articles = Article.order(created_at: :desc)
+  end
+
+  def show
+    @article = Article.find(params[:id])
+  end
+
+  def new
+    @article = Article.new
+    @categories = Category.order(:name)
+  end
+
+  def create
+    @article = Article.new(article_params)
+
+    if @article.save
+      redirect_to @article
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+
+  def edit
+    @article = Article.find(params[:id])
+    @categories = Category.order(:name)
+  end
+
+  def update
+    @article = Article.find(params[:id])
+
+    if @article.update(article_params)
+      redirect_to @article
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    @article = Article.find(params[:id])
+    @article.destroy
+
+    redirect_to articles_path
+  end
+
+  private
+
+  def article_params
+    params.require(:article).permit(:title, :body, :category_id)
+  end
+end
+```
+
+対象ファイル：
+
+```text
+app/views/articles/edit.html.erb
+```
+
+変更前：
+
+```erb
+<div>
+  <%= form.label :body, "本文" %><br>
+  <%= form.text_area :body %>
+</div>
+```
+
+変更後：
+
+```erb
+<div>
+  <%= form.label :body, "本文" %><br>
+  <%= form.text_area :body %>
+</div>
+
+<div>
+  <%= form.label :category_id, "カテゴリ" %><br>
+  <%= form.collection_select :category_id, @categories, :id, :name, include_blank: "選択してください" %>
+</div>
+```
+
+この時点での正解全体：
+
+```erb
+<h1>記事を編集する</h1>
+
+<%= form_with model: @article do |form| %>
+  <div>
+    <%= form.label :title, "タイトル" %><br>
+    <%= form.text_field :title %>
+  </div>
+
+  <div>
+    <%= form.label :body, "本文" %><br>
+    <%= form.text_area :body %>
+  </div>
+
+  <div>
+    <%= form.label :category_id, "カテゴリ" %><br>
+    <%= form.collection_select :category_id, @categories, :id, :name, include_blank: "選択してください" %>
+  </div>
+
+  <div>
+    <%= form.submit "更新する" %>
+  </div>
+<% end %>
+
+<p><%= link_to "詳細に戻る", article_path(@article) %></p>
+<p><%= link_to "一覧に戻る", articles_path %></p>
+```
+
+ブラウザで編集画面を開き、カテゴリの選択欄が表示されることを確認してください。
+
+</details>
+
+---
+
+## 課題20：カテゴリ変更を保存できることを確認する
+
+最後に、編集画面でカテゴリを変更し、その変更が保存されることを確認します。
+
+ブラウザで次の操作をしてください。
+
+1. 記事の編集画面を開く
+2. カテゴリを別のものに変更する
+3. `更新する` を押す
+4. 詳細画面でカテゴリ名が変わっていることを確認する
+5. 一覧画面でもカテゴリ名が変わっていることを確認する
+
+<details>
+<summary>確認すること</summary>
+
+- 編集画面にカテゴリ選択欄がある
+- `更新する` を押すと詳細画面に戻る
+- 詳細画面のカテゴリ名が変わる
+- 一覧画面のカテゴリ名も変わる
+
+ここまでできれば、Article CRUDにCategoryを追加できています。
+
+</details>
