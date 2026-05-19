@@ -3069,3 +3069,1264 @@ erDiagram
 ここまで整理できれば、CRUD、controller、view、model、association、nested route のつながりを一通り確認できています。
 
 </details>
+
+---
+
+## 課題51：学習メモアプリを作る
+
+ここからは、別の題材でCRUDをもう一度作ります。
+scaffoldは使いません。
+
+`/home/vscode` に戻って、新しいRailsアプリを作ってください。
+
+```bash
+cd /home/vscode
+rails new study_notes_app -d sqlite3
+cd study_notes_app
+```
+
+<details>
+<summary>確認すること</summary>
+
+次のコマンドでRailsアプリの中にいることを確認します。
+
+```bash
+pwd
+```
+
+次のように表示されればOKです。
+
+```text
+/home/vscode/study_notes_app
+```
+
+</details>
+
+---
+
+## 課題52：`StudyNote` modelを作る
+
+学習メモを保存する `StudyNote` modelを作ってください。
+
+持たせるカラム：
+
+- `title`: 学習タイトル
+- `body`: 学習内容
+- `study_minutes`: 学習時間
+
+<details>
+<summary>解答例</summary>
+
+```bash
+rails generate model StudyNote title:string body:text study_minutes:integer
+rails db:migrate
+```
+
+対象ファイル：
+
+```text
+app/models/study_note.rb
+```
+
+この時点での正解全体：
+
+```ruby
+class StudyNote < ApplicationRecord
+end
+```
+
+確認すること：
+
+- `db/schema.rb` に `study_notes` テーブルがある
+- `title`、`body`、`study_minutes` がある
+
+</details>
+
+---
+
+## 課題53：学習メモの一覧画面を作る
+
+`/study_notes` を開いたら、学習メモ一覧が表示されるようにしてください。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+config/routes.rb
+```
+
+この時点での正解全体：
+
+```ruby
+Rails.application.routes.draw do
+  resources :study_notes
+end
+```
+
+対象ファイル：
+
+```text
+app/controllers/study_notes_controller.rb
+```
+
+この時点での正解全体：
+
+```ruby
+class StudyNotesController < ApplicationController
+  def index
+    @study_notes = StudyNote.all
+  end
+end
+```
+
+対象ファイル：
+
+```text
+app/views/study_notes/index.html.erb
+```
+
+この時点での正解全体：
+
+```erb
+<h1>学習メモ一覧</h1>
+
+<% if @study_notes.empty? %>
+  <p>学習メモはまだありません。</p>
+<% else %>
+  <% @study_notes.each do |study_note| %>
+    <div>
+      <h2><%= study_note.title %></h2>
+      <p><%= study_note.body %></p>
+      <p>学習時間：<%= study_note.study_minutes %>分</p>
+    </div>
+  <% end %>
+<% end %>
+```
+
+</details>
+
+---
+
+## 課題54：学習メモの詳細画面を作る
+
+一覧画面から、学習メモの詳細画面へ移動できるようにしてください。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/controllers/study_notes_controller.rb
+```
+
+この時点での正解全体：
+
+```ruby
+class StudyNotesController < ApplicationController
+  def index
+    @study_notes = StudyNote.all
+  end
+
+  def show
+    @study_note = StudyNote.find(params[:id])
+  end
+end
+```
+
+対象ファイル：
+
+```text
+app/views/study_notes/index.html.erb
+```
+
+この時点での正解全体：
+
+```erb
+<h1>学習メモ一覧</h1>
+
+<% if @study_notes.empty? %>
+  <p>学習メモはまだありません。</p>
+<% else %>
+  <% @study_notes.each do |study_note| %>
+    <div>
+      <h2><%= study_note.title %></h2>
+      <p><%= study_note.body %></p>
+      <p>学習時間：<%= study_note.study_minutes %>分</p>
+      <p><%= link_to "詳細", study_note_path(study_note) %></p>
+    </div>
+  <% end %>
+<% end %>
+```
+
+対象ファイル：
+
+```text
+app/views/study_notes/show.html.erb
+```
+
+この時点での正解全体：
+
+```erb
+<h1><%= @study_note.title %></h1>
+
+<p><%= @study_note.body %></p>
+<p>学習時間：<%= @study_note.study_minutes %>分</p>
+
+<p><%= link_to "一覧に戻る", study_notes_path %></p>
+```
+
+</details>
+
+---
+
+## 課題55：学習メモを作成できるようにする
+
+新規作成画面と保存処理を作ってください。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/controllers/study_notes_controller.rb
+```
+
+この時点での正解全体：
+
+```ruby
+class StudyNotesController < ApplicationController
+  def index
+    @study_notes = StudyNote.all
+  end
+
+  def show
+    @study_note = StudyNote.find(params[:id])
+  end
+
+  def new
+    @study_note = StudyNote.new
+  end
+
+  def create
+    @study_note = StudyNote.new(study_note_params)
+
+    if @study_note.save
+      redirect_to @study_note
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+
+  private
+
+  def study_note_params
+    params.require(:study_note).permit(:title, :body, :study_minutes)
+  end
+end
+```
+
+対象ファイル：
+
+```text
+app/views/study_notes/index.html.erb
+```
+
+先頭に追加：
+
+```erb
+<p><%= link_to "新規作成", new_study_note_path %></p>
+```
+
+対象ファイル：
+
+```text
+app/views/study_notes/new.html.erb
+```
+
+この時点での正解全体：
+
+```erb
+<h1>学習メモを作成する</h1>
+
+<%= form_with model: @study_note do |form| %>
+  <div>
+    <%= form.label :title, "タイトル" %><br>
+    <%= form.text_field :title %>
+  </div>
+
+  <div>
+    <%= form.label :body, "内容" %><br>
+    <%= form.text_area :body %>
+  </div>
+
+  <div>
+    <%= form.label :study_minutes, "学習時間" %><br>
+    <%= form.number_field :study_minutes %>
+  </div>
+
+  <div>
+    <%= form.submit "作成する" %>
+  </div>
+<% end %>
+
+<p><%= link_to "一覧に戻る", study_notes_path %></p>
+```
+
+</details>
+
+---
+
+## 課題56：学習メモを編集できるようにする
+
+編集画面と更新処理を作ってください。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/controllers/study_notes_controller.rb
+```
+
+追加するaction：
+
+```ruby
+def edit
+  @study_note = StudyNote.find(params[:id])
+end
+
+def update
+  @study_note = StudyNote.find(params[:id])
+
+  if @study_note.update(study_note_params)
+    redirect_to @study_note
+  else
+    render :edit, status: :unprocessable_entity
+  end
+end
+```
+
+対象ファイル：
+
+```text
+app/views/study_notes/show.html.erb
+```
+
+追加するリンク：
+
+```erb
+<p><%= link_to "編集", edit_study_note_path(@study_note) %></p>
+```
+
+対象ファイル：
+
+```text
+app/views/study_notes/edit.html.erb
+```
+
+この時点での正解全体：
+
+```erb
+<h1>学習メモを編集する</h1>
+
+<%= form_with model: @study_note do |form| %>
+  <div>
+    <%= form.label :title, "タイトル" %><br>
+    <%= form.text_field :title %>
+  </div>
+
+  <div>
+    <%= form.label :body, "内容" %><br>
+    <%= form.text_area :body %>
+  </div>
+
+  <div>
+    <%= form.label :study_minutes, "学習時間" %><br>
+    <%= form.number_field :study_minutes %>
+  </div>
+
+  <div>
+    <%= form.submit "更新する" %>
+  </div>
+<% end %>
+
+<p><%= link_to "詳細に戻る", study_note_path(@study_note) %></p>
+<p><%= link_to "一覧に戻る", study_notes_path %></p>
+```
+
+</details>
+
+---
+
+## 課題57：学習メモを削除できるようにする
+
+詳細画面に削除ボタンを追加し、削除処理を作ってください。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/controllers/study_notes_controller.rb
+```
+
+追加するaction：
+
+```ruby
+def destroy
+  @study_note = StudyNote.find(params[:id])
+  @study_note.destroy
+
+  redirect_to study_notes_path
+end
+```
+
+対象ファイル：
+
+```text
+app/views/study_notes/show.html.erb
+```
+
+この時点での正解全体：
+
+```erb
+<h1><%= @study_note.title %></h1>
+
+<p><%= @study_note.body %></p>
+<p>学習時間：<%= @study_note.study_minutes %>分</p>
+
+<p><%= link_to "編集", edit_study_note_path(@study_note) %></p>
+
+<%= button_to "削除", study_note_path(@study_note), method: :delete %>
+
+<p><%= link_to "一覧に戻る", study_notes_path %></p>
+```
+
+</details>
+
+---
+
+## 課題58：controller全体を確認する
+
+`StudyNotesController` がCRUD全体を持っているか確認してください。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/controllers/study_notes_controller.rb
+```
+
+この時点での正解全体：
+
+```ruby
+class StudyNotesController < ApplicationController
+  def index
+    @study_notes = StudyNote.all
+  end
+
+  def show
+    @study_note = StudyNote.find(params[:id])
+  end
+
+  def new
+    @study_note = StudyNote.new
+  end
+
+  def create
+    @study_note = StudyNote.new(study_note_params)
+
+    if @study_note.save
+      redirect_to @study_note
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+
+  def edit
+    @study_note = StudyNote.find(params[:id])
+  end
+
+  def update
+    @study_note = StudyNote.find(params[:id])
+
+    if @study_note.update(study_note_params)
+      redirect_to @study_note
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    @study_note = StudyNote.find(params[:id])
+    @study_note.destroy
+
+    redirect_to study_notes_path
+  end
+
+  private
+
+  def study_note_params
+    params.require(:study_note).permit(:title, :body, :study_minutes)
+  end
+end
+```
+
+</details>
+
+---
+
+## 課題59：一覧画面を見やすくする
+
+一覧画面に、学習メモ数と合計学習時間を表示してください。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/views/study_notes/index.html.erb
+```
+
+この時点での正解全体：
+
+```erb
+<h1>学習メモ一覧</h1>
+
+<p><%= link_to "新規作成", new_study_note_path %></p>
+
+<p>メモ数：<%= @study_notes.count %>件</p>
+<p>合計学習時間：<%= @study_notes.sum(:study_minutes) %>分</p>
+
+<% if @study_notes.empty? %>
+  <p>学習メモはまだありません。</p>
+<% else %>
+  <% @study_notes.each do |study_note| %>
+    <div>
+      <h2><%= study_note.title %></h2>
+      <p><%= study_note.body %></p>
+      <p>学習時間：<%= study_note.study_minutes %>分</p>
+      <p><%= link_to "詳細", study_note_path(study_note) %></p>
+    </div>
+  <% end %>
+<% end %>
+```
+
+`sum(:study_minutes)` は、`study_minutes` カラムの合計をデータベース側で計算します。
+
+</details>
+
+---
+
+## 課題60：学習メモCRUDをブラウザで確認する
+
+ブラウザで、学習メモCRUDが一通り動くことを確認してください。
+
+確認すること：
+
+- 一覧を表示できる
+- 新規作成できる
+- 詳細画面を表示できる
+- 編集できる
+- 削除できる
+- 学習メモ数が変わる
+- 合計学習時間が変わる
+
+<details>
+<summary>確認すること</summary>
+
+ここまでできれば、scaffoldを使わずに `StudyNote` のCRUDを作れています。
+
+`Article` CRUDと同じ型で作れているか、controller、view、routesを見比べてください。
+
+</details>
+
+---
+
+## 課題61：`Subject` modelを作る
+
+学習メモに科目を付けられるようにします。
+まず、科目を保存する `Subject` modelを作ってください。
+
+<details>
+<summary>解答例</summary>
+
+```bash
+rails generate model Subject name:string
+rails db:migrate
+```
+
+対象ファイル：
+
+```text
+app/models/subject.rb
+```
+
+この時点での正解全体：
+
+```ruby
+class Subject < ApplicationRecord
+end
+```
+
+</details>
+
+---
+
+## 課題62：`StudyNote` に `subject_id` を追加する
+
+学習メモが科目に属するように、`study_notes` テーブルへ `subject_id` を追加してください。
+
+<details>
+<summary>解答例</summary>
+
+```bash
+rails generate migration AddSubjectToStudyNotes subject:references
+```
+
+生成されたmigrationを開き、次のようにしてください。
+
+対象ファイル：
+
+```text
+db/migrate/xxxxxxxxxxxxxx_add_subject_to_study_notes.rb
+```
+
+この時点での正解全体：
+
+```ruby
+class AddSubjectToStudyNotes < ActiveRecord::Migration[8.1]
+  def change
+    add_reference :study_notes, :subject, foreign_key: true
+  end
+end
+```
+
+注意：
+
+すでに学習メモを作っている場合、`null: false` があるとmigrationに失敗することがあります。
+ここでは既存の学習メモにも対応できるように、`null: false` は付けません。
+
+編集できたら、migrationを実行します。
+
+```bash
+rails db:migrate
+```
+
+</details>
+
+---
+
+## 課題63：`Subject` と `StudyNote` の association を書く
+
+1つの科目には、複数の学習メモがあります。
+1つの学習メモは、1つの科目に属します。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/models/subject.rb
+```
+
+この時点での正解全体：
+
+```ruby
+class Subject < ApplicationRecord
+  has_many :study_notes
+end
+```
+
+対象ファイル：
+
+```text
+app/models/study_note.rb
+```
+
+この時点での正解全体：
+
+```ruby
+class StudyNote < ApplicationRecord
+  belongs_to :subject, optional: true
+end
+```
+
+`optional: true` は、科目が未設定の学習メモも許可する指定です。
+すでに作った学習メモには、まだ科目が入っていないためです。
+
+</details>
+
+---
+
+## 課題64：consoleで科目を作る
+
+`rails console` で科目を作ってください。
+
+<details>
+<summary>解答例</summary>
+
+```bash
+rails console
+```
+
+Rails consoleで次を実行します。
+
+```ruby
+Subject.create!(name: "Ruby")
+Subject.create!(name: "Rails")
+Subject.create!(name: "データベース")
+
+Subject.pluck(:name)
+```
+
+最後に科目名の配列が表示されればOKです。
+
+確認できたら、consoleを終了します。
+
+```ruby
+exit
+```
+
+</details>
+
+---
+
+## 課題65：consoleで科目付き学習メモを作る
+
+`rails console` で、科目付きの学習メモを作ってください。
+
+<details>
+<summary>解答例</summary>
+
+```bash
+rails console
+```
+
+Rails consoleで次を実行します。
+
+```ruby
+rails = Subject.find_by!(name: "Rails")
+
+rails.study_notes.create!(
+  title: "CRUDの復習",
+  body: "index、show、new、createを確認した",
+  study_minutes: 45
+)
+
+rails.study_notes.count
+```
+
+`find_by!` は、見つからなかったときにエラーにしてくれます。
+タイポに気づきやすくなるため、確認用のコードでは便利です。
+
+</details>
+
+---
+
+## 課題66：一覧画面に科目名を表示する
+
+学習メモ一覧に、科目名を表示してください。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/views/study_notes/index.html.erb
+```
+
+表示したい場所に追加：
+
+```erb
+<p>科目：<%= study_note.subject&.name || "未設定" %></p>
+```
+
+`&.` は、科目がない場合でもエラーにしないための書き方です。
+科目があるときは `name` を取り出し、科目がないときは `nil` になります。
+
+`|| "未設定"` を続けて書くことで、科目がないときに `未設定` と表示できます。
+
+</details>
+
+---
+
+## 課題67：詳細画面に科目名を表示する
+
+学習メモ詳細画面に、科目名を表示してください。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/views/study_notes/show.html.erb
+```
+
+追加する行：
+
+```erb
+<p>科目：<%= @study_note.subject&.name || "未設定" %></p>
+```
+
+この行は、タイトルの下あたりに置くと見やすいです。
+
+</details>
+
+---
+
+## 課題68：新規作成フォームで科目を選べるようにする
+
+学習メモ作成時に、科目を選べるようにしてください。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/controllers/study_notes_controller.rb
+```
+
+`new` actionを変更します。
+
+```ruby
+def new
+  @study_note = StudyNote.new
+  @subjects = Subject.all
+end
+```
+
+`create` で保存を失敗したときにも科目一覧が必要なので、`else` の中にも追加します。
+
+```ruby
+if @study_note.save
+  redirect_to @study_note
+else
+  @subjects = Subject.all
+  render :new, status: :unprocessable_entity
+end
+```
+
+`study_note_params` も変更します。
+
+```ruby
+def study_note_params
+  params.require(:study_note).permit(:title, :body, :study_minutes, :subject_id)
+end
+```
+
+対象ファイル：
+
+```text
+app/views/study_notes/new.html.erb
+```
+
+フォームの中に追加：
+
+```erb
+<div>
+  <%= form.label :subject_id, "科目" %><br>
+  <%= form.collection_select :subject_id, @subjects, :id, :name, include_blank: "選択してください" %>
+</div>
+```
+
+</details>
+
+---
+
+## 課題69：編集フォームで科目を変更できるようにする
+
+学習メモ編集時に、科目を変更できるようにしてください。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/controllers/study_notes_controller.rb
+```
+
+`edit` actionを変更します。
+
+```ruby
+def edit
+  @study_note = StudyNote.find(params[:id])
+  @subjects = Subject.all
+end
+```
+
+`update` で保存を失敗したときにも科目一覧が必要なので、`else` の中にも追加します。
+
+```ruby
+if @study_note.update(study_note_params)
+  redirect_to @study_note
+else
+  @subjects = Subject.all
+  render :edit, status: :unprocessable_entity
+end
+```
+
+対象ファイル：
+
+```text
+app/views/study_notes/edit.html.erb
+```
+
+フォームの中に追加：
+
+```erb
+<div>
+  <%= form.label :subject_id, "科目" %><br>
+  <%= form.collection_select :subject_id, @subjects, :id, :name, include_blank: "選択してください" %>
+</div>
+```
+
+</details>
+
+---
+
+## 課題70：科目ごとの学習メモ数を確認する
+
+`rails console` で、科目ごとの学習メモ数を確認してください。
+
+<details>
+<summary>解答例</summary>
+
+```bash
+rails console
+```
+
+Rails consoleで次を実行します。
+
+```ruby
+Subject.all.each do |subject|
+  puts "#{subject.name}: #{subject.study_notes.count}件"
+end
+```
+
+`subject.study_notes.count` と書けるのは、`Subject` に `has_many :study_notes` を書いたためです。
+
+</details>
+
+---
+
+## 課題71：一覧に平均学習時間を表示する
+
+学習メモ一覧に、平均学習時間を表示してください。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/views/study_notes/index.html.erb
+```
+
+追加するコード：
+
+```erb
+<% if @study_notes.any? %>
+  <p>平均学習時間：<%= @study_notes.average(:study_minutes).to_i %>分</p>
+<% end %>
+```
+
+`average(:study_minutes)` は、`study_minutes` カラムの平均をデータベース側で計算します。
+学習メモが1件もないときは平均を出せないため、`any?` で確認しています。
+
+</details>
+
+---
+
+## 課題72：学習時間が長い順に表示する
+
+学習メモ一覧を、学習時間が長い順に表示してください。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/controllers/study_notes_controller.rb
+```
+
+変更前：
+
+```ruby
+@study_notes = StudyNote.all
+```
+
+変更後：
+
+```ruby
+@study_notes = StudyNote.order(study_minutes: :desc)
+```
+
+`desc` は、大きい順、新しい順のように、降順で並べる指定です。
+
+</details>
+
+---
+
+## 課題73：30分以上の学習メモだけ表示する実験をする
+
+学習時間が30分以上の学習メモだけを一覧に表示してください。
+
+<details>
+<summary>解答例</summary>
+
+対象ファイル：
+
+```text
+app/controllers/study_notes_controller.rb
+```
+
+変更例：
+
+```ruby
+@study_notes = StudyNote.where("study_minutes >= ?", 30).order(study_minutes: :desc)
+```
+
+`where` は、条件に合うデータだけを取り出すためのメソッドです。
+
+確認できたら、必要に応じて元の表示に戻してください。
+
+```ruby
+@study_notes = StudyNote.order(study_minutes: :desc)
+```
+
+</details>
+
+---
+
+## 課題74：科目別の合計学習時間をconsoleで確認する
+
+`rails console` で、科目ごとの合計学習時間を表示してください。
+
+<details>
+<summary>解答例</summary>
+
+```bash
+rails console
+```
+
+Rails consoleで次を実行します。
+
+```ruby
+Subject.all.each do |subject|
+  total = subject.study_notes.sum(:study_minutes)
+  puts "#{subject.name}: #{total}分"
+end
+```
+
+`subject.study_notes.sum(:study_minutes)` と書くと、その科目に属する学習メモだけを対象に合計できます。
+
+</details>
+
+---
+
+## 課題75：`StudyNote` のCRUDルートを書き出す
+
+考察問題です。
+この課題では、コマンドを実行しません。
+ノートやメモ用ファイルに、自分の言葉で整理してください。
+
+`StudyNote` のCRUDで使ったURL、HTTPメソッド、controller actionを書き出してください。
+
+<details>
+<summary>解答例</summary>
+
+```text
+GET    /study_notes          study_notes#index
+GET    /study_notes/:id      study_notes#show
+GET    /study_notes/new      study_notes#new
+POST   /study_notes          study_notes#create
+GET    /study_notes/:id/edit study_notes#edit
+PATCH  /study_notes/:id      study_notes#update
+DELETE /study_notes/:id      study_notes#destroy
+```
+
+`Article` のCRUDと形は同じです。
+model名が変わっても、CRUDの基本形は変わりません。
+
+</details>
+
+---
+
+## 課題76：`Subject` と `StudyNote` の関係を説明する
+
+考察問題です。
+この課題では、コマンドを実行しません。
+ノートやメモ用ファイルに、自分の言葉で整理してください。
+
+`Subject` と `StudyNote` の関係を説明してください。
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+class Subject < ApplicationRecord
+  has_many :study_notes
+end
+```
+
+```ruby
+class StudyNote < ApplicationRecord
+  belongs_to :subject, optional: true
+end
+```
+
+1つの科目には、複数の学習メモがあります。
+1つの学習メモは、1つの科目に属します。
+
+そのため、`subjects` と `study_notes` は1対多の関係です。
+
+</details>
+
+---
+
+## 課題77：`study_note_params` の役割を説明する
+
+考察問題です。
+この課題では、コマンドを実行しません。
+ノートやメモ用ファイルに、自分の言葉で整理してください。
+
+`study_note_params` が何をしているのか説明してください。
+
+<details>
+<summary>解答例</summary>
+
+```ruby
+def study_note_params
+  params.require(:study_note).permit(:title, :body, :study_minutes, :subject_id)
+end
+```
+
+フォームから送られてきた値のうち、保存してよい値だけを許可しています。
+
+今回許可しているのは、次の4つです。
+
+- `title`
+- `body`
+- `study_minutes`
+- `subject_id`
+
+`subject_id` を許可しないと、フォームで科目を選んでも保存されません。
+
+</details>
+
+---
+
+## 課題78：`redirect_to` と `render` の違いを説明する
+
+考察問題です。
+この課題では、コマンドを実行しません。
+ノートやメモ用ファイルに、自分の言葉で整理してください。
+
+`redirect_to` と `render` の違いを説明してください。
+
+<details>
+<summary>解答例</summary>
+
+`redirect_to` は、別のURLへ移動します。
+
+```ruby
+redirect_to @study_note
+```
+
+保存できたあとに詳細画面へ移動する場合などに使います。
+
+`render` は、別のURLへ移動せず、その場でviewを表示します。
+
+```ruby
+render :new, status: :unprocessable_entity
+```
+
+保存に失敗したときに、入力画面をもう一度表示する場合などに使います。
+
+</details>
+
+---
+
+## 課題79：学習メモアプリのER図を書く
+
+考察問題です。
+この課題では、コマンドを実行しません。
+ノートやメモ用ファイルに、自分の言葉で整理してください。
+
+`Subject` と `StudyNote` の関係をMermaidで書いてください。
+
+<details>
+<summary>解答例</summary>
+
+```mermaid
+erDiagram
+  direction LR
+  SUBJECTS ||--o{ STUDY_NOTES : has_many
+
+  SUBJECTS {
+    integer id
+    string name
+  }
+  STUDY_NOTES {
+    integer id
+    integer subject_id
+    string title
+    text body
+    integer study_minutes
+  }
+```
+
+`subjects` と `study_notes` は1対多の関係です。
+
+</details>
+
+---
+
+## 課題80：今日作った2つのアプリを比べる
+
+考察問題です。
+この課題では、コマンドを実行しません。
+ノートやメモ用ファイルに、自分の言葉で整理してください。
+
+`manual_crud_app` と `study_notes_app` を比べて、同じところと違うところを書いてください。
+
+<details>
+<summary>解答例</summary>
+
+同じところ：
+
+- scaffoldを使わずにCRUDを作っている
+- `resources` でルートを作っている
+- controllerに `index`、`show`、`new`、`create`、`edit`、`update`、`destroy` がある
+- `form_with` で新規作成・編集フォームを作っている
+- `link_to` で画面移動している
+- `button_to` で削除している
+- `belongs_to` と `has_many` で関連を表している
+
+違うところ：
+
+- `manual_crud_app` は記事、カテゴリ、コメントを扱う
+- `study_notes_app` は学習メモ、科目、学習時間を扱う
+- `manual_crud_app` ではコメントを記事詳細画面から投稿した
+- `study_notes_app` では学習時間の合計や平均も表示した
+
+題材が変わっても、CRUDの基本形は同じです。
+ここまでできた人は、RailsのCRUDの型をかなり体で覚え始めています。
+
+</details>
