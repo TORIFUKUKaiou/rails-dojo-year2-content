@@ -858,8 +858,6 @@ rails db:migrate
 - `index_articles_on_category_id` がある
 - `add_foreign_key "articles", "categories"` がある
 
-もし生成された時点で `null: true` になっている場合は、そのままで構いません。
-
 </details>
 
 ---
