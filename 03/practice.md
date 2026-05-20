@@ -431,3 +431,5 @@ exit
 5. `schema.rb` と `rails console` で結果を確認した
 
 来週は、このカラムをもとに `has_many` と `belongs_to` を書きます。
+
+さらに力をつけるため、[Stretch](stretch.md) へ進みましょう。

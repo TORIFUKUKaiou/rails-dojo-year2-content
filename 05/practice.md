@@ -417,7 +417,13 @@ exit
 
 ### 書く
 
-`app/controllers/articles_controller.rb` に `show` を追加してください。
+対象ファイル：
+
+```text
+app/controllers/articles_controller.rb
+```
+
+変更後：
 
 ```ruby
 class ArticlesController < ApplicationController
@@ -425,13 +431,23 @@ class ArticlesController < ApplicationController
     @articles = Article.all
   end
 
+  # ここから追加
   def show
     @article = Article.find(params[:id])
   end
+  # ここまで追加
 end
 ```
 
-次に、`app/views/articles/show.html.erb` を作って、次のように書きます。
+次に、詳細画面のviewを作ります。
+
+対象ファイル：
+
+```text
+app/views/articles/show.html.erb
+```
+
+変更後：
 
 ```erb
 <h1><%= @article.title %></h1>
@@ -472,7 +488,13 @@ end
 
 ### 書く
 
-`app/controllers/articles_controller.rb` に `new` を追加してください。
+対象ファイル：
+
+```text
+app/controllers/articles_controller.rb
+```
+
+変更後：
 
 ```ruby
 class ArticlesController < ApplicationController
@@ -484,13 +506,23 @@ class ArticlesController < ApplicationController
     @article = Article.find(params[:id])
   end
 
+  # ここから追加
   def new
     @article = Article.new
   end
+  # ここまで追加
 end
 ```
 
-次に、`app/views/articles/new.html.erb` を作って、次のように書きます。
+次に、新規作成フォームのviewを作ります。
+
+対象ファイル：
+
+```text
+app/views/articles/new.html.erb
+```
+
+変更後：
 
 ```erb
 <h1>記事を作成する</h1>
@@ -547,7 +579,13 @@ end
 
 ### 書く
 
-`app/controllers/articles_controller.rb` を次のように変更してください。
+対象ファイル：
+
+```text
+app/controllers/articles_controller.rb
+```
+
+変更後：
 
 ```ruby
 class ArticlesController < ApplicationController
@@ -563,6 +601,7 @@ class ArticlesController < ApplicationController
     @article = Article.new
   end
 
+  # ここから追加
   def create
     @article = Article.new(article_params)
 
@@ -578,6 +617,7 @@ class ArticlesController < ApplicationController
   def article_params
     params.require(:article).permit(:title, :body)
   end
+  # ここまで追加
 end
 ```
 
@@ -618,7 +658,13 @@ end
 
 ### 書く
 
-`app/controllers/articles_controller.rb` に `edit` を追加してください。
+対象ファイル：
+
+```text
+app/controllers/articles_controller.rb
+```
+
+変更後：
 
 ```ruby
 class ArticlesController < ApplicationController
@@ -644,9 +690,11 @@ class ArticlesController < ApplicationController
     end
   end
 
+  # ここから追加
   def edit
     @article = Article.find(params[:id])
   end
+  # ここまで追加
 
   private
 
@@ -656,7 +704,15 @@ class ArticlesController < ApplicationController
 end
 ```
 
-`app/views/articles/edit.html.erb` を作って、次のように書きます。
+`app/views/articles/edit.html.erb` を作ります。
+
+対象ファイル：
+
+```text
+app/views/articles/edit.html.erb
+```
+
+変更後：
 
 ```erb
 <h1>記事を編集する</h1>
@@ -681,14 +737,24 @@ end
 <p><%= link_to "一覧に戻る", articles_path %></p>
 ```
 
-`app/views/articles/show.html.erb` に、編集リンクを追加してください。
+`app/views/articles/show.html.erb` に、編集リンクを追加します。
+
+対象ファイル：
+
+```text
+app/views/articles/show.html.erb
+```
+
+変更後：
 
 ```erb
 <h1><%= @article.title %></h1>
 
 <p><%= @article.body %></p>
 
+<!-- ここから追加 -->
 <p><%= link_to "編集", edit_article_path(@article) %></p>
+<!-- ここまで追加 -->
 <p><%= link_to "一覧に戻る", articles_path %></p>
 ```
 
@@ -724,7 +790,13 @@ end
 
 ### 書く
 
-`app/controllers/articles_controller.rb` を次のように変更してください。
+対象ファイル：
+
+```text
+app/controllers/articles_controller.rb
+```
+
+変更後：
 
 ```ruby
 class ArticlesController < ApplicationController
@@ -754,6 +826,7 @@ class ArticlesController < ApplicationController
     @article = Article.find(params[:id])
   end
 
+  # ここから追加
   def update
     @article = Article.find(params[:id])
 
@@ -763,6 +836,7 @@ class ArticlesController < ApplicationController
       render :edit, status: :unprocessable_entity
     end
   end
+  # ここまで追加
 
   private
 
@@ -803,7 +877,13 @@ end
 
 ### 書く
 
-`app/controllers/articles_controller.rb` を次のように変更してください。
+対象ファイル：
+
+```text
+app/controllers/articles_controller.rb
+```
+
+変更後：
 
 ```ruby
 class ArticlesController < ApplicationController
@@ -843,12 +923,14 @@ class ArticlesController < ApplicationController
     end
   end
 
+  # ここから追加
   def destroy
     @article = Article.find(params[:id])
     @article.destroy
 
     redirect_to articles_path
   end
+  # ここまで追加
 
   private
 
@@ -858,7 +940,15 @@ class ArticlesController < ApplicationController
 end
 ```
 
-`app/views/articles/show.html.erb` に、削除ボタンを追加してください。
+`app/views/articles/show.html.erb` に、削除ボタンを追加します。
+
+対象ファイル：
+
+```text
+app/views/articles/show.html.erb
+```
+
+変更後：
 
 ```erb
 <h1><%= @article.title %></h1>
@@ -867,7 +957,9 @@ end
 
 <p><%= link_to "編集", edit_article_path(@article) %></p>
 
+<!-- ここから追加 -->
 <%= button_to "削除", article_path(@article), method: :delete %>
+<!-- ここまで追加 -->
 
 <p><%= link_to "一覧に戻る", articles_path %></p>
 ```
@@ -947,6 +1039,4 @@ end
 4. フォームから送られた値を `article_params` で受け取った
 5. ブラウザで一覧・詳細・作成・編集・削除を確認した
 
-余裕があれば、[Stretch](stretch.md) へ進みましょう。
-
-次週は、今日作ったCRUDを読み直し、壊れたところを直しながら、`routes`、`controller`、`params`、`form`、`redirect_to`、`render` を説明できる状態に近づけます。
+さらに力をつけるため、[Stretch](stretch.md) へ進みましょう。
