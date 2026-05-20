@@ -12,6 +12,30 @@
 
 前回は、モデル同士のつながりをRailsのコードで表しました。
 
+```mermaid
+erDiagram
+  direction LR
+  CATEGORIES ||--o{ ARTICLES : has_many
+  ARTICLES ||--o{ COMMENTS : has_many
+
+  CATEGORIES {
+    integer id
+    string name
+  }
+  ARTICLES {
+    integer id
+    integer category_id
+    string title
+    text body
+  }
+  COMMENTS {
+    integer id
+    integer article_id
+    string author_name
+    text body
+  }
+```
+
 ```ruby
 class Category < ApplicationRecord
   has_many :articles
