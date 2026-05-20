@@ -264,29 +264,12 @@ redirect_to @article
 render :new, status: :unprocessable_entity
 ```
 
+`:unprocessable_entity` は、「送られてきた内容を処理できませんでした」という意味のHTTPステータスです。
+Railsでは `422 Unprocessable Entity` として返されます。
+保存に失敗したときに、ただ画面を表示し直すだけでなく、「この送信内容では保存できなかった」とブラウザ側にも伝えるために指定します。
+
 今週はまず動かすことを優先します。
 第6週で、この `params`、`redirect_to`、`render` の流れをもう少し丁寧に読み直します。
-
----
-
-## 今週から来週へ
-
-今週は、scaffoldなしで `Article` のCRUDを一周します。
-
-```mermaid
-flowchart LR
-  w5["第5週<br>ArticleでCRUDを一周する"]
-  w6["第6週<br>CRUDを読む・直す・説明する"]
-  w7["第7週<br>ArticleとCommentをつなぐ"]
-
-  w5 --> w6 --> w7
-```
-
-今日の目的は、すべてを完璧に覚えることではありません。
-
-まず、CRUD全体の流れを1回通すことです。
-
-来週は、今日作ったCRUDを読み直し、壊れたところを直しながら、`routes`、`controller`、`params`、`form`、`redirect_to`、`render` を説明できる状態に近づけます。
 
 ---
 
