@@ -384,3 +384,5 @@ article_params は title と body だけを許可する。
 > - URLから `routes`、`controller`、`model`、`view` の順に追う
 > - エラーは、Railsが困っている場所を教えてくれる
 > - 直せるようになるには、まず説明できるようになることが必要
+
+[練習](practice.md) へ進みましょう。
