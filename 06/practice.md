@@ -674,6 +674,10 @@ exit
 
 エラー画面と `app/controllers/articles_controller.rb` の先頭にある `before_action` を見比べてください。
 
+> [!NOTE]
+> `before_action :set_article, only: %i[ update destroy ]` の `%i[ update destroy ]` は、Ruby の **パーセント記法** の一種で、複数のシンボルを配列にまとめる `%i` 記法（シンボル配列リテラル）です。
+> この部分は `[:update, :destroy]` と同じ意味です。`update`（更新処理）と `destroy`（削除処理）を行う前にだけ `set_article` を実行する、という指定を表します。
+
 `show` でも `set_article` が動くように修正します。
 
 修正後、ブラウザの URL の末尾を `/articles` にして一覧画面を開いてください。投稿したタイトルの記事カードをクリックし、詳細画面に投稿したタイトルと本文が表示されることを確認してください。
