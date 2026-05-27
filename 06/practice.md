@@ -35,7 +35,7 @@ flowchart LR
 
     ![](https://raw.githubusercontent.com/TORIFUKUKaiou/rails-dojo-year1-content/refs/heads/main/images/create-codespace-on-main.png)
 
-4. VS Code の画面が表示され、ターミナルが操作できるまで待ちます。
+4. VS Code の画面が表示され、ターミナルが操作できるまで待ちます。（5分程度）
 
 5. ターミナルに `準備完了` と表示されたら、Codespaces の起動完了
 
@@ -46,7 +46,6 @@ flowchart LR
 > [!IMPORTANT]
 > ターミナルは Rails アプリの場所である `/home/vscode/app` から始まります。
 > この演習では、`cd` で別の場所へ移動せず、そのまま作業してください。
-> 誤って移動し、`rails: command not found` と表示された場合は、そのターミナルを閉じ、新しいターミナルを開いて作業を再開してください。
 
 ターミナルで、作業場所を確認します。
 
@@ -64,6 +63,7 @@ ls
 - サーバーを動かすターミナルと、確認コマンドを入力するターミナルを分けて使います。
 - 課題では、最初に必ず「壊れている状態」をブラウザまたはターミナルで確認します。
 - 自分で原因を考えて修正し、動作を確認したあとで解答例を開きます。
+  - ドライバ（実際に操作する人）とナビゲータ（全体を見ながら、次に何を確認・修正するかを考える人）を交代しながら、原因と確認結果を話し合いながら進めましょう。
 - 指示のないファイルは変更しません。とくに CSS、migration、`schema.rb` は変更しません。
 - データベースを削除したり、`rails new` や `scaffold` を実行したりしません。
 
@@ -104,14 +104,23 @@ end
 
 ターミナルで次を実行してください。
 
+> [!TIP]
+> **コマンドは一行ずつ実行しよう**
+> ひとつひとつ実行結果を確かめながら進むのが、上達への近道です。エラーが起きても原因を見つけやすくなります。
+
+> [!NOTE]
+> 1回目の `bin/rails db:migrate:status` は、データベースを準備する前の状態を確認するためのコマンドです。migration が適用済みになっていない表示や、データベースがまだないことを示す表示になっても、そのまま次へ進んでください。
+> `bin/rails db:prepare` は、データベースを作成し、必要な migration を反映して、アプリがデータを保存できる状態に準備するコマンドです。
+
 ```bash
 bin/rails -v
+bin/rails db:migrate:status
 bin/rails db:prepare
 bin/rails db:migrate:status
 bin/rails routes -g article
 ```
 
-`db:migrate:status` で `CreateArticles` が `up` になっていることを確認します。
+2回目の `bin/rails db:migrate:status` で `Create articles` が `up` になっていることを確認します。
 
 一方、`bin/rails routes -g article` には、記事一覧や新規作成に使うルートが表示されません。ここが最初の手がかりです。
 
@@ -138,7 +147,11 @@ bin/rails server
 > サーバーを起動したターミナルは、そのまま動かしておきます。
 > これ以降にコマンドを実行するときは、画面上部の `+` から新しいターミナルを開いてください。
 
-`Open in Browser` または `ポート` タブからアプリを開き、URL の末尾を `/articles` にしてアクセスしてください。
+ポートタブの `Application(3000)` にカーソルをあて、`転送されたアドレス` で 🌐 アイコンを押すとブラウザでRailsアプリを開けます。
+
+![](../images/open-rails-app.png)
+
+`/articles` にアクセスしてみてください。
 
 表示されたエラー画面で、次を探してください。
 
@@ -165,6 +178,7 @@ flowchart LR
 `config/routes.rb` を開き、記事の CRUD に必要な route を有効にしてください。
 
 修正後、新しいターミナルで次を実行します。
+どのように修正すればよいか分からない場合は、前回の「[第5週：scaffoldなしCRUD（1）ArticleでCRUDを一周する](https://github.com/TORIFUKUKaiou/rails-dojo-year2-content/blob/main/05/orientation.md#resources-articles)」を参照しましょう。
 
 ```bash
 bin/rails routes -g article
@@ -291,6 +305,8 @@ resources :articles
 
 現在は記事が0件なので、画面の件数は `00` と表示されます。
 
+`rjust(2, "0")` は、数字を2文字分の幅で表示し、空いた左側を `"0"` で埋める処理です。記事が0件なら `00`、1件なら `01` と表示されます。
+
 </details>
 
 ---
@@ -310,6 +326,9 @@ resources :articles
 
 > [!NOTE]
 > 「記事を探す」や「記事を読む」は、一覧を表示するためのリンクです。そこは変更しません。
+> `bin/rails routes -g article` の出力結果を改めてよく確認してみましょう。
+
+修正後、`/articles` を再読み込みし、記事を書くためのリンクのうち1つをクリックしてください。今度は新規作成画面へ進もうとして、新しいエラーが表示されることを確認します。解答例と見比べ、同じ修正ができていたら次へ進んでください。
 
 <details>
 <summary>解答例</summary>
@@ -456,7 +475,7 @@ end
 <%= form_with(model: article) do |form| %>
 ```
 
-partial に渡された名前と、partial の中で使う名前を一致させます。
+`render "form", article: @article` の意味は、`@article` が指す Article オブジェクトを `article` という名前で partial に渡します。そのため、`_form.html.erb` の中では `article` を使います。現在の `entry` は渡されていない名前です。
 
 </details>
 
@@ -555,12 +574,7 @@ POST  /articles(.:format)  articles#create
 
 `app/controllers/articles_controller.rb` の下部にある `article_params` を確認してください。
 
-現在のまま投稿すると、タイトルは届いても本文が保存されません。本文も保存できるように修正してください。
-
-> [!NOTE]
-> 第5週では `params.require(:article).permit(:title, :body)` を書きました。
-> このアプリは Rails 8.1 の scaffold で作成したため、`params.expect(article: [ :title, :body ])` という書き方になっています。
-> どちらも、保存を許可する項目を指定するための処理です。今回は scaffold が生成した `expect` の書き方を復旧します。
+現在のまま投稿すると、フォームから送信したタイトルと本文は Rails に届きますが、`article_params` ではタイトルだけが保存に使われ、本文は保存されません。本文も保存できるように修正してください。解答例の通りに修正できたら、次へ進んでください。記事の投稿は、次の課題で行います。
 
 <details>
 <summary>解答例</summary>
@@ -584,6 +598,8 @@ end
 ```
 
 `:body` を許可することで、入力した本文もモデルへ渡して保存できます。
+
+第5週では `params.require(:article).permit(:title, :body)` という書き方をしました。どちらもフォームから保存に使う項目を制限するための処理です。この練習では scaffold が生成した `expect` の書き方を復旧します。
 
 </details>
 
@@ -629,6 +645,27 @@ flowchart LR
 
 記事は保存されましたが、`show` で表示に使う `@article` が用意されていません。
 
+本当に保存されているかを確認したい場合は、新しいターミナルで Rails console を起動します。
+
+```bash
+bin/rails console
+```
+
+Rails console で次を入力します。
+
+```ruby
+Article.count
+Article.first
+```
+
+`Article.count` が `1` になり、`Article.first` に入力したタイトルと本文が含まれていれば、記事は保存されています。
+
+確認後、Rails console を終了します。
+
+```ruby
+exit
+```
+
 </details>
 
 ---
@@ -668,10 +705,10 @@ before_action :set_article, only: %i[ show update destroy ]
 
 次の操作を行い、表示を確認してください。
 
-1. 詳細画面で、投稿したタイトルと本文が表示されていることを確認する
+1. 詳細画面(`/articles/1`)で、投稿したタイトルと本文が表示されていることを確認する
 2. 「一覧へ戻る」をクリックする
-3. 一覧に記事カードが1件表示され、件数が `01` になっていることを確認する
-4. 記事カードから詳細へ戻る
+3. 一覧に記事カードが1件表示され、件数が `01` になっていることを確認する (投稿操作をして作成された記事の件数と一致していればOKです)
+4. 記事カードから詳細へ移る（「記事を読む →」）
 
 この課題ではファイルを修正しません。
 
@@ -885,9 +922,14 @@ def destroy
 
 削除後の一覧画面で、次を確認してください。
 
-- `ARTICLES ONLINE` の件数が `00` になっている
-- 「まだ記事はありません」が表示されている
-- 「最初の記事を書く」から新規作成画面へ進める
+- `ARTICLES ONLINE` の件数が、削除した分だけ減っている
+- 削除した記事が一覧から消えている
+
+> [!IMPORTANT]
+> 課題18で指定した記事以外にも記事を作成していて、一覧に記事が残っている場合は、残っている記事も詳細画面から削除してください。
+> `ARTICLES ONLINE` が `00` になり、「まだ記事はありません」と表示された状態で、次の課題へ進みます。
+
+一覧が0件になったら、「最初の記事を書く」から新規作成画面へ進めることを確認してください。
 
 この課題ではファイルを修正しません。
 
@@ -933,6 +975,7 @@ def destroy
 ```text
 
 エラーを読んで、原因を探して、直すことができました。
+私はRailsをマスターしたという自信が確信に変わりました。
 ```
 
 <details>
@@ -959,8 +1002,8 @@ def destroy
 
 次の問いに答えてください。
 
-1. 新規作成フォームで「記事を公開する」を押してから、記事詳細画面が表示されるまでに、`routes.rb`、controller、model、view はどの順番で関わりますか。
-2. 今回、エラーを一度にすべて直すのではなく、一つ直して次の症状を確認したのはなぜですか。
+1. 新規作成フォームで「記事を公開する」を押してから、記事詳細画面が表示されるまでに、`routes.rb`、`controller`、`model`、`view` はどの順番で関わりますか。
+2. 今回、エラーを一度にすべて直すのではなく、一つ直して次の症状を確認したのはなぜでしょうか。
 3. 見た目は一覧画面へ戻っても、削除が成功したとは限らなかったのはなぜですか。
 
 <details>

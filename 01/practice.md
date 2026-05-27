@@ -141,7 +141,7 @@ rails server
 
 `Blocked hosts:` や `InvalidAuthenticityToken` が表示されたときは、`config/initializers/codespaces.rb` のファイル名と中身を確認して、サーバーを起動し直してください。
 
-ポートタブの `3000` にカーソルをあて、 `転送されたアドレス` で 🌐 アイコンを押すとブラウザでRailsアプリを開けます。  
+ポートタブの `Application(3000)` にカーソルをあて、 `転送されたアドレス` で 🌐 アイコンを押すとブラウザでRailsアプリを開けます。
 
 ![](../images/open-rails-app.png)
 

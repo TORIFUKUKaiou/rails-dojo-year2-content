@@ -287,7 +287,7 @@ rails server
 サーバーを止めたいときは、`rails server` を動かしているターミナルで `Ctrl + C` を押します。
 `config/initializers/codespaces.rb` などの設定ファイルを変更したときは、一度 `Ctrl + C` で止めて、もう一度 `rails server` を実行してください。
 
-ポートタブの `3000` にカーソルをあて、`転送されたアドレス` で 🌐 アイコンを押すとブラウザでRailsアプリを開けます。
+ポートタブの `Application(3000)` にカーソルをあて、`転送されたアドレス` で 🌐 アイコンを押すとブラウザでRailsアプリを開けます。
 
 ![](../images/open-rails-app.png)
 
