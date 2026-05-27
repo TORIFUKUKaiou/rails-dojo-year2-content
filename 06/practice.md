@@ -32,7 +32,12 @@ flowchart LR
 1. GitHub にログインします。
 2. [TORIFUKUKaiou/rails-dojo-crud-debug](https://github.com/TORIFUKUKaiou/rails-dojo-crud-debug) を開きます。
 3. `Code` → `Codespaces` → `Create codespace on main` をクリックします。
+
+    ![](https://raw.githubusercontent.com/TORIFUKUKaiou/rails-dojo-year1-content/refs/heads/main/images/create-codespace-on-main.png)
+
 4. VS Code の画面が表示され、ターミナルが操作できるまで待ちます。
+
+5. ターミナルに `準備完了` と表示されたら、Codespaces の起動完了
 
 > [!CAUTION]
 > 必ず `main` から Codespace を作ってください。
