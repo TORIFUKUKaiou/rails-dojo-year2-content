@@ -444,7 +444,11 @@ end
 <%= render "form", article: @article %>
 ```
 
-したがって、`_form.html.erb` の中では `article` という名前で受け取る必要があります。現在は存在しない `entry` を使おうとしています。
+`_form.html.erb` は、フォームの表示部分を切り出した partial（部分テンプレート）です。
+
+`render "form", article: @article` は、その partial を表示するときに、`@article` が指す Article オブジェクトを `article` という名前で渡しています。
+
+そのため、`_form.html.erb` の中では `article` を使います。現在の先頭行では、partial に渡されていない `entry` を使っているためエラーになります。
 
 </details>
 
@@ -472,8 +476,6 @@ end
 ```erb
 <%= form_with(model: article) do |form| %>
 ```
-
-`render "form", article: @article` の意味は、`@article` が指す Article オブジェクトを `article` という名前で partial に渡します。そのため、`_form.html.erb` の中では `article` を使います。現在の `entry` は渡されていない名前です。
 
 </details>
 
@@ -1020,12 +1022,17 @@ sequenceDiagram
   B->>R: POST /articles
   R->>C: create
   C->>C: article_params で入力を許可
-  C->>M: Article.new / save
-  M->>D: 記事を保存
+  C->>M: Article.new(article_params) で未保存の記事を用意
+  C->>M: @article.save
+  M->>D: 記事を保存する
   C-->>B: 記事詳細へ redirect
   B->>R: GET /articles/:id
   R->>C: show
-  C->>M: set_article で記事を取得
+  C->>M: set_article 内で Article.find(id)
+  M->>D: 記事を検索する
+  D-->>M: 記事を返す
+  M-->>C: 見つかった Article を返す
+  C->>C: @article に入れる
   C->>V: @article を渡す
   V-->>B: 詳細画面を表示
 ```
