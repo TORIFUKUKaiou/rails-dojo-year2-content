@@ -1,4 +1,6 @@
-# 第6週：練習 ── 壊れた Article CRUD を復旧する
+# 第6週：Stretch ── 壊れた Article CRUD を復旧する
+
+この課題は、[練習](practice.md) を終えたチーム向けの発展課題です。
 
 ## この練習について
 
@@ -20,10 +22,9 @@ flowchart LR
 > エラーが表示されても失敗ではありません。エラーを確認してから、指定された箇所だけを直してください。
 > `app/assets/stylesheets/` の中は見た目の完成部分です。今回は変更しません。
 
-> [!IMPORTANT]
-> 今回の解答例は、壊れている箇所を特定するために `変更前` と `変更後` を示します。
-> 解答例を先にまとめてコピーせず、まず自分で症状とファイルを確認し、修正後に見比べてください。
-> 後の課題で確認する故障を、先に直してしまわないことが大切です。
+> [!NOTE]
+> practice と同じでは？　と思った方は鋭いです。題材は同じです。ただし、このページに解答例はありません。まず自力で解決してください。
+> 復旧できたあとに確認したい場合は、[Practice](practice.md) の解答例と比較してください。
 
 ## 準備：Codespace を開く
 
@@ -31,9 +32,16 @@ flowchart LR
 
 1. GitHub にログインします。
 2. [TORIFUKUKaiou/rails-dojo-crud-debug](https://github.com/TORIFUKUKaiou/rails-dojo-crud-debug) を開きます。（リンクを右クリックして、「リンクを新しいタブで開く」）
-3. `Code` → `Codespaces` → `Create codespace on main` をクリックします。
+3. `Create a codespace on main(+)` をクリックする
+
+    ![](../images/create-a-codespace-on-main.png)
+
+    ---
+
+    **緑のボタンがある場合**は、この手順でも構いません。`Create codespace on main` をクリックしてください。
 
     ![](https://raw.githubusercontent.com/TORIFUKUKaiou/rails-dojo-year1-content/refs/heads/main/images/create-codespace-on-main.png)
+    ---
 
 4. VS Code の画面が表示され、ターミナルが操作できるまで待ちます。（5分程度）
 
@@ -62,7 +70,7 @@ ls
 
 - サーバーを動かすターミナルと、確認コマンドを入力するターミナルを分けて使います。
 - 課題では、最初に必ず「壊れている状態」をブラウザまたはターミナルで確認します。
-- 自分で原因を考えて修正し、動作を確認したあとで解答例を開きます。
+- 自分で原因を考えて修正し、動作を確認したあとで [Practice](practice.md) の解答例と比較します。
   - ドライバ（実際に操作する人）とナビゲータ（全体を見ながら、次に何を確認・修正するかを考える人）を交代しながら、原因と確認結果を話し合いながら進めましょう。
 - 指示のないファイルは変更しません。とくに CSS、migration、`schema.rb` は変更しません。
 - データベースを削除したり、`rails new` や `scaffold` を実行したりしません。
@@ -80,23 +88,6 @@ Rails アプリの場所で、次のファイルをエクスプローラーか�
 
 `db/schema.rb` を開き、`articles` テーブルに `title` と `body` があることを確認してください。
 
-<details>
-<summary>解答例</summary>
-
-`db/schema.rb` の中に、次のような `articles` テーブルがあります。日時カラムの順番などは異なっていても構いません。
-
-```ruby
-create_table "articles", force: :cascade do |t|
-  t.string "title"
-  t.text "body"
-  t.datetime "created_at", null: false
-  t.datetime "updated_at", null: false
-end
-```
-
-この時点ではファイルを修正しません。
-
-</details>
 
 ---
 
@@ -124,14 +115,6 @@ bin/rails routes -g article
 
 一方、`bin/rails routes -g article` には、記事一覧や新規作成に使うルートが表示されません。ここが最初の手がかりです。
 
-<details>
-<summary>解答例</summary>
-
-`articles` テーブルは準備されていますが、記事の CRUD に必要な route がありません。
-
-この時点では、まだ修正しません。次の課題でブラウザから症状を確認します。
-
-</details>
 
 ---
 
@@ -158,18 +141,6 @@ bin/rails server
 - `No route matches [GET] "/articles"` に相当するメッセージ
 - リクエストした URL が `/articles` であること
 
-<details>
-<summary>解答例</summary>
-
-ブラウザから `GET /articles` を送っても、`routes.rb` に行き先が用意されていないため、controller に到達する前に止まっています。
-
-```mermaid
-flowchart LR
-  A["GET /articles"] --> B["routes.rb"]
-  B -- "行き先がない" --> C["Routing Error"]
-```
-
-</details>
 
 ---
 
@@ -188,26 +159,6 @@ bin/rails routes -g article
 
 その後、ブラウザで `/articles` を再読み込みします。今度は別のエラーに進めれば、route の修正は成功です。
 
-<details>
-<summary>解答例</summary>
-
-対象ファイル：`config/routes.rb`
-
-変更前：
-
-```ruby
-# resources :articles
-```
-
-変更後：
-
-```ruby
-resources :articles
-```
-
-`resources :articles` は、記事の一覧、詳細、作成、編集、削除に必要な route をまとめて用意します。
-
-</details>
 
 ---
 
@@ -223,14 +174,6 @@ resources :articles
 
 まだ修正はしません。エラー画面と `app/controllers/articles_controller.rb` を見比べて、原因になりそうな行を探してください。
 
-<details>
-<summary>解答例</summary>
-
-`ArticlesController#index` は記事の一覧を取得する場所です。
-
-エラーには `ArticlesController::Articles` や `Articles` に相当する名前が表示されます。モデルのファイルは `app/models/article.rb` であり、モデル名は単数形の `Article` です。
-
-</details>
 
 ---
 
@@ -240,26 +183,6 @@ resources :articles
 
 修正後、ブラウザで `/articles` を再読み込みします。まだ完成画面ではなく、view の別のエラーに進むことを確認してください。
 
-<details>
-<summary>解答例</summary>
-
-対象ファイル：`app/controllers/articles_controller.rb`
-
-変更前：
-
-```ruby
-@articles = Articles.all
-```
-
-変更後：
-
-```ruby
-@articles = Article.all
-```
-
-`Article` は1件の記事を表すモデルです。`Article.all` で記事の一覧を取得します。
-
-</details>
 
 ---
 
@@ -269,14 +192,6 @@ resources :articles
 
 画面の `ARTICLES ONLINE` の数字を出す部分では、記事の件数を表示しようとしています。エラーを読んで、メソッド名のどこがおかしいか考えてください。
 
-<details>
-<summary>解答例</summary>
-
-記事の一覧が `@articles` に入るところまでは到達しました。
-
-今度は view が `@articles` の件数を調べようとして、存在しない `counts` メソッドを呼び出しています。件数を調べるメソッドは `count` です。
-
-</details>
 
 ---
 
@@ -286,28 +201,6 @@ resources :articles
 
 修正後、`/articles` を再読み込みします。星が動く CodeShelf の画面と「まだ記事はありません」という表示が見えれば成功です。
 
-<details>
-<summary>解答例</summary>
-
-対象ファイル：`app/views/articles/index.html.erb`
-
-変更前：
-
-```erb
-<strong><%= @articles.counts.to_s.rjust(2, "0") %></strong>
-```
-
-変更後：
-
-```erb
-<strong><%= @articles.count.to_s.rjust(2, "0") %></strong>
-```
-
-現在は記事が0件なので、画面の件数は `00` と表示されます。
-
-`rjust(2, "0")` は、数字を2文字分の幅で表示し、空いた左側を `"0"` で埋める処理です。記事が0件なら `00`、1件なら `01` と表示されます。
-
-</details>
 
 ---
 
@@ -328,48 +221,8 @@ resources :articles
 > 「記事を探す」や「記事を読む」は、一覧を表示するためのリンクです。そこは変更しません。
 > `bin/rails routes -g article` の出力結果を改めてよく確認してみましょう。
 
-修正後、`/articles` を再読み込みし、「最初の記事を書く」をクリックしてください。今度は新規作成画面へ進もうとして、新しいエラーが表示されることを確認します。解答例と見比べ、同じ修正ができていたら次へ進んでください。
+修正後、`/articles` を再読み込みし、「最初の記事を書く」をクリックしてください。今度は新規作成画面へ進もうとして、新しいエラーが表示されることを確認します。修正ができていたら次へ進んでください。
 
-<details>
-<summary>解答例</summary>
-
-対象ファイル：`app/views/layouts/application.html.erb`
-
-変更前：
-
-```erb
-<%= link_to "記事を書く", articles_path, class: "button button-primary" %>
-```
-
-変更後：
-
-```erb
-<%= link_to "記事を書く", new_article_path, class: "button button-primary" %>
-```
-
-対象ファイル：`app/views/articles/index.html.erb`
-
-次の3箇所を同じように修正します。
-
-変更前：
-
-```erb
-<%= link_to "新しい記事を投稿", articles_path, class: "button button-primary button-large" %>
-<%= link_to "投稿する", articles_path, class: "button button-outline" %>
-<%= link_to "最初の記事を書く", articles_path, class: "button button-primary" %>
-```
-
-変更後：
-
-```erb
-<%= link_to "新しい記事を投稿", new_article_path, class: "button button-primary button-large" %>
-<%= link_to "投稿する", new_article_path, class: "button button-outline" %>
-<%= link_to "最初の記事を書く", new_article_path, class: "button button-primary" %>
-```
-
-`articles_path` は一覧への URL、`new_article_path` は新しい記事を書く画面への URL です。
-
-</details>
 
 ---
 
@@ -383,14 +236,6 @@ resources :articles
 - `Couldn't find Article` に相当するメッセージが表示されていること
 - form に渡す新しい記事がまだ用意できていないこと
 
-<details>
-<summary>解答例</summary>
-
-route とリンクは正しくなり、`ArticlesController#new` まで処理が進みました。
-
-新規作成フォームは、まだ保存されていない新しい `Article` を受け取る必要があります。しかし、現在の `new` は、まだ1件も保存されていない状態で既存の記事を探そうとして停止しています。
-
-</details>
 
 ---
 
@@ -400,32 +245,6 @@ route とリンクは正しくなり、`ArticlesController#new` まで処理が�
 
 修正後、`/articles/new` を再読み込みします。今度は form に関する別のエラーに進むことを確認してください。
 
-<details>
-<summary>解答例</summary>
-
-対象ファイル：`app/controllers/articles_controller.rb`
-
-変更前：
-
-```ruby
-def new
-  @article = Article.first!
-end
-```
-
-変更後：
-
-```ruby
-def new
-  @article = Article.new
-end
-```
-
-`Article.first!` はすでに保存されている先頭の記事を探し、見つからなければエラーにします。今回はまだ記事が0件なので、フォームを表示する前に停止します。
-
-`Article.new` は、これから入力して保存するための記事を新しく作ります。
-
-</details>
 
 ---
 
@@ -435,18 +254,6 @@ end
 
 `new.html.erb` から form を呼び出すときは `article: @article` を渡しています。それに対して、form 側が受け取ろうとしている名前を確認してください。
 
-<details>
-<summary>解答例</summary>
-
-`new.html.erb` には次の呼び出しがあります。
-
-```erb
-<%= render "form", article: @article %>
-```
-
-したがって、`_form.html.erb` の中では `article` という名前で受け取る必要があります。現在は存在しない `entry` を使おうとしています。
-
-</details>
 
 ---
 
@@ -456,26 +263,6 @@ end
 
 修正後、新規作成画面にタイトルと本文の入力欄、および「記事を公開する」ボタンが表示されることを確認してください。
 
-<details>
-<summary>解答例</summary>
-
-対象ファイル：`app/views/articles/_form.html.erb`
-
-変更前：
-
-```erb
-<%= form_with(model: entry) do |form| %>
-```
-
-変更後：
-
-```erb
-<%= form_with(model: article) do |form| %>
-```
-
-`render "form", article: @article` の意味は、`@article` が指す Article オブジェクトを `article` という名前で partial に渡します。そのため、`_form.html.erb` の中では `article` を使います。現在の `entry` は渡されていない名前です。
-
-</details>
 
 ---
 
@@ -491,18 +278,6 @@ bin/rails routes -g article
 
 新規作成画面の form を送信すると、どの HTTP メソッド、URL、controller action に向かうかを確認してください。
 
-<details>
-<summary>解答例</summary>
-
-記事を新規作成する送信先は、次の route です。
-
-```text
-POST  /articles(.:format)  articles#create
-```
-
-フォームの「記事を公開する」を押すと、`ArticlesController#create` に入力内容が届きます。
-
-</details>
 
 ---
 
@@ -526,14 +301,6 @@ POST  /articles(.:format)  articles#create
 
 `app/controllers/articles_controller.rb` の `create` アクションで、入力内容を受け取るメソッド名に注目します。
 
-<details>
-<summary>解答例</summary>
-
-`create` は、新しい記事を作るために入力内容を受け取ろうとしています。
-
-ところが、呼び出している `artcle_params` は綴りが誤っており、定義されている `article_params` に到達できません。まだ記事は保存されていません。
-
-</details>
 
 ---
 
@@ -545,26 +312,6 @@ POST  /articles(.:format)  articles#create
 > 修正後、まだ「記事を公開する」はクリックしません。
 > 次の課題で、本文が保存される設定になっているかを先に確認します。
 
-<details>
-<summary>解答例</summary>
-
-対象ファイル：`app/controllers/articles_controller.rb`
-
-変更前：
-
-```ruby
-@article = Article.new(artcle_params)
-```
-
-変更後：
-
-```ruby
-@article = Article.new(article_params)
-```
-
-メソッド名の綴りを、下部で定義されている `article_params` と一致させます。
-
-</details>
 
 ---
 
@@ -572,34 +319,8 @@ POST  /articles(.:format)  articles#create
 
 `app/controllers/articles_controller.rb` の下部にある `article_params` を確認してください。
 
-現在のまま投稿すると、フォームから送信したタイトルと本文は Rails に届きますが、`article_params` ではタイトルだけが保存に使われ、本文は保存されません。本文も保存できるように修正してください。解答例の通りに修正できたら、次へ進んでください。記事の投稿は、次の課題で行います。
+現在のまま投稿すると、フォームから送信したタイトルと本文は Rails に届きますが、`article_params` ではタイトルだけが保存に使われ、本文は保存されません。本文も保存できるように修正してください。修正できたら、次へ進んでください。記事の投稿は、次の課題で行います。
 
-<details>
-<summary>解答例</summary>
-
-対象ファイル：`app/controllers/articles_controller.rb`
-
-変更前：
-
-```ruby
-def article_params
-  params.expect(article: [ :title ])
-end
-```
-
-変更後：
-
-```ruby
-def article_params
-  params.expect(article: [ :title, :body ])
-end
-```
-
-`:body` を許可することで、入力した本文もモデルへ渡して保存できます。
-
-第5週では `params.require(:article).permit(:title, :body)` という書き方をしました。どちらもフォームから保存に使う項目を制限するための処理です。この練習では scaffold が生成した `expect` の書き方を復旧します。
-
-</details>
 
 ---
 
@@ -628,43 +349,6 @@ controller が記事を探し、view がブラウザへ表示を返します。�
 > エラーが出ても同じ記事をもう一度投稿せず、次の課題で詳細表示を直してください。
 > エラー画面の URL が `/articles/new` のままでも、詳細画面を表示しようとした途中で起きたエラーです。
 
-<details>
-<summary>解答例</summary>
-
-`create` は記事を保存し、保存した記事の詳細 URL に移動します。
-
-```mermaid
-flowchart LR
-  A["POST /articles"] --> B["create"]
-  B --> C["Article を保存"]
-  C --> D["GET /articles/:id"]
-  D --> E["show のエラー"]
-```
-
-記事は保存されましたが、`show` で表示に使う `@article` が用意されていません。
-
-本当に保存されているかを確認したい場合は、新しいターミナルで Rails console を起動します。
-
-```bash
-bin/rails console
-```
-
-Rails console で次を入力します。
-
-```ruby
-Article.count
-Article.first
-```
-
-`Article.count` が `1` になり、`Article.first` に入力したタイトルと本文が含まれていれば、記事は保存されています。
-
-確認後、Rails console を終了します。
-
-```ruby
-exit
-```
-
-</details>
 
 ---
 
@@ -676,26 +360,6 @@ exit
 
 修正後、ブラウザの URL の末尾を `/articles` にして一覧画面を開いてください。投稿したタイトルの記事カードをクリックし、詳細画面に投稿したタイトルと本文が表示されることを確認してください。
 
-<details>
-<summary>解答例</summary>
-
-対象ファイル：`app/controllers/articles_controller.rb`
-
-変更前：
-
-```ruby
-before_action :set_article, only: %i[ update destroy ]
-```
-
-変更後：
-
-```ruby
-before_action :set_article, only: %i[ show update destroy ]
-```
-
-`show` を追加すると、詳細画面を表示する前に URL の `id` に対応する記事を探し、`@article` に入れます。
-
-</details>
 
 ---
 
@@ -710,21 +374,6 @@ before_action :set_article, only: %i[ show update destroy ]
 
 この課題ではファイルを修正しません。
 
-<details>
-<summary>解答例</summary>
-
-ここまでで、次の読み取りの流れが復旧しています。
-
-```mermaid
-flowchart LR
-  A["GET /articles"] --> B["index"]
-  B --> C["記事一覧を表示"]
-  C --> D["GET /articles/:id"]
-  D --> E["show"]
-  E --> F["記事詳細を表示"]
-```
-
-</details>
 
 ---
 
@@ -734,14 +383,6 @@ flowchart LR
 
 編集画面へ進む URL にはなりますが、画面の表示でエラーになります。`show` のときと同様に、編集対象の記事が用意されているかを確認してください。
 
-<details>
-<summary>解答例</summary>
-
-`edit` も、どの記事を編集するのかを `@article` に入れてから form を表示する必要があります。
-
-現在の `before_action` には `show`、`update`、`destroy` はありますが、`edit` がありません。
-
-</details>
 
 ---
 
@@ -751,26 +392,6 @@ flowchart LR
 
 修正後、編集画面に現在のタイトルと本文が入力済みの状態で表示されることを確認してください。
 
-<details>
-<summary>解答例</summary>
-
-対象ファイル：`app/controllers/articles_controller.rb`
-
-変更前：
-
-```ruby
-before_action :set_article, only: %i[ show update destroy ]
-```
-
-変更後：
-
-```ruby
-before_action :set_article, only: %i[ show edit update destroy ]
-```
-
-`edit` は編集フォームを表示し、`update` はフォームから送信された内容を保存します。
-
-</details>
 
 ---
 
@@ -787,14 +408,6 @@ before_action :set_article, only: %i[ show edit update destroy ]
 
 一覧画面へ戻りますが、記事を開いて本文を確認すると、追加した文が保存されていません。`update` アクションが更新している項目を確認してください。
 
-<details>
-<summary>解答例</summary>
-
-現在の `update` は、タイトルだけを更新しています。本文を編集しても、`:body` を更新処理へ渡していないため保存されません。
-
-この課題では症状を確認するところまでです。次の課題で修正します。
-
-</details>
 
 ---
 
@@ -806,26 +419,6 @@ before_action :set_article, only: %i[ show edit update destroy ]
 
 一覧に戻ったあと、詳細画面を開き、本文が更新されていることを確認してください。
 
-<details>
-<summary>解答例</summary>
-
-対象ファイル：`app/controllers/articles_controller.rb`
-
-変更前：
-
-```ruby
-if @article.update(title: article_params[:title])
-```
-
-変更後：
-
-```ruby
-if @article.update(article_params)
-```
-
-`article_params` には `:title` と `:body` が許可されているので、どちらも更新できます。
-
-</details>
 
 ---
 
@@ -843,26 +436,6 @@ Rails のルーティングを宇宙地図として読む（更新版）
 
 更新後に詳細画面が表示され、変更したタイトルが見えることを確認してください。
 
-<details>
-<summary>解答例</summary>
-
-対象ファイル：`app/controllers/articles_controller.rb`
-
-変更前：
-
-```ruby
-format.html { redirect_to articles_path, notice: "記事を更新しました。最新の内容を発信しています。", status: :see_other }
-```
-
-変更後：
-
-```ruby
-format.html { redirect_to @article, notice: "記事を更新しました。最新の内容を発信しています。", status: :see_other }
-```
-
-`@article` を指定すると、更新した記事自身の詳細ページへ移動します。
-
-</details>
 
 ---
 
@@ -872,14 +445,6 @@ format.html { redirect_to @article, notice: "記事を更新しました。最�
 
 一覧画面へ戻りますが、削除したはずの記事が一覧に残っています。削除処理が本当に実行されているか、`destroy` アクションを確認してください。
 
-<details>
-<summary>解答例</summary>
-
-現在の `destroy` は一覧画面へ戻る処理は行っていますが、記事そのものを削除する処理が抜けています。
-
-見た目で画面が移動しても、データが変更されたとは限りません。削除では、一覧から本当に消えたかまで確認します。
-
-</details>
 
 ---
 
@@ -889,30 +454,6 @@ format.html { redirect_to @article, notice: "記事を更新しました。最�
 
 修正後、残っている記事の詳細画面からもう一度「削除する」を実行してください。
 
-<details>
-<summary>解答例</summary>
-
-対象ファイル：`app/controllers/articles_controller.rb`
-
-変更前：
-
-```ruby
-def destroy
-  respond_to do |format|
-```
-
-変更後：
-
-```ruby
-def destroy
-  @article.destroy!
-
-  respond_to do |format|
-```
-
-`set_article` で取得した `@article` に対して `destroy!` を実行すると、その記事が削除されます。
-
-</details>
 
 ---
 
@@ -931,14 +472,6 @@ def destroy
 
 この課題ではファイルを修正しません。
 
-<details>
-<summary>解答例</summary>
-
-記事が削除されたため、一覧が空の状態に戻ります。
-
-作成した記事が一覧に現れ、削除した記事が一覧から消えるところまで確認して、CRUD の `Create` と `Delete` が本当に動いていると判断できます。
-
-</details>
 
 ---
 
@@ -976,19 +509,6 @@ def destroy
 私はRailsをマスターしたという自信が確信に変わりました。
 ```
 
-<details>
-<summary>解答例</summary>
-
-次の操作がすべてできれば、`Article` の CRUD は復旧しています。
-
-| 操作 | Rails の処理 | 確認すること |
-|---|---|---|
-| 新規作成 | `new` → `create` | 一覧に新しい記事が現れる |
-| 詳細表示 | `show` | タイトルと本文が表示される |
-| 編集 | `edit` → `update` | 変更した本文が保存される |
-| 削除 | `destroy` | 一覧から記事が消える |
-
-</details>
 
 ---
 
@@ -1004,40 +524,7 @@ def destroy
 2. 今回、エラーを一度にすべて直すのではなく、一つ直して次の症状を確認したのはなぜでしょうか。
 3. 見た目は一覧画面へ戻っても、削除が成功したとは限らなかったのはなぜですか。
 
-<details>
-<summary>解答例</summary>
-
-1. 投稿処理の流れは次のようになります。
-
-```mermaid
-sequenceDiagram
-  participant B as ブラウザ
-  participant R as routes.rb
-  participant C as ArticlesController
-  participant M as Article
-  participant D as DB
-  participant V as show.html.erb
-  B->>R: POST /articles
-  R->>C: create
-  C->>C: article_params で入力を許可
-  C->>M: Article.new / save
-  M->>D: 記事を保存
-  C-->>B: 記事詳細へ redirect
-  B->>R: GET /articles/:id
-  R->>C: show
-  C->>M: set_article で記事を取得
-  C->>V: @article を渡す
-  V-->>B: 詳細画面を表示
-```
-
-2. 一つ直して再読み込みすると、その修正で処理がどこまで進んだのか分かります。次のエラーが表示された場合も、原因を探す範囲を絞れます。
-
-3. 削除後の移動処理だけが動いていて、データを消す `@article.destroy!` が抜けていたからです。画面の移動だけで判断せず、一覧やデータの状態を確認する必要があります。
-
-</details>
 
 ---
 
 サーバーを停止するときは、サーバーを起動しているターミナルで `Ctrl + C` を押してください。
-
-さらに力をつけるため、[Stretch](stretch.md) へ進みましょう。
