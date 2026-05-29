@@ -272,19 +272,20 @@ end
 
 ```ruby
 def article_params
-  params.require(:article).permit(:title, :body)
+  params.expect(article: [ :title, :body ])
 end
 ```
 
 `article_params` は、次のように読めます。
 
 ```text
-params の中から article を取り出す
+params の中から article を対象にする
 ↓
-title と body だけ保存を許可する
+title と body だけ保存に使えるようにする
 ```
 
-`permit` は <ruby>permit<rt>パーミット</rt></ruby> と読み、「許可する」という意味です。
+この練習で使うRailsアプリでは、scaffold が生成する `params.expect(article: [ :title, :body ])` という書き方を使います。
+第5週で使った `params.require(:article).permit(:title, :body)` と同じように、フォームから送られてきた値のうち、保存に使ってよい項目を制限するための処理です。
 
 ---
 
@@ -333,7 +334,7 @@ render :new, status: :unprocessable_entity
 | action名が合っていない | actionが見つからない | controller |
 | viewファイル名が合っていない | templateが見つからない | `app/views/` |
 | `@article` が用意されていない | `nil` に対するエラー | controller / view |
-| `:body` がpermitされていない | 本文が保存されない | `article_params` |
+| `article_params` に `:body` がない | 本文が保存されない | `article_params` |
 | `params[:id]` の使い方が間違っている | 記事が見つからない | controller |
 
 エラーは怖いものではありません。
