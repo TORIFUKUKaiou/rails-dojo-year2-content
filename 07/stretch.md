@@ -637,45 +637,7 @@ https://自分のユーザー名.github.io/rails-dojo-git-pages-playground-自�
 
 ---
 
-## まとめ
-
-## 課題50：Practice と Stretch の違いを説明する（考察問題・実行しない）
-
-> [!IMPORTANT]
-> この課題は考察問題です。ファイルを変更したり、コマンドを実行したりしません。
-> ノートまたは先生に指定された場所に答えを書いてください。
-
-Practice と Stretch で、`git push origin main` のあとに確認したものの違いを書いてください。
-
-## 課題51：Actions と Pages の流れを説明する（考察問題・実行しない）
-
-> [!IMPORTANT]
-> この課題は考察問題です。ファイルを変更したり、コマンドを実行したりしません。
-> ノートまたは先生に指定された場所に答えを書いてください。
-
-次の流れを、自分の言葉で説明してください。
-
-```text
-push
-↓
-GitHub Actions
-↓
-GitHub Pages
-↓
-公開ページが変わる
-```
-
-## 課題52：提出用 URL をメモする
-
-自分の GitHub Pages の URL をメモしてください。
-
-```text
-https://自分のユーザー名.github.io/rails-dojo-git-pages-playground-自分の名前/
-```
-
-授業で提出を求められた場合は、この URL を提出します。
-
-## 課題53：プレビュー用サーバーを停止する
+## 課題50：プレビュー用サーバーを停止する
 
 `python3 -m http.server 8000` を実行しているターミナルを開いてください。
 
