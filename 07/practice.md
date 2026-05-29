@@ -23,10 +23,6 @@ flowchart LR
 ```
 
 > [!IMPORTANT]
-> この練習では、`git add .` は使いません。
-> `git add README.md` のように、必ずファイル名を指定して add します。
-
-> [!IMPORTANT]
 > この練習では、`git commit` だけを実行しません。
 > 必ず `git commit -m "メッセージ"` の形で実行します。
 
@@ -897,6 +893,17 @@ git add ファイル名
 git commit -m "メッセージ"
 ```
 
+<details>
+<summary>解答例</summary>
+
+`git add ファイル名` は、次の commit に含める変更を選ぶコマンドです。
+
+`git commit -m "メッセージ"` は、add で選んだ変更を、メッセージ付きでローカルリポジトリに記録するコマンドです。
+
+つまり、`add` は「選ぶ」、`commit` は「記録する」操作です。
+
+</details>
+
 ## 課題74：`commit` と `push` の違いを説明する（考察問題・実行しない）
 
 > [!IMPORTANT]
@@ -907,6 +914,17 @@ git commit -m "メッセージ"
 
 - commit したが、まだ push していない状態
 - push まで終わった状態
+
+<details>
+<summary>解答例</summary>
+
+commit しただけの状態では、変更は Codespace の中のローカルリポジトリに記録されています。
+しかし、まだ GitHub には届いていません。
+
+push まで終わった状態では、ローカルリポジトリに記録した commit が GitHub に送られています。
+GitHub の画面で commit や変更内容を確認できるようになります。
+
+</details>
 
 ## 課題75：GitHub 上で見えるものを整理する（考察問題・実行しない）
 
@@ -922,6 +940,21 @@ git commit -m "メッセージ"
 - commit の一覧
 - commit の中の差分
 
+<details>
+<summary>解答例</summary>
+
+例：
+
+- `README.md` に追加した今日の目標
+- `app/views/articles/index.html.erb` の変更
+- commit の一覧
+- commit メッセージ
+- commit の中で、どの行が追加・変更されたか
+
+GitHub 上では、push された commit と、その commit に含まれるファイル変更を確認できます。
+
+</details>
+
 ## 課題76：commit メッセージを見直す（考察問題・実行しない）
 
 > [!IMPORTANT]
@@ -931,6 +964,28 @@ git commit -m "メッセージ"
 今日作った commit メッセージの中から、分かりやすいと思うものを1つ選んでください。
 
 そのメッセージを見れば、どんな変更をしたか分かるかを説明してください。
+
+<details>
+<summary>解答例</summary>
+
+例：
+
+```text
+記事一覧ページの文言を変更
+```
+
+このメッセージは、記事一覧ページに表示される文章を変更したことが分かります。
+あとから履歴を見たときに、どの画面に関係する変更だったのかを思い出しやすいです。
+
+反対に、次のようなメッセージだけでは内容が分かりにくいです。
+
+```text
+修正
+```
+
+何を修正したのかが分からないため、あとから見返しにくくなります。
+
+</details>
 
 ---
 
@@ -944,5 +999,3 @@ git commit -m "メッセージ"
 - 自分用リポジトリのURLを提出できる
 
 おつかれさまでした。
-
-発展課題は、先生の指示があれば取り組みます。
