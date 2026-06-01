@@ -78,6 +78,7 @@ https://github.com/自分のユーザー名/rails-dojo-git-practice-自分の名
 
 > [!IMPORTANT]
 > ここから先は、必ず自分用リポジトリで作業してください。
+> `TORIFUKUKaiou/rails-dojo-git-practice` の画面で Codespace を作らないように注意してください。
 
 ## 課題5：Codespace を作る
 
