@@ -383,6 +383,7 @@ nothing to commit, working tree clean
 > [!NOTE]
 > ブラウザから登録した記事データは、データベースの中に保存されています。
 > 今回はデータベースの中身を Git の commit 対象にはしません。
+> Git が追跡しているファイルには変更がないため、作業ツリーが clean だと言っています。
 
 ---
 
@@ -392,7 +393,7 @@ nothing to commit, working tree clean
 
 ## 課題28：対象ファイルを開く
 
-次のファイルを開いてください。
+Codespaceで、次のファイルを開いてください。
 
 ```text
 app/views/articles/index.html.erb
@@ -415,6 +416,7 @@ app/views/articles/index.html.erb
 ```
 
 保存できたら次へ進みます。
+※ 今回のCodespaceの設定では、自動保存されます。
 
 ## 課題31：ブラウザで確認する
 
@@ -445,6 +447,15 @@ git diff
 ```
 
 変更前の説明文が `-`、変更後の説明文が `+` で表示されることを確認します。
+
+```diff
+   <div class="hero-copy">
+     <p class="eyebrow">CODE TRANSMISSION NETWORK</p>
+     <h1>CodeShelf</h1>
+-    <p class="hero-lead">Ruby と Rails の知識を記事にして発信する、技術記事共有スペース。</p>
++    <p class="hero-lead">Git の練習で変更を記録しながら、Rails の記事を育てるスペース。</p>
+     <div class="hero-actions">
+```
 
 ## 課題34：変更を add する
 
@@ -482,8 +493,6 @@ git log --oneline
 
 一番上に、今作った commit が表示されることを確認します。
 
-確認できたら `q` を押して戻ります。
-
 ## 課題38：GitHub へ push する
 
 次を実行してください。
@@ -510,7 +519,7 @@ app/views/articles/index.html.erb
 
 ## 課題40：対象ファイルを開く
 
-次のファイルを開いてください。
+Codespaceで、次のファイルを開いてください。
 
 ```text
 app/views/articles/_article.html.erb
@@ -549,6 +558,7 @@ app/views/articles/_article.html.erb
 ```
 
 保存できたら次へ進みます。
+※ 今回のCodespaceの設定では、自動保存されます。
 
 ## 課題45：ブラウザで確認する
 
@@ -586,8 +596,6 @@ git log --oneline
 git push origin main
 ```
 
-`git log --oneline` の画面から戻るときは、`q` を押してください。
-
 ## 課題49：GitHub で commit が増えたことを確認する
 
 GitHub の `Commits` を開き、次の commit が増えていることを確認してください。
@@ -607,7 +615,7 @@ CSS の細かい意味をすべて理解する必要はありません。
 
 ## 課題50：CSS ファイルを開く
 
-次のファイルを開いてください。
+Codespaceで、次のファイルを開いてください。
 
 ```text
 app/assets/stylesheets/application.css
@@ -630,6 +638,7 @@ app/assets/stylesheets/application.css
 ```
 
 保存できたら次へ進みます。
+※ 今回のCodespaceの設定では、自動保存されます。
 
 ## 課題53：ブラウザで確認する
 
@@ -667,8 +676,6 @@ git log --oneline
 git push origin main
 ```
 
-確認できたら、`git log --oneline` の画面では `q` を押して戻ります。
-
 ---
 
 ## 2つのファイルを1つの commit にまとめる
@@ -679,7 +686,7 @@ git push origin main
 
 ## 課題57：一覧画面に見出しを追加する
 
-次のファイルを開いてください。
+Codespaceで、次のファイルを開いてください。
 
 ```text
 app/views/articles/index.html.erb
@@ -693,15 +700,22 @@ app/views/articles/index.html.erb
 
 インデントは、前後の行に合わせます。
 
+変更後:
+
+```erb
+<section class="articles-section" id="articles">
+  <p class="focus-label">今日の注目記事</p>
+```
+
 ## 課題58：見出しの見た目を追加する
 
-次のファイルを開いてください。
+Codespaceで、次のファイルを開いてください。
 
 ```text
 app/assets/stylesheets/application.css
 ```
 
-ファイルの下の方に、次の CSS を追加してください。
+ファイルの一番下に、次の CSS を追加してください。
 
 ```css
 .focus-label {
@@ -728,8 +742,8 @@ git status
 次の2つのファイルが変更されていることを確認します。
 
 ```text
-app/assets/stylesheets/application.css
-app/views/articles/index.html.erb
+        modified:   app/assets/stylesheets/application.css
+        modified:   app/views/articles/index.html.erb
 ```
 
 ## 課題61：2つのファイルの差分を見る
@@ -741,6 +755,7 @@ git diff
 ```
 
 view の変更と CSS の変更が、両方表示されることを確認します。
+差分確認画面から、戻る際は、 `q` を押します。
 
 ## 課題62：片方だけ add する
 
@@ -760,8 +775,8 @@ git status
 
 次の2種類が表示されることを確認します。
 
-- commit 予定に入ったファイル
-- まだ commit 予定に入っていないファイル
+- commit 予定に入ったファイル (Changes to be committed)
+- まだ commit 予定に入っていないファイル (Changes not staged for commit)
 
 ここで、`git add` は「変更を選ぶ」操作だと確認できます。
 
@@ -799,8 +814,6 @@ git commit -m "注目記事の表示を追加"
 git log --oneline
 git push origin main
 ```
-
-`git log --oneline` から戻るときは `q` を押します。
 
 ## 課題68：GitHub で commit の中身を見る
 
@@ -852,6 +865,8 @@ READMEに今日の目標を追加
 ```text
 https://github.com/自分のユーザー名/rails-dojo-git-practice-自分の名前
 ```
+
+課題70と課題71のURLをTeamsに報告してください。
 
 ## 課題72：最後の状態を確認する
 
@@ -992,3 +1007,5 @@ GitHub 上では、push された commit と、その commit に含まれるフ�
 - 自分用リポジトリのURLを提出できる
 
 おつかれさまでした。
+
+さらに力をつけるため、[Stretch](stretch.md) へ進みましょう。
