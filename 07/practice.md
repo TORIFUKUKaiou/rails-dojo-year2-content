@@ -48,7 +48,7 @@ flowchart LR
 
 ## 課題3：自分用リポジトリを作る
 
-GitHub の画面で、`Use this template` から自分用のリポジトリを作ってください。
+GitHub の画面で、`Use this template` > `Create a new repository` から自分用のリポジトリを作ってください。
 
 リポジトリ名は、次のようにします。
 
@@ -78,7 +78,6 @@ https://github.com/自分のユーザー名/rails-dojo-git-practice-自分の名
 
 > [!IMPORTANT]
 > ここから先は、必ず自分用リポジトリで作業してください。
-> `TORIFUKUKaiou/rails-dojo-git-practice` の画面で Codespace を作らないように注意してください。
 
 ## 課題5：Codespace を作る
 
@@ -96,13 +95,18 @@ Codespaces のターミナルで、次を実行してください。
 
 ```bash
 pwd
-ls
 ```
 
 `pwd` の結果が次のようになっていれば、Rails アプリの場所にいます。
 
 ```text
 /home/vscode/app
+```
+
+Codespaces のターミナルで、次を実行してください。
+
+```bash
+ls
 ```
 
 `ls` の結果に、次のようなファイルやフォルダが表示されることを確認します。
