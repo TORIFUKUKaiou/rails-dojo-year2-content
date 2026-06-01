@@ -46,7 +46,7 @@ Rails アプリではありません。
 
 ## 課題2：自分用リポジトリを作る
 
-GitHub の画面で、`Use this template` から自分用のリポジトリを作ってください。
+GitHub の画面で、`Use this template` > `Create a new repository` から自分用のリポジトリを作ってください。
 
 リポジトリ名は、次のようにします。
 
@@ -109,11 +109,10 @@ VS Code の画面が開き、ターミナルを操作できるまで待ちます
 Codespaces のターミナルで、次を実行してください。
 
 ```bash
-pwd
-ls
+ls -1
 ```
 
-`ls` の結果に、次のファイルが表示されることを確認します。
+`ls -1` の結果に、次のファイルが表示されることを確認します。
 
 ```text
 README.md
@@ -121,6 +120,12 @@ index.html
 script.js
 style.css
 ```
+
+```bash
+pwd
+```
+
+`pwd` の結果が、 `/workspaces/rails-dojo-git-pages-playground-自分の名前` であることを確認します。
 
 ## 課題7：最初の Git 状態を確認する
 
@@ -170,7 +175,7 @@ Codespaces の `PORTS` タブを開きます。
 
 ## 課題10：新しいターミナルを開く
 
-画面上部の `+` から新しいターミナルを開いてください。
+Codespaces で、画面下部の `+` から新しいターミナルを開いてください。
 
 新しいターミナルで、次を実行します。
 
@@ -268,8 +273,6 @@ git log --oneline
 トップページの見出しを変更
 ```
 
-`git log` の画面から戻るには、キーボードの `q` を押します。
-
 ## 課題19：GitHub に push する
 
 次を実行してください。
@@ -282,7 +285,7 @@ push が成功すると、自分用リポジトリの GitHub 上にも commit �
 
 ## 課題20：Actions の実行を確認する
 
-GitHub の自分用リポジトリを開き、`Actions` タブを開いてください。
+GitHub の自分用リポジトリ（`https://github.com/自分のユーザー名/rails-dojo-git-pages-playground-自分の名前`）で、`Actions` タブを開いてください。
 
 `Deploy Git Signal Board` という workflow が動いていることを確認します。
 
@@ -290,8 +293,7 @@ GitHub の自分用リポジトリを開き、`Actions` タブを開いてくだ
 緑のチェックになれば成功です。
 
 > [!IMPORTANT]
-> push 直後に公開ページが変わらなくても失敗とは限りません。
-> GitHub Actions が完了するまで待ってから確認します。
+> GitHub Actions が完了するまで待ってから次へ進みます。
 
 ## 課題21：GitHub Pages の公開ページを開く
 
@@ -335,9 +337,11 @@ VS Code の左側のファイル一覧から、`style.css` を開いてくださ
 
 ## 課題24：プレビューを再読み込みする
 
-プレビュー画面を再読み込みしてください。
+Codespacesから起動したプレビュー画面を再読み込みしてください。
 
 `Signal` ボタンの色が変わっていれば成功です。
+
+対して、 `https://自分のユーザー名.github.io/rails-dojo-git-pages-playground-自分の名前/` を再読み込みしても、`Signal` ボタンの色は変わっていません。これから変更内容をpushして変更を反映させます。
 
 ## 課題25：変更内容を確認する
 
@@ -362,8 +366,6 @@ git log --oneline
 
 一番上に、今作った commit メッセージが表示されることを確認します。
 
-`git log` の画面から戻るには、キーボードの `q` を押します。
-
 ## 課題27：CSS の変更を push する
 
 次を実行してください。
@@ -374,13 +376,16 @@ git push origin main
 
 ## 課題28：Actions と Pages を確認する
 
-GitHub の `Actions` タブを開きます。
+GitHub の自分用リポジトリ（`https://github.com/自分のユーザー名/rails-dojo-git-pages-playground-自分の名前`）で、`Actions` タブを開いてください。
 
 新しい `Deploy Git Signal Board` が緑のチェックになるまで待ちます。
 
-その後、GitHub Pages の公開ページを再読み込みしてください。
+その後、GitHub Pages の公開ページ（`https://自分のユーザー名.github.io/rails-dojo-git-pages-playground-自分の名前/`）を再読み込みしてください。
 
 公開ページのボタンの色が変わっていれば成功です。
+
+もし色が変わらない場合は、ブラウザが、 `style.css` をキャッシュしている可能性が高いです。
+シークレットモードで、 公開ページ（`https://自分のユーザー名.github.io/rails-dojo-git-pages-playground-自分の名前/`）を開いてみてください。
 
 ---
 
@@ -438,11 +443,16 @@ const signalCards = [
 ];
 ```
 
+> [!WARNING]
+> `script.js` の19行目に `,` を追加するのを忘れないようにしてください。
+
 ## 課題32：プレビューを再読み込みする
 
-プレビュー画面を再読み込みしてください。
+Codespacesから起動したプレビュー画面を再読み込みしてください。
 
 カードが4枚に増えていれば成功です。
+
+対して、 `https://自分のユーザー名.github.io/rails-dojo-git-pages-playground-自分の名前/` を再読み込みしても、カードは3枚のまま変わっていません。これから変更内容をpushして変更を反映させます。
 
 ## 課題33：変更内容を確認する
 
@@ -467,8 +477,6 @@ git log --oneline
 
 一番上に、今作った commit メッセージが表示されることを確認します。
 
-`git log` の画面から戻るには、キーボードの `q` を押します。
-
 ## 課題35：JavaScript の変更を push する
 
 次を実行してください。
@@ -479,11 +487,13 @@ git push origin main
 
 ## 課題36：公開ページのカードを確認する
 
-GitHub の `Actions` タブで、workflow が緑のチェックになるまで待ちます。
+GitHub の自分用リポジトリ（`https://github.com/自分のユーザー名/rails-dojo-git-pages-playground-自分の名前`）で、`Actions` タブを開いてください。
 
-その後、GitHub Pages の公開ページを再読み込みしてください。
+その後、GitHub Pages の公開ページ（`https://自分のユーザー名.github.io/rails-dojo-git-pages-playground-自分の名前/`）を再読み込みしてください。
 
 カードが4枚に増えていれば成功です。
+
+もしカードの枚数が増えない場合は、GitHub Pages の公開ページをシークレットモードで開いてみてください。
 
 ---
 
@@ -519,7 +529,18 @@ border-left: 8px solid var(--rose);
 border-left: 8px solid var(--cyan);
 ```
 
-## 課題39：2ファイルが変更されたことを確認する
+## 課題39：プレビューを再読み込みする
+
+Codespacesから起動したプレビュー画面を再読み込みしてください。
+
+以下の2箇所が変わっています。
+
+- 上部: `Current status` の文言: `main branch is live` => `push history is live`
+- 下部: `Published note` の左端の帯の色: ローズ(赤っぽい色) => シアン(水色っぽい色)
+
+対して、 `https://自分のユーザー名.github.io/rails-dojo-git-pages-playground-自分の名前/` を再読み込みしても、まだ反映されません。これから変更内容をpushして変更を反映させます。
+
+## 課題40：2ファイルが変更されたことを確認する
 
 次を実行してください。
 
@@ -529,7 +550,7 @@ git status
 
 `index.html` と `style.css` の2つが変更されたファイルとして表示されることを確認します。
 
-## 課題40：差分を見る
+## 課題41：差分を見る
 
 次を実行してください。
 
@@ -539,7 +560,7 @@ git diff
 
 2ファイル分の差分が表示されることを確認します。
 
-## 課題41：片方だけ add する
+## 課題42：片方だけ add する
 
 まず、`index.html` だけを add します。
 
@@ -555,7 +576,7 @@ git status
 
 `index.html` は commit 予定、`style.css` はまだ commit 予定ではない状態になっていることを確認します。
 
-## 課題42：もう一方も add する
+## 課題43：もう一方も add する
 
 次を実行してください。
 
@@ -566,7 +587,7 @@ git status
 
 `index.html` と `style.css` の両方が commit 予定になっていることを確認します。
 
-## 課題43：2ファイルを1つの commit にする
+## 課題44：2ファイルを1つの commit にする
 
 次を実行してください。
 
@@ -577,9 +598,7 @@ git log --oneline
 
 一番上に、今作った commit メッセージが表示されることを確認します。
 
-`git log` の画面から戻るには、キーボードの `q` を押します。
-
-## 課題44：2ファイルの変更を push する
+## 課題45：2ファイルの変更を push する
 
 次を実行してください。
 
@@ -587,27 +606,31 @@ git log --oneline
 git push origin main
 ```
 
-## 課題45：GitHub の commit 詳細を見る
+## 課題46：GitHub の commit 詳細を見る
 
-GitHub の自分用リポジトリで、`Commits` を開きます。
+GitHub の自分用リポジトリ（`https://github.com/自分のユーザー名/rails-dojo-git-pages-playground-自分の名前`）で、`Commits` を開いてください。 (`/commits/main/`)
 
 `公開ページの表示を調整` の commit を開いてください。
 
 `index.html` と `style.css` の2ファイルが含まれていれば成功です。
 
-## 課題46：公開ページを確認する
+## 課題47：公開ページを確認する
 
-GitHub の `Actions` タブで、workflow が緑のチェックになるまで待ちます。
+GitHub の自分用リポジトリ（`https://github.com/自分のユーザー名/rails-dojo-git-pages-playground-自分の名前`）で、`Actions` タブを開いてください。
 
-その後、GitHub Pages の公開ページを再読み込みしてください。
+workflow が緑のチェックになるまで待ちます。
+
+その後、GitHub Pages の公開ページ（`https://自分のユーザー名.github.io/rails-dojo-git-pages-playground-自分の名前/`）を再読み込みしてください。
 
 `push history is live` と表示され、下の枠線の色が変わっていれば成功です。
+
+変更が反映されない場合は、公開ページをシークレットモードで開いてみてください。
 
 ---
 
 ## うまくいかないときに確認すること
 
-## 課題47：Actions の状態を確認する
+## 課題48：Actions の状態を確認する
 
 GitHub の `Actions` タブを開いてください。
 
@@ -617,7 +640,7 @@ GitHub の `Actions` タブを開いてください。
 - 緑のチェック：成功です。Pages を再読み込みします。
 - 赤いバツ：失敗です。先生に確認してください。
 
-## 課題48：Pages の Source を確認する
+## 課題49：Pages の Source を確認する
 
 GitHub の `Settings` → `Pages` を開いてください。
 
@@ -625,7 +648,7 @@ GitHub の `Settings` → `Pages` を開いてください。
 
 `Deploy from a branch` になっている場合は、`GitHub Actions` に変更してください。
 
-## 課題49：URL を確認する
+## 課題50：URL を確認する
 
 公開ページの URL が、自分のリポジトリ名になっていることを確認してください。
 
@@ -637,7 +660,7 @@ https://自分のユーザー名.github.io/rails-dojo-git-pages-playground-自�
 
 ---
 
-## 課題50：プレビュー用サーバーを停止する
+## 課題51：プレビュー用サーバーを停止する
 
 `python3 -m http.server 8000` を実行しているターミナルを開いてください。
 
