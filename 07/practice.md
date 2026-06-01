@@ -858,6 +858,8 @@ READMEに今日の目標を追加
 
 この URL は、「自分がどの変更をしたか」を先生やチームメンバーに見せるために使えます。
 
+例: https://github.com/yamauchi-haw/rails-dojo-git-practice-yamauchi/commit/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
 ## 課題71：リポジトリのURLをメモする
 
 自分用リポジトリのURLをメモしてください。
@@ -865,6 +867,8 @@ READMEに今日の目標を追加
 ```text
 https://github.com/自分のユーザー名/rails-dojo-git-practice-自分の名前
 ```
+
+例: https://github.com/yamauchi-haw/rails-dojo-git-practice-yamauchi
 
 課題70と課題71のURLをTeamsに報告してください。
 
