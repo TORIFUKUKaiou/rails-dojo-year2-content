@@ -206,11 +206,6 @@ git log
 git log --oneline
 ```
 
-> [!IMPORTANT]
-> **`git log` 画面からの戻り方**
-> `git log` を実行すると、ターミナルが履歴表示モードになり、入力ができなくなる場合があります。
-> その画面から元のターミナルに戻るには、**キーボードの `q`** を押してください。
-
 ### 6. `git push origin main`（GitHubへ送る）
 
 手元のローカルリポジトリに記録した commit 履歴を、GitHub（リモートリポジトリ）へ送ります。
@@ -263,7 +258,7 @@ git init
 | `git diff` | 具体的にどこを書き換えたか、差分を確認する | `git add` する前 |
 | `git add <ファイル名>` | 記録したい変更ファイルを選ぶ | 変更を確認したあと |
 | `git commit -m "メッセージ"` | 選択した変更をメッセージ付きで記録する | addで選択し終わったあと |
-| `git log` | これまでの commit 履歴を見る | commitが成功したか確認したいとき（戻るには `q`） |
+| `git log` | これまでの commit 履歴を見る | commitが成功したか確認したいとき |
 | `git push origin main` | 手元のcommit履歴をGitHubへ送る | commitが終わって、GitHubに送りたいとき |
 
 それでは、実際にCodespacesを動かして、変更をGitHubに送ってみましょう。
