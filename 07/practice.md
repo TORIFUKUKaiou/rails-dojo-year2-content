@@ -4,11 +4,7 @@
 
 今回は、Rails アプリ **CodeShelf** を使って、Git の基本操作を繰り返し練習します。
 
-第6週では、壊れた Rails アプリを読み、エラーを直しました。
-今回は、最初から動く Rails アプリを使います。
-
-目的は Rails の新しい機能を増やすことではありません。
-小さな変更をして、確認して、Git に記録し、GitHub へ送る流れを身につけることです。
+目的は、小さな変更をして、確認して、Git に記録し、GitHub へ送る流れを身につけることです。
 
 ```mermaid
 flowchart LR
@@ -23,8 +19,7 @@ flowchart LR
 ```
 
 > [!IMPORTANT]
-> この練習では、`git commit` だけを実行しません。
-> 必ず `git commit -m "メッセージ"` の形で実行します。
+> この練習では、`git commit` を行う際は、必ず `git commit -m "メッセージ"` の形で実行します。
 
 > [!IMPORTANT]
 > 第8週で branch を扱います。
