@@ -106,7 +106,7 @@ pwd
 Codespaces のターミナルで、次を実行してください。
 
 ```bash
-ls
+ls -1
 ```
 
 `ls` の結果に、次のようなファイルやフォルダが表示されることを確認します。
@@ -152,13 +152,11 @@ VS Code の左側のファイル一覧から、`README.md` を開いてくださ
 ```markdown
 ## 今日のGit練習
 
-- 自分の名前：山田
 - 今日の目標：変更をcommitしてGitHubへpushする
 ```
 
-`山田` の部分は、自分の名前に変えてください。
-
 保存できたら次へ進みます。
+※ 今回のCodespaceの設定では、自動保存されます。
 
 ## 課題10：変更されたファイルを確認する
 
@@ -188,7 +186,6 @@ git diff
 
 ```diff
 +## 今日のGit練習
-+- 自分の名前：山田
 +- 今日の目標：変更をcommitしてGitHubへpushする
 ```
 
@@ -220,7 +217,8 @@ git status
 
 ```text
 Changes to be committed:
-  modified: README.md
+  (use "git restore --staged <file>..." to unstage)
+        modified:   README.md
 ```
 
 ## 課題14：commit する
@@ -238,8 +236,7 @@ git commit -m "READMEに今日の目標を追加"
 ```
 
 > [!CAUTION]
-> `git commit` だけを実行しないでください。
-> この授業では、必ず `git commit -m "メッセージ"` の形で実行します。
+> この授業では、必ず `git commit -m "メッセージ"` の形で実行してください。
 
 ## 課題15：commit 履歴を見る
 
@@ -252,11 +249,8 @@ git log --oneline
 一番上に、今作った commit メッセージが表示されることを確認します。
 
 ```text
-READMEに今日の目標を追加
+xxxxxxx (HEAD -> main) READMEに今日の目標を追加
 ```
-
-> [!IMPORTANT]
-> `git log` の画面から戻るには、キーボードの `q` を押します。
 
 ## 課題16：GitHub へ push する
 
@@ -276,7 +270,7 @@ git push origin main
 
 ## 課題18：GitHub で commit を確認する
 
-GitHub の画面で、`Commits` または commit メッセージを開きます。
+GitHub の画面で、`Commits` または commit メッセージを開きます。 （`/commits/main/`）
 
 `READMEに今日の目標を追加` という commit が見えることを確認してください。
 
