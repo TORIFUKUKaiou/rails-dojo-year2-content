@@ -63,6 +63,9 @@ flowchart TD
 2. 画面上部にある `Settings`（歯車アイコン）タブをクリックします。
 3. 左側のメニューから `Collaborators` をクリックします。
 4. `Add people` ボタンをクリックします。
+
+   ![](../images/add-people.png)
+
 5. メンバーの GitHub ユーザー名（または登録メールアドレス）を入力して検索し、追加します。
 
 ## 準備4：【メンバー】招待を承諾する
@@ -72,7 +75,12 @@ flowchart TD
 1. 代表者から教えてもらったリポジトリのURLの末尾に `/invitations` をつけたURLをブラウザで開きます。
    - 例: `https://github.com/代表者のユーザー名/rails-dojo-git-practice-team-XX/invitations`
    - もしくは、GitHub画面の右上にあるベルマーク（通知）を開きます。
+
+   ![](../images/view-invitaion.png)
+
 2. 画面に表示される **`Accept invitation`**（招待を承諾する）ボタンをクリックします。
+
+   ![](../images/accept-invitation.png)
 
 > [!IMPORTANT]
 > 招待を承諾しないと、あとでコードを push する際にエラーになります。必ず全員が承諾したことを確認してください。
@@ -85,7 +93,7 @@ flowchart TD
    - URLの中に、**代表者のユーザー名**が含まれていることを確認してください。
 2. 画面右上にある緑色の `Code` ボタンをクリックし、`Codespaces` タブを選択します。
 3. **`Create codespace on main`** をクリックします。
-   ![](../images/create-a-codespace-on-main.png)
+   ![](https://raw.githubusercontent.com/TORIFUKUKaiou/rails-dojo-year1-content/refs/heads/main/images/create-codespace-on-main.png)
 4. VS Code の画面が開き、ターミナルに「準備完了」と表示されるまで待ちます（初回起動には数分かかります）。
 5. ターミナルに「準備完了」と表示され、自動的な環境構築（`bundle install` など）が終わったことを確認します。
 
@@ -111,7 +119,7 @@ flowchart TD
 
 ## 演習フェーズ：順番に Pull Request を作成・マージする
 
-準備が整いました。ここからは**課題①、課題②、課題③の順番に**、1人ずつ作業を進めます。
+準備が整いました。ここからは**課題①、課題②、課題③の順番に**、一つずつ作業を進めます。
 
 ---
 
@@ -198,21 +206,31 @@ flowchart TD
 ```bash
 git push origin add-team-logo
 ```
-※ 送信先は `main` ではなく、自分が作ったトピックブランチ名 `add-team-logo` です。
+※ 送信するブランチは `main` ではなく、自分が作ったトピックブランチ名 `add-team-logo` です。
 
 ### Step 6：Pull Request (PR) を作成する
 1. GitHub上にあるリポジトリのページを開きます。
 2. `Compare & pull request` という黄色のバーが表示されているので、それをクリックします。
+
+   ![](../images/Compare-and-pull-request.png)
+
    （表示されていない場合は、`Pull requests` タブを開き、`New pull request` をクリックし、`compare:` で `add-team-logo` ブランチを選択します）
-3. タイトルに「**ヘッダーロゴにチーム名を追加**」と入力します。
+3. タイトルに「**ヘッダーロゴにチーム名を追加**」と入力します。（デフォルトで入力されているものを編集します）
 4. `Create pull request` をクリックして、PR を作成します。
+
+   ![](../images/Create-Pull-Request.png)
 
 ### Step 7：全員でレビューし、マージする
 1. **グループ全員（B, Cも含む）** でGitHubのPR画面を開きます。
+   ![](../images/open-pr.png)
 2. `Files changed` タブをクリックし、担当Aがどのような変更を行ったか（差分）を目で確認します。
+   ![](../images/File-Changed.png)
 3. 表示に問題がなければ、誰かがコメント欄に「確認しました！」「LGTM（Look Goods To Me）」などと入力してコメントします。
-4. レビューが完了したら、**代表者**がPRの画面で **`Merge pull request`** > **`Confirm merge`** をクリックしてマージします。
+   ![](../images/LGTM.png)
+4. レビューが完了したら、**代表者**がPRのConversation画面で **`Merge pull request`** > **`Confirm merge`** をクリックしてマージします。
+   ![](../images/Merge-Pull-Request.png)
 5. PRのステータスが **`Merged`**（紫色）になったことを確認します。
+   ![](../images/Merged.png)
 
 ### Step 8：【全員】手元の環境を最新にする（同期）
 マージされた最新のコードを手元に取り込みます。**A, B, C 全員が自分の Codespace で実行してください。**
