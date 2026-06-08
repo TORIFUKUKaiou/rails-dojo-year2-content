@@ -108,10 +108,13 @@ flowchart TD
 `main` から branch を作ると、`main` を直接変えずに作業できます。
 
 ```mermaid
-flowchart LR
-  A["main"] --> B["作業用 branch"]
-  B --> C["変更を作る"]
-  C --> D["変更を確認する"]
+gitGraph
+  commit id: "main の状態"
+  branch feature
+  checkout feature
+  commit id: "変更を作る"
+  commit id: "変更を確認する"
+  checkout main
 ```
 
 branch を使うと、次のような作業ができます。
@@ -216,10 +219,13 @@ flowchart LR
 今回の GitHub Flow では、PR で確認した変更を `main` に合流させます。
 
 ```mermaid
-flowchart LR
-  A["作業用 branch の変更"] --> B["PR で確認する"]
-  B --> C["main に merge する"]
-  C --> D["main が新しくなる"]
+gitGraph
+  commit id: "main"
+  branch feature
+  checkout feature
+  commit id: "変更"
+  checkout main
+  merge feature id: "merge"
 ```
 
 merge されると、branch で作った変更が `main` に入ります。
