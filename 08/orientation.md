@@ -41,6 +41,38 @@ flowchart LR
 
 ---
 
+## clone は GitHub のリポジトリを手元に持ってくること
+
+前回は、自分用リポジトリの Codespace を直接開いて作業しました。
+
+今回の Practice では、グループで使う共有リポジトリを、自分の Codespace の中に持ってきて作業します。
+
+このときに使う考え方が <ruby>clone<rt>クローン</rt></ruby> です。
+
+clone は、GitHub 上にあるリポジトリを、自分の作業場所にコピーしてくることです。
+
+```mermaid
+flowchart LR
+  A["GitHub 上の共有リポジトリ"] --> B["自分の Codespace"]
+  B --> C["自分の作業フォルダ"]
+```
+
+clone すると、ファイルだけでなく、Git の履歴や branch の情報も一緒に手元へ来ます。
+
+つまり、clone したあとに、自分の Codespace の中で変更を作り、commit し、GitHub へ送ることができます。
+
+| 場所 | 役割 |
+|---|---|
+| GitHub 上のリポジトリ | チームで共有する元の場所 |
+| 自分の Codespace | 自分が作業する場所 |
+| clone したフォルダ | GitHub から持ってきた作業対象 |
+
+> [!NOTE]
+> clone は「GitHub の画面を開くこと」ではありません。
+> GitHub 上のリポジトリを、自分が編集できる作業フォルダとして手元に持ってくることです。
+
+---
+
 ## main はチームの基準になる場所
 
 Git のリポジトリには、通常 `main` という branch があります。
@@ -76,13 +108,10 @@ flowchart TD
 `main` から branch を作ると、`main` を直接変えずに作業できます。
 
 ```mermaid
-gitGraph
-  commit id: "main の状態"
-  branch feature
-  checkout feature
-  commit id: "変更を作る"
-  commit id: "変更を確認する"
-  checkout main
+flowchart LR
+  A["main"] --> B["作業用 branch"]
+  B --> C["変更を作る"]
+  C --> D["変更を確認する"]
 ```
 
 branch を使うと、次のような作業ができます。
@@ -187,13 +216,10 @@ flowchart LR
 今回の GitHub Flow では、PR で確認した変更を `main` に合流させます。
 
 ```mermaid
-gitGraph
-  commit id: "main"
-  branch feature
-  checkout feature
-  commit id: "変更"
-  checkout main
-  merge feature id: "merge"
+flowchart LR
+  A["作業用 branch の変更"] --> B["PR で確認する"]
+  B --> C["main に merge する"]
+  C --> D["main が新しくなる"]
 ```
 
 merge されると、branch で作った変更が `main` に入ります。
@@ -258,6 +284,53 @@ flowchart TD
 | レビュー | チームで変更内容を読むこと |
 | merge | 確認済みの変更を `main` に合流させること |
 | pull | GitHub 上の最新の `main` を手元に取り込むこと |
+
+---
+
+## ここまでに学習した Git コマンド
+
+第7週と第8週で、Git と GitHub の作業に関係するコマンドが増えてきました。
+
+ここでは、何をするためのコマンドなのかを整理します。
+
+| コマンド | 役割 |
+|---|---|
+| `git init` | 今いるフォルダで、新しく Git 管理を始める |
+| `git clone` | GitHub 上のリポジトリを、自分の作業場所に持ってくる |
+| `git branch` | branch の一覧を見たり、branch を作ったりする |
+| `git switch` | 作業する branch を切り替える。新しい branch を作って切り替えることもできる |
+| `git status` | 今の変更状態を確認する |
+| `git diff` | ファイルの変更内容を確認する |
+| `git add` | 次の commit に含める変更を選ぶ |
+| `git commit` | 選んだ変更を、ローカルリポジトリに記録する |
+| `git push` | 手元の commit を GitHub へ送る |
+| `git pull` | GitHub 上の最新の変更を手元に取り込む |
+
+> [!NOTE]
+> `git init` は、まだ Git 管理されていないフォルダで使うコマンドです。
+> 今回の授業では、すでに用意されたリポジトリを使うため、基本的には `git init` を実行しません。
+
+---
+
+## branch の切り替えは checkout ではなく switch を使う
+
+Git の古い説明では、branch を切り替えるときに `git checkout` がよく出てきます。
+
+`git checkout` でも branch の切り替えはできます。
+しかし、`git checkout` は branch の切り替え以外にも、ファイルを過去の状態に戻す用途などを持っています。
+
+そのため、初学者にとっては「branch を切り替えたいのか」「ファイルを戻したいのか」が分かりにくくなりがちです。
+
+この授業では、branch を切り替えるときは `git switch` を使います。
+
+| やりたいこと | この授業で使うコマンド |
+|---|---|
+| 既存の branch に切り替える | `git switch ブランチ名` |
+| 新しい branch を作って、その branch に切り替える | `git switch -c ブランチ名` |
+
+> [!TIP]
+> ネットで調べると `git checkout -b ブランチ名` という書き方も出てきます。
+> この授業では、branch の作成と切り替えは `git switch -c ブランチ名` にそろえます。
 
 ---
 
