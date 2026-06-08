@@ -45,7 +45,7 @@ flowchart LR
 
 前回は、自分用リポジトリの Codespace を直接開いて作業しました。
 
-今回の Practice では、グループで使う共有リポジトリを、自分の Codespace の中に持ってきて作業します。
+今回の演習では、グループで使う共有リポジトリを、自分の Codespace の中に持ってきて作業します。
 
 このときに使う考え方が <ruby>clone<rt>クローン</rt></ruby> です。
 
@@ -106,6 +106,7 @@ flowchart TD
 <ruby>branch<rt>ブランチ</rt></ruby> は、Git の履歴を一時的に分けるためのものです。
 
 `main` から branch を作ると、`main` を直接変えずに作業できます。
+作業する branch を切り替えるときは、`git switch` を使います。
 
 ```mermaid
 gitGraph
@@ -248,12 +249,12 @@ PR が merge されると、GitHub 上の `main` が新しくなります。
 
 - GitHub 上の `main` が更新される
 - 自分の手元の `main` は、まだ古い場合がある
-- 次の作業を始める前に、最新の `main` を取り込む
+- 次の作業を始める前に、最新の `main` を取り込む（`git pull`）
 
 ```mermaid
 flowchart LR
   A["GitHub 上の main"] --> B["新しい変更が入る"]
-  B --> C["自分の手元に取り込む"]
+  B --> C["自分の手元に取り込む（git pull）"]
   C --> D["最新の状態から次の作業を始める"]
 ```
 
@@ -270,13 +271,14 @@ flowchart LR
 ```mermaid
 flowchart TD
   A["1. 最新の main から始める"] --> B["2. 作業用 branch を作る"]
-  B --> C["3. branch で変更を作る"]
-  C --> D["4. commit して GitHub へ送る"]
-  D --> E["5. Pull Request を作る"]
-  E --> F["6. チームでレビューする"]
-  F --> G["7. 問題なければ main に merge する"]
-  G --> H["8. 最新の main を手元に取り込む"]
-  H --> A
+  B --> C["3. 作業用 branch に切り替える（git switch）"]
+  C --> D["4. branch で変更を作る"]
+  D --> E["5. commit して GitHub へ送る"]
+  E --> F["6. Pull Request を作る"]
+  F --> G["7. チームでレビューする"]
+  G --> H["8. 問題なければ main に merge する"]
+  H --> I["9. 最新の main を手元に取り込む（git pull）"]
+  I --> A
 ```
 
 前回学んだ `status`、`diff`、`add`、`commit`、`push` は、この流れの中でも使います。
@@ -309,6 +311,7 @@ flowchart TD
 | `git diff` | ファイルの変更内容を確認する |
 | `git add` | 次の commit に含める変更を選ぶ |
 | `git commit` | 選んだ変更を、ローカルリポジトリに記録する |
+| `git log` | これまでの commit 履歴を見る |
 | `git push` | 手元の commit を GitHub へ送る |
 | `git pull` | GitHub 上の最新の変更を手元に取り込む |
 
@@ -318,31 +321,9 @@ flowchart TD
 
 ---
 
-## branch の切り替えは checkout ではなく switch を使う
+## 今回の演習の進め方
 
-Git の古い説明では、branch を切り替えるときに `git checkout` がよく出てきます。
-
-`git checkout` でも branch の切り替えはできます。
-しかし、`git checkout` は branch の切り替え以外にも、ファイルを過去の状態に戻す用途などを持っています。
-
-そのため、初学者にとっては「branch を切り替えたいのか」「ファイルを戻したいのか」が分かりにくくなりがちです。
-
-この授業では、branch を切り替えるときは `git switch` を使います。
-
-| やりたいこと | この授業で使うコマンド |
-|---|---|
-| 既存の branch に切り替える | `git switch ブランチ名` |
-| 新しい branch を作って、その branch に切り替える | `git switch -c ブランチ名` |
-
-> [!TIP]
-> ネットで調べると `git checkout -b ブランチ名` という書き方も出てきます。
-> この授業では、branch の作成と切り替えは `git switch -c ブランチ名` にそろえます。
-
----
-
-## 今回の Practice の進め方
-
-この後の Practice では、2〜3人のグループで同じリポジトリを使います。
+この後の演習では、2〜3人のグループで同じリポジトリを使います。
 
 1回だけではなく、代表者を変えながら PR 作成を3周行います。
 
@@ -380,5 +361,5 @@ flowchart TD
 GitHub Flow は、特別な上級者向けの作業ではありません。
 チームで安全に開発するための基本の流れです。
 
-この後の Practice では、グループでこの流れを3周します。
+この後の演習では、グループでこの流れを3周します。
 まずは、1つずつ順番に進めながら、branch、PR、レビュー、merge の役割を確認していきましょう。
