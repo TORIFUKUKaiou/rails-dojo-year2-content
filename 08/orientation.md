@@ -301,19 +301,19 @@ flowchart TD
 
 ここでは、何をするためのコマンドなのかを整理します。
 
-| コマンド | 役割 |
-|---|---|
-| `git init` | 今いるフォルダで、新しく Git 管理を始める |
-| `git clone` | GitHub 上のリポジトリを、自分の作業場所に持ってくる |
-| `git branch` | branch の一覧を見たり、branch を作ったりする |
-| `git switch` | 作業する branch を切り替える。新しい branch を作って切り替えることもできる |
-| `git status` | 今の変更状態を確認する |
-| `git diff` | ファイルの変更内容を確認する |
-| `git add` | 次の commit に含める変更を選ぶ |
-| `git commit` | 選んだ変更を、ローカルリポジトリに記録する |
-| `git log` | これまでの commit 履歴を見る |
-| `git push` | 手元の commit を GitHub へ送る |
-| `git pull` | GitHub 上の最新の変更を手元に取り込む |
+| 今回 | コマンド | 役割 |
+|---|---|---|
+|| `git init` | 今いるフォルダで、新しく Git 管理を始める |
+|🆕| `git clone` | GitHub 上のリポジトリを、自分の作業場所に持ってくる |
+|🆕| `git branch` | branch の一覧を見たり、branch を作ったりする |
+|🆕| `git switch` | 作業する branch を切り替える。新しい branch を作って切り替えることもできる |
+|| `git status` | 今の変更状態を確認する |
+|| `git diff` | ファイルの変更内容を確認する |
+|| `git add` | 次の commit に含める変更を選ぶ |
+|| `git commit` | 選んだ変更を、ローカルリポジトリに記録する |
+|| `git log` | これまでの commit 履歴を見る |
+|| `git push` | 手元の commit を GitHub へ送る |
+|🆕| `git pull` | GitHub 上の最新の変更を手元に取り込む |
 
 > [!NOTE]
 > `git init` は、まだ Git 管理されていないフォルダで使うコマンドです。
@@ -363,3 +363,5 @@ GitHub Flow は、特別な上級者向けの作業ではありません。
 
 この後の演習では、グループでこの流れを3周します。
 まずは、1つずつ順番に進めながら、branch、PR、レビュー、merge の役割を確認していきましょう。
+
+[練習](practice.md) へ進みましょう。
