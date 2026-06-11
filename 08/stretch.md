@@ -75,7 +75,11 @@ flowchart TD
    git commit -m "READMEの末尾に担当Aの文章を追記"
    git push origin conflict-a
    ```
-2. **全員**: GitHub上でPRを作成し、全員でレビューしたのち、**代表者**がこのPRを `main` へマージします。
+2. **担当A**: GitHub上でPRを作成します。
+
+3. **全員**: 全員でレビューします。
+
+4. **代表者**: このPRを `main` へマージします。
 
 #### Step 4：Bが遅れて commit して push し、PR を作成する
 1. **担当B**: 自分の変更をコミットし、GitHub へ送信します。
