@@ -150,21 +150,26 @@ GitHub上で「コンフリクト（衝突）」が発生したときは、GitHu
    ```
 
 #### Step 7：解消した変更を push する
-1. **担当B**: 競合を解決したため、ファイルをステージングエリアに追加します。
+1. **担当B**: 競合の解決が、意図通りかを確認します。
+   ```bash
+   git status
+   git diff
+   ```
+2. **担当B**: 競合を解決したため、ファイルをステージングエリアに追加します。
    ```bash
    git add README.md
    ```
-2. マージコミット（競合を解決したという記録）を作成します。
+3. マージコミット（競合を解決したという記録）を作成します。
    ```bash
    git commit -m "AとBのコンフリクトを解消"
    ```
-3. 解決したブランチを GitHub へ再送信します。
+4. 解決したブランチを GitHub へ再送信します。
    ```bash
    git push origin conflict-b
    ```
-4. **全員**: GitHubの PR 画面を確認します。緑色の「**This branch has no conflicts with the base branch**（競合はありません）」に表示が変わり、マージが可能になったことを確認します。
-5. **代表者**: PRを `main` へマージします。
-6. **全員**: ターミナルで `main` ブランチに戻り、最新の変更を取り込みます。
+5. **全員**: GitHubの PR 画面を確認します。緑色の「**This branch has no conflicts with the base branch**（競合はありません）」に表示が変わり、マージが可能になったことを確認します。
+6. **代表者（任意）**: PRを `main` へマージします。
+7. **全員**: ターミナルで `main` ブランチに戻り、最新の変更を取り込みます。
    ```bash
    git switch main
    git pull
@@ -244,14 +249,19 @@ GitHub上で「コンフリクト（衝突）」が発生したときは、GitHu
    ```
 
 #### Step 7：解消した変更を push する
-1. 変更を add し、マージコミットを作成して push します。
+1. **担当C**: 競合の解決が、意図通りかを確認します。
+   ```bash
+   git status
+   git diff
+   ```
+2. 変更を add し、マージコミットを作成して push します。
    ```bash
    git add README.md
    git commit -m "BとCのコンフリクトを解消"
    git push origin conflict-c
    ```
-2. GitHub の PR 画面で競合が解消されたことを確認し、**代表者**がマージを実行します。
-3. **全員**: ターミナルで `main` に戻り、最新の `main` を pull します。
+3. GitHub の PR 画面で競合が解消されたことを確認し、**代表者(任意)**がマージを実行します。
+4. **全員**: ターミナルで `main` に戻り、最新の `main` を pull します。
    ```bash
    git switch main
    git pull
@@ -330,14 +340,19 @@ GitHub上で「コンフリクト（衝突）」が発生したときは、GitHu
    ```
 
 #### Step 7：解消した変更を push する
-1. 変更を add し、マージコミットを作成して push します。
+1. **担当A**: 競合の解決が、意図通りかを確認します。
+   ```bash
+   git status
+   git diff
+   ```
+2. 変更を add し、マージコミットを作成して push します。
    ```bash
    git add README.md
    git commit -m "CとAのコンフリクトを解消"
    git push origin conflict-a2
    ```
-2. GitHub の PR 画面で競合が解消されたことを確認し、**代表者**がマージを実行します。
-3. **全員**: ターミナルで `main` に戻り、最新の `main` を pull します。
+3. GitHub の PR 画面で競合が解消されたことを確認し、**代表者(任意)**がマージを実行します。
+4. **全員**: ターミナルで `main` に戻り、最新の `main` を pull します。
    ```bash
    git switch main
    git pull
