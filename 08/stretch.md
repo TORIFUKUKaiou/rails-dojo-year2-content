@@ -34,6 +34,29 @@ GitHub上で「コンフリクト（衝突）」が発生したときは、GitHu
 
 この Stretch では、実際にこの衝突を発生させ、VS Code エディタを使って解消する流れを体験します。
 
+```mermaid
+gitGraph LR:
+  commit id: "共通の開始点"
+
+  branch member-a
+  checkout member-a
+  commit id: "Aさんが同じ行を変更"
+
+  checkout main
+  branch member-b
+  checkout member-b
+  commit id: "Bさんも同じ行を変更"
+
+  checkout main
+  merge member-a id: "AさんのPRをmerge"
+
+  checkout member-b
+  merge main id: "mainを取り込む" tag: "Conflict発生 → 手元で解決"
+
+  checkout main
+  merge member-b id: "BさんのPRをmerge" tag: "解決完了"
+```
+
 ---
 
 ## 1. コンフリクト（競合）の解決フェーズ
