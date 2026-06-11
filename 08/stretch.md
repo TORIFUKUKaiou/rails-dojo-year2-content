@@ -385,6 +385,9 @@ GitHub上で「コンフリクト（衝突）」が発生したときは、GitHu
 1. 現在 `main` にいることを確認し、作業用ブランチを作成して切り替えます。
    ```bash
    git branch
+   ```
+   ターミナルに `* main` と表示されていることを確認し、作業用ブランチを作成して切り替えます。
+   ```bash
    git switch -c rename-header-link
    ```
 2. **`app/views/layouts/application.html.erb`** を開き、43行目付近の次の記述を探します。
