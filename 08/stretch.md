@@ -428,9 +428,10 @@ GitHub上で「コンフリクト（衝突）」が発生したときは、GitHu
 #### 課題②：【担当2】フッターのコピーライトの年号変更
 担当2（トピックブランチ名: `update-footer-year`）が作業を行います。他のメンバーは作業を監視し、アドバイスを行ってください。
 
-1. 現在 `main` にいることを確認し、作業用ブランチを作成して切り替えます。
+1. 確実に `main` ブランチに切り替え、最新の `main` を pull して手元に取り込みます。その後、作業用ブランチを作成して切り替えます。
    ```bash
-   git branch
+   git switch main
+   git pull
    git switch -c update-footer-year
    ```
 2. **`app/views/layouts/application.html.erb`** を開き、60行目付近の次の記述を探します。
@@ -474,9 +475,10 @@ GitHub上で「コンフリクト（衝突）」が発生したときは、GitHu
 #### 課題③：【担当3】新規投稿フォームの本文プレースホルダーの変更
 担当3（トピックブランチ名: `customize-form-placeholder`）が作業を行います。他のメンバーは作業を監視し、アドバイスを行ってください。
 
-1. 現在 `main` にいることを確認し、作業用ブランチを作成して切り替えます。
+1. 確実に `main` ブランチに切り替え、最新の `main` を pull して手元に取り込みます。その後、作業用ブランチを作成して切り替えます。
    ```bash
-   git branch
+   git switch main
+   git pull
    git switch -c customize-form-placeholder
    ```
 2. **`app/views/articles/_form.html.erb`** を開き、21行目付近の本文入力用の textarea の記述を探します。
