@@ -260,7 +260,7 @@ GitHub上で「コンフリクト（衝突）」が発生したときは、GitHu
    git commit -m "BとCのコンフリクトを解消"
    git push origin conflict-c
    ```
-3. GitHub の PR 画面で競合が解消されたことを確認し、**代表者(任意)**がマージを実行します。
+3. GitHub の PR 画面で競合が解消されたことを確認し、**代表者（任意）**がマージを実行します。
 4. **全員**: ターミナルで `main` に戻り、最新の `main` を pull します。
    ```bash
    git switch main
@@ -351,7 +351,7 @@ GitHub上で「コンフリクト（衝突）」が発生したときは、GitHu
    git commit -m "CとAのコンフリクトを解消"
    git push origin conflict-a2
    ```
-3. GitHub の PR 画面で競合が解消されたことを確認し、**代表者(任意)**がマージを実行します。
+3. GitHub の PR 画面で競合が解消されたことを確認し、**代表者（任意）**がマージを実行します。
 4. **全員**: ターミナルで `main` に戻り、最新の `main` を pull します。
    ```bash
    git switch main
