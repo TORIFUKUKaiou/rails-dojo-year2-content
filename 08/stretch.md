@@ -79,7 +79,7 @@ flowchart TD
 
 3. **全員**: 全員でレビューします。
 
-4. **代表者**: このPRを `main` へマージします。
+4. **代表者（任意）**: このPRを `main` へマージします。
 
 #### Step 4：Bが遅れて commit して push し、PR を作成する
 1. **担当B**: 自分の変更をコミットし、GitHub へ送信します。
@@ -187,7 +187,11 @@ flowchart TD
    git commit -m "READMEの末尾に担当Bの文章を追加"
    git push origin conflict-b2
    ```
-2. **全員**: GitHub上でPRを作成し、レビュー後、**代表者**が `main` へマージします。
+2. **担当B**: GitHub上でPRを作成します。
+
+3. **全員**: 全員でレビューします。
+
+4. **代表者（任意）**: このPRを `main` へマージします。
 
 #### Step 4：Cが遅れて commit して push し、PR を作成する
 1. **担当C**: コミットして push し、PR を作成します。
@@ -269,7 +273,11 @@ flowchart TD
    git commit -m "READMEの末尾に担当Cの文章を追記"
    git push origin conflict-c2
    ```
-2. **全員**: GitHub上でPRを作成し、レビュー後、**代表者**が `main` へマージします。
+2. **担当C**: GitHub上でPRを作成します。
+
+3. **全員**: 全員でレビューします。
+
+4. **代表者（任意）**: このPRを `main` へマージします。
 
 #### Step 4：Aが遅れて commit して push し、PR を作成する
 1. **担当A**: コミットして push し、PR を作成します。
