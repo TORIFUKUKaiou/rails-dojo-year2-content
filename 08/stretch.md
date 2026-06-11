@@ -20,7 +20,7 @@ flowchart TD
   F --> G["add / commit / push して解決"]
 ```
 
-#### 衝突を解決するための「手元でのマージ」と `git merge` コマンド
+### 衝突を解決するための「手元でのマージ」と `git merge` コマンド
 
 GitHub上で「コンフリクト（衝突）」が発生したときは、GitHubの画面上ではなく、自分の手元の Codespace で解決するのが基本です。
 
