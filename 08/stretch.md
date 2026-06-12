@@ -330,7 +330,7 @@ gitGraph LR:
 
 3. **全員**: 全員でレビューします。
 
-4. **代表者（任意）**: このPRを `main` へマージします。
+4. **代表者**: このPRを `main` へマージします。
 
 #### Step 4：Aが遅れて commit して push し、PR を作成する
 1. **担当A**: コミットして push し、PR を作成します。
@@ -378,7 +378,7 @@ gitGraph LR:
    git commit -m "CとAのコンフリクトを解消"
    git push origin conflict-a2
    ```
-3. GitHub の PR 画面で競合が解消されたことを確認し、**代表者（任意）**がマージを実行します。
+3. GitHub の PR 画面で競合が解消されたことを確認し、**代表者**がマージを実行します。
 4. **全員**: ターミナルで `main` に戻り、最新の `main` を pull します。
    ```bash
    git switch main
