@@ -105,7 +105,7 @@ gitGraph LR:
    [担当B] GitHub Flow を使えばコンフリクトも怖くない！
    ```
 
-#### Step 3：Aが先に commit して push し、マージを完了する
+#### Step 3：AのPRを先に作成し、`main` へのマージを完了する
 1. **担当A**: 変更をコミットし、GitHub へ送信します。
    ```bash
    git add README.md
@@ -116,7 +116,7 @@ gitGraph LR:
 
 3. **全員**: 全員でレビューします。
 
-4. **代表者（任意）**: このPRを `main` へマージします。
+4. **代表者**: このPRを `main` へマージします。
 
 #### Step 4：Bが遅れて commit して push し、PR を作成する
 1. **担当B**: 自分の変更をコミットし、GitHub へ送信します。
@@ -192,7 +192,7 @@ gitGraph LR:
    git push origin conflict-b
    ```
 5. **全員**: GitHubの PR 画面を確認します。緑色の「**This branch has no conflicts with the base branch**（競合はありません）」に表示が変わり、マージが可能になったことを確認します。
-6. **代表者（任意）**: PRを `main` へマージします。
+6. **代表者**: PRを `main` へマージします。
 7. **全員**: ターミナルで `main` ブランチに戻り、最新の変更を取り込みます。
    ```bash
    git switch main
@@ -226,7 +226,7 @@ gitGraph LR:
    [担当C] マージは慎重に！
    ```
 
-#### Step 3：Bが先に commit して push し、マージを完了する
+#### Step 3：BのPRを先に作成し、`main` へのマージを完了する
 1. **担当B**: コミットして push します。
    ```bash
    git add README.md
@@ -237,7 +237,7 @@ gitGraph LR:
 
 3. **全員**: 全員でレビューします。
 
-4. **代表者（任意）**: このPRを `main` へマージします。
+4. **代表者**: このPRを `main` へマージします。
 
 #### Step 4：Cが遅れて commit して push し、PR を作成する
 1. **担当C**: コミットして push し、PR を作成します。
@@ -285,7 +285,7 @@ gitGraph LR:
    git commit -m "BとCのコンフリクトを解消"
    git push origin conflict-c
    ```
-3. GitHub の PR 画面で競合が解消されたことを確認し、**代表者（任意）**がマージを実行します。
+3. GitHub の PR 画面で競合が解消されたことを確認し、**代表者**がマージを実行します。
 4. **全員**: ターミナルで `main` に戻り、最新の `main` を pull します。
    ```bash
    git switch main
@@ -297,7 +297,7 @@ gitGraph LR:
 
 ### シナリオ③：【担当A】がコンフリクトを解決する
 
-担当Cと担当Aが同時に `README.md` の末尾の同じ位置に異なる文章を追記します。先にCのPRが `main` へマージされ、、**Aがコンフリクトを解決する役割**を体験します。
+担当Cと担当Aが同時に `README.md` の末尾の同じ位置に異なる文章を追記します。先にCのPRが `main` へマージされ、**Aがコンフリクトを解決する役割**を体験します。
 
 #### Step 1：CとAが同時にトピックブランチを作成する
 1. **担当C**: `main` にいることを確認し、ブランチ `conflict-c2` を作成して切り替えます。
@@ -319,7 +319,7 @@ gitGraph LR:
    [担当A] レビューで成長する！
    ```
 
-#### Step 3：Cが先に commit して push し、マージを完了する
+#### Step 3：CのPRを先に作成し、`main` へのマージを完了する
 1. **担当C**: コミットして push します。
    ```bash
    git add README.md
