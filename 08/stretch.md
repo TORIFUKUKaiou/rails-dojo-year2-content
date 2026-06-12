@@ -30,7 +30,7 @@ GitHub上で「コンフリクト（衝突）」が発生したときは、GitHu
 2. 自分の作業用ブランチに切り替える
 3. **`git merge main`** コマンドを実行し、最新の `main` の変更を自分のブランチに合流（マージ）させる
 
-同じ行を変更しているため、この `git merge` コマンドを実行した瞬間に、Codespace 上でコンフリクトが発生します。
+同じ場所へ異なる変更を加えているため、この `git merge` コマンドを実行した瞬間に、Codespace 上でコンフリクトが発生します。
 
 この Stretch では、実際にこの衝突を発生させ、VS Code エディタを使って解消する流れを体験します。
 
@@ -40,12 +40,12 @@ gitGraph LR:
 
   branch "member-a: feature-a"
   checkout "member-a: feature-a"
-  commit id: "Aさんが同じ行を変更"
+  commit id: "Aさんが同じ場所を変更"
 
   checkout main
   branch "member-b: feature-b"
   checkout "member-b: feature-b"
-  commit id: "Bさんも同じ行を変更"
+  commit id: "Bさんも同じ場所を変更"
 
   checkout main
   merge "member-a: feature-a" id: "AさんのPRをmerge"
@@ -83,7 +83,7 @@ gitGraph LR:
 
 ### シナリオ①：【担当B】がコンフリクトを解決する
 
-担当Aと担当Bが同時に `README.md` の末尾の同じ位置に異なる文章を追記します。先にAがマージを完了させ、**Bがコンフリクトを解決する役割**を体験します。
+担当Aと担当Bが同時に `README.md` の末尾の同じ位置に異なる文章を追記します。先にAのPRが `main` へマージされ、**Bがコンフリクトを解決する役割**を体験します。
 
 #### Step 1：AとBが同時にトピックブランチを作成する
 1. **担当A**: ターミナルで `main` にいることを確認し、ブランチ `conflict-a` を作成して切り替えます。
@@ -204,7 +204,7 @@ gitGraph LR:
 
 ### シナリオ②：【担当C】がコンフリクトを解決する
 
-担当Bと担当Cが同時に `README.md` の末尾の同じ位置に異なる文章を追記します。先にBがマージを完了させ、**Cがコンフリクトを解決する役割**を体験します。
+担当Bと担当Cが同時に `README.md` の末尾の同じ位置に異なる文章を追記します。先にBのPRが `main` へマージされ、**Cがコンフリクトを解決する役割**を体験します。
 
 #### Step 1：BとCが同時にトピックブランチを作成する
 1. **担当B**: `main` にいることを確認し、ブランチ `conflict-b2` を作成して切り替えます。
@@ -262,7 +262,7 @@ gitGraph LR:
    git switch conflict-c
    git merge main
    ```
-   競合のエラーが発生することを確認します。
+   コンフリクトが発生し、自動マージが完了しないことを確認します。
 
 #### Step 6：VS Code で競合を解消する
 1. VS Code で `README.md` を開き、競合マーカーに囲まれたBとCの変更を確認します。
@@ -297,7 +297,7 @@ gitGraph LR:
 
 ### シナリオ③：【担当A】がコンフリクトを解決する
 
-担当Cと担当Aが同時に `README.md` の末尾の同じ位置に異なる文章を追記します。先にCがマージを完了させ、**Aがコンフリクトを解決する役割**を体験します。
+担当Cと担当Aが同時に `README.md` の末尾の同じ位置に異なる文章を追記します。先にCのPRが `main` へマージされ、、**Aがコンフリクトを解決する役割**を体験します。
 
 #### Step 1：CとAが同時にトピックブランチを作成する
 1. **担当C**: `main` にいることを確認し、ブランチ `conflict-c2` を作成して切り替えます。
@@ -355,7 +355,7 @@ gitGraph LR:
    git switch conflict-a2
    git merge main
    ```
-   競合のエラーが発生することを確認します。
+   コンフリクトが発生し、自動マージが完了しないことを確認します。
 
 #### Step 6：VS Code で競合を解消する
 1. VS Code で `README.md` を開き、CとAの変更を確認します。
@@ -412,6 +412,8 @@ gitGraph LR:
 
 1. 現在 `main` にいることを確認し、作業用ブランチを作成して切り替えます。
    ```bash
+   git switch main
+   git pull
    git branch
    ```
    ターミナルに `* main` と表示されていることを確認し、作業用ブランチを作成して切り替えます。
