@@ -320,7 +320,7 @@ flowchart TD
 |🆕| `git clone` | GitHub 上のリポジトリを、自分の作業場所に持ってくる |
 |🆕| `git branch` | branch の一覧を見たり、branch を作ったりする |
 |🆕| `git switch` | 作業する branch を切り替える。新しい branch を作って切り替えることもできる |
-|🆕| git merge | 別の branch の変更を、今いる branch に取り込む |
+|🆕| `git merge` | 別の branch の変更を、今いる branch に取り込む |
 || `git status` | 今の変更状態を確認する |
 || `git diff` | ファイルの変更内容を確認する |
 || `git add` | 次の commit に含める変更を選ぶ |
