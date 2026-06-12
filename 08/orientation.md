@@ -260,6 +260,24 @@ flowchart LR
 
 これを忘れると、古い状態から作業を始めてしまいます。
 
+```mermaid
+gitGraph LR:
+  commit id: "共通の main"
+
+  branch "member-a: feature-a"
+  checkout main
+  branch "member-b: main"
+
+  checkout "member-a: feature-a"
+  commit id: "Aさんの変更"
+
+  checkout main
+  merge "member-a: feature-a" id: "feature-a のPRをmerge" tag: "Pull Request"
+
+  checkout "member-b: main"
+  merge main id: "Bさんが git pull"
+```
+
 チーム開発では、「自分の作業を送る」だけでなく、「他の人の変更を受け取る」ことも必要です。
 
 ---

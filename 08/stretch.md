@@ -38,23 +38,23 @@ GitHub上で「コンフリクト（衝突）」が発生したときは、GitHu
 gitGraph LR:
   commit id: "共通の開始点"
 
-  branch member-a
-  checkout member-a
+  branch "member-a: feature-a"
+  checkout "member-a: feature-a"
   commit id: "Aさんが同じ行を変更"
 
   checkout main
-  branch member-b
-  checkout member-b
+  branch "member-b: feature-b"
+  checkout "member-b: feature-b"
   commit id: "Bさんも同じ行を変更"
 
   checkout main
-  merge member-a id: "AさんのPRをmerge"
+  merge "member-a: feature-a" id: "AさんのPRをmerge"
 
-  checkout member-b
+  checkout "member-b: feature-b"
   merge main id: "mainを取り込む" tag: "Conflict発生 → 手元で解決"
 
   checkout main
-  merge member-b id: "BさんのPRをmerge" tag: "解決完了"
+  merge "member-b: feature-b" id: "BさんのPRをmerge" tag: "解決完了"
 ```
 
 ---
