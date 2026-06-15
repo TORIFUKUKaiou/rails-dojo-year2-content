@@ -31,15 +31,17 @@ flowchart LR
 ## Step 1：AWS Academy Sandboxを起動する
 
 1. AWS Academyへログインします。
-2. 対象のコースを開きます。
-3. `Learner Lab`を開きます。
-4. `Start Lab`をクリックします。
-5. 画面上部の表示が緑色になるまで待ちます。
-6. `AWS`をクリックし、AWSマネジメントコンソールを開きます。
-7. 画面右上のリージョンが、次の地域になっていることを確認します。
+2. 対象のコース（AWS Academy Cloud Foundations）を開きます。
+3. `サンドボックス ラボ`を開きます。
+4. はじめて利用する場合は、 `Terms Of Use` の内容に同意（I Agree）します
+5. `Start Lab`（右上）をクリックします。
+6. Popupに、 `Lab status: in creation` が表示されます
+7. 2〜3分ほど待つと、 `Lab status` が、 *ready* に変わります
+8. Popupを閉じ、 `AWS`をクリックし、AWSマネジメントコンソールを開きます。
+9. 画面右上のリージョンが、次の地域になっていることを確認します。
 
 ```text
-米国東部（バージニア北部）
+米国（バージニア北部）
 us-east-1
 ```
 
@@ -92,23 +94,19 @@ S3のバケット名は、AWS全体で重複できません。
 
 > [!WARNING]
 > 今回は静的Webサイトとして公開するため、パブリックアクセスを許可します。
-> 通常のS3バケットで、何となくこの設定を解除してはいけません。
+> 通常のS3バケットで、何となくでこの設定を解除してはいけません。
 
 ---
 
 ## Step 3：静的ウェブサイトホスティングを有効にする
 
-1. 作成したバケット名をクリックします。
-
-![](https://raw.githubusercontent.com/haw/aws-education-hands-on/main/day1/5min-impact-lab/images/s3-buckets-list.png)
-
-2. `プロパティ`タブをクリックします。
+1. `プロパティ`タブをクリックします。
 
 ![](https://raw.githubusercontent.com/haw/aws-education-hands-on/main/day1/5min-impact-lab/images/S3-bucket-property.png)
 
-3. 画面の一番下までスクロールします。
-4. `静的ウェブサイトホスティング`の`編集`をクリックします。
-5. 次のように設定します。
+2. 画面の一番下までスクロールします。
+3. `静的ウェブサイトホスティング`の`編集`をクリックします。
+4. 次のように設定します。
 
 | 項目 | 設定値 |
 |---|---|
@@ -125,29 +123,12 @@ S3のバケット名は、AWS全体で重複できません。
 
 次の2つのファイルをダウンロードします。
 
+> [!TIP]
+> Edge: リンクを右クリックし、「名前を付けてリンクを保存」
+> Chrome: リンクを右クリックし、「リンク先を別名で保存...」
+
 - [index.htmlをダウンロード](https://github.com/haw/aws-education-hands-on/raw/refs/heads/main/day1/5min-impact-lab/materials/index.html)
 - [JumpingBallRunner-SingleFile.htmlをダウンロード](https://github.com/haw/aws-education-hands-on/raw/refs/heads/main/day1/5min-impact-lab/materials/JumpingBallRunner-SingleFile.html)
-
-### `index.html`へ自分の目標を書く
-
-1. ダウンロードした`index.html`をVisual Studio Codeなどで開きます。
-2. 次の文字列を探します。
-
-```text
-[ここに各自の目標を記入してください]
-```
-
-3. 自分の目標へ書き換えます。
-
-例：
-
-```text
-5年後にはフルスタックエンジニアとして世界で活躍したい！
-```
-
-4. ファイルを保存します。
-
-思い浮かばない場合は、いったん変更せずに先へ進んでも構いません。
 
 ---
 
@@ -157,16 +138,9 @@ S3のバケット名は、AWS全体で重複できません。
 2. `オブジェクト`タブをクリックします。
 3. `アップロード`をクリックします。
 4. `ファイルを追加`をクリックします。
-5. 次の2ファイルを選択します。
-
-```text
-index.html
-JumpingBallRunner-SingleFile.html
-```
-
-6. 画面下部の`アップロード`をクリックします。
-7. `アップロードに成功しました`と表示されたことを確認します。
-8. `閉じる`をクリックします。
+5. 画面下部の`アップロード`をクリックします。
+6. `アップロードに成功しました`と表示されることを確認します。
+7. `閉じる`をクリックします。
 
 ![](https://raw.githubusercontent.com/haw/aws-education-hands-on/main/day1/5min-impact-lab/images/S3-files-uploaded.png)
 
@@ -206,6 +180,32 @@ JumpingBallRunner-SingleFile.html
 "Resource": "arn:aws:s3:::awesome-cloud-challenge-12345/*"
 ```
 
+`arn:aws:s3:::awesome-cloud-challenge-12345/*` は、AWS上のどのリソースに対して許可を出すのかを表しています。
+
+このようなAWSリソースを表す名前を **ARN** と呼びます。
+
+ARNは、**Amazon Resource Name** の略です。
+
+今回の例では、次の意味になります。
+
+| 部分 | 意味 |
+|---|---|
+| `arn:aws:s3:::` | S3のリソースを表す部分 |
+| `awesome-cloud-challenge-12345` | バケット名 |
+| `/*` | バケット内のすべてのオブジェクト |
+
+末尾の `/*` は、バケットの中にあるすべてのオブジェクトを表します。
+
+今回許可したいのは、バケットそのものではなく、バケットの中にある `index.html` や `style.css` などのファイルです。
+
+そのため、バケット名の後ろに `/*` を付けます。
+
+> [!IMPORTANT]
+> 末尾の `/*` は必要です。
+>
+> `arn:aws:s3:::awesome-cloud-challenge-12345` だけだと、バケットそのものを表します。
+> `arn:aws:s3:::awesome-cloud-challenge-12345/*` と書くことで、バケット内のすべてのオブジェクトを表します。
+
 6. `変更の保存`をクリックします。
 
 ![](https://raw.githubusercontent.com/haw/aws-education-hands-on/main/day1/5min-impact-lab/images/S3-bucket-policy-edit.png)
@@ -213,22 +213,6 @@ JumpingBallRunner-SingleFile.html
 > [!IMPORTANT]
 > `YOUR-BUCKET-NAME`を残したまま保存してはいけません。
 > 自分のバケット名と完全に一致していることを確認してください。
-
-### ARNとは
-
-ARNは、AWSのリソースを識別するための名前です。
-
-```text
-ARN = Amazon Resource Name
-```
-
-今回のARNは、次の意味になります。
-
-```text
-arn:aws:s3:::バケット名/*
-```
-
-`/*`は、バケット内にあるすべてのオブジェクトを表します。
 
 ---
 
@@ -242,11 +226,8 @@ arn:aws:s3:::バケット名/*
 ![](https://raw.githubusercontent.com/haw/aws-education-hands-on/main/day1/5min-impact-lab/images/S3-Hosting-URL.png)
 
 5. ブラウザにWebサイトが表示されることを確認します。
-6. 自分が書いた目標が表示されることを確認します。
-7. ページ内のゲームへのリンクを開きます。
-8. Jumping Ball Runnerが動作することを確認します。
-
-表示できたら、公開URLをTeamsの指定された場所へ投稿してください。
+6. ページ内のゲームへのリンクを開きます。
+7. Jumping Ball Runnerが動作することを確認します。
 
 ---
 
@@ -254,8 +235,8 @@ arn:aws:s3:::バケット名/*
 
 一度公開したファイルも、S3へ再アップロードすることで更新できます。
 
-1. 手元の`index.html`を開きます。
-2. 目標や文章を一部変更します。
+1. 手元の`index.html`をVisual Studio Codeやメモ帳などで開きます。
+2. `[ここに各自の目標を記入してください]`を書き換えます。（例: 世界で活躍するエンジニアになる！）
 3. ファイルを保存します。
 4. S3の`オブジェクト`タブを開きます。
 5. `アップロード`をクリックします。
@@ -278,6 +259,8 @@ Windows：
 ```text
 Ctrl + F5
 ```
+
+公開URLをTeamsへ投稿してください。
 
 ---
 
@@ -394,6 +377,6 @@ S3バケットを誤って公開しないための安全装置です。
 - [ ] HTMLを更新し、表示の変化を確認できた
 - [ ] オブジェクトとS3バケットを削除できた
 
-これで、第9週の必須練習は完了です。
+なにをやっているのか分からなかった人は、もう一度、今度は手順をみずに同じことをやってみましょう。
 
-さらに力をつけるため、[Stretch](stretch.md)へ進みましょう。
+完璧だ！　という人は、さらに力をつけるため、[Stretch](stretch.md)へ進みましょう。
