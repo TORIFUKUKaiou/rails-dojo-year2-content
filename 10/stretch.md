@@ -340,13 +340,19 @@ mise settings ruby.compile=false
 Rubyをインストールします。
 
 ```bash
-mise use -g ruby@3.3
+mise use -g ruby@4.0.2
 ```
 
 Rubyを確認します。
 
 ```bash
 ruby -v
+```
+
+Bundlerをインストールします。
+
+```bash
+gem install bundler -v 4.0.6
 ```
 
 Railsをインストールします。

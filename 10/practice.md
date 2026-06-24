@@ -413,10 +413,18 @@ mise settings ruby.compile=false
 
 ## Step 14：Rubyをインストールする
 
-Ruby 3.3系をインストールし、全体で使うRubyとして設定します。
+今回cloneするRailsアプリは、`.ruby-version` で次のRubyを使う前提になっています。
+
+```text
+ruby-4.0.2
+```
+
+また、devcontainerの設定でもRuby 4系のイメージを使っています。
+
+そのため、EC2にもRuby 4.0.2をインストールします。
 
 ```bash
-mise use -g ruby@3.3
+mise use -g ruby@4.0.2
 ```
 
 インストールには数分かかることがあります。
@@ -429,7 +437,7 @@ Rubyが使えるか確認します。
 ruby -v
 ```
 
-`ruby 3.3` から始まる表示になれば成功です。
+`ruby 4.0.2` から始まる表示になれば成功です。
 
 どのRubyが使われているか確認します。
 
@@ -449,7 +457,21 @@ gem -v
 
 ---
 
-## Step 15：Railsをインストールする
+## Step 15：BundlerとRailsをインストールする
+
+このアプリの `Gemfile.lock` では、Bundler 4.0.6 が使われています。
+
+Bundlerをインストールします。
+
+```bash
+gem install bundler -v 4.0.6
+```
+
+Bundlerを確認します。
+
+```bash
+bundle -v
+```
 
 Railsをインストールします。
 
@@ -680,7 +702,7 @@ sudo su - ubuntu
 whoami
 ```
 
-### `ruby -v` でRuby 3.3が表示されない
+### `ruby -v` でRuby 4.0.2が表示されない
 
 miseの設定が読み込まれていない可能性があります。
 
@@ -723,7 +745,8 @@ Railsがアクセス元のホスト名を拒否している可能性がありま
 - [ ] `sudo su - ubuntu` で `ubuntu` ユーザーへ切り替えられた
 - [ ] `pwd` で `/home/ubuntu` を確認できた
 - [ ] miseをインストールできた
-- [ ] Ruby 3.3系をインストールできた
+- [ ] Ruby 4.0.2をインストールできた
+- [ ] Bundler 4.0.6をインストールできた
 - [ ] Railsをインストールできた
 - [ ] GitHubからRailsアプリをcloneできた
 - [ ] Railsアプリを起動できた
