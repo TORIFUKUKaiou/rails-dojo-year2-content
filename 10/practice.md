@@ -287,15 +287,17 @@ sudo apt update
 
 ---
 
-## Step 9：gitをインストールする
+## Step 9：必要なパッケージをまとめてインストールする
 
-GitHubからRailsアプリをcloneするために、gitをインストールします。
+Git、miseのインストールに使うcurl、Rubyのビルドに必要なライブラリ、SQLite3をまとめてインストールします。
 
 ```bash
-sudo apt install -y git
+sudo apt install -y git curl build-essential autoconf libssl-dev libyaml-dev zlib1g-dev libffi-dev libgmp-dev rustc libsqlite3-dev sqlite3 pkg-config
 ```
 
-インストールできたか確認します。
+最後のほうにエラーが出ず、プロンプトが戻ってくれば成功です。
+
+Gitが使えるか確認します。
 
 ```bash
 git --version
@@ -307,51 +309,13 @@ git --version
 git version 2.43.0
 ```
 
----
-
-## Step 10：curlをインストールする
-
-miseをインストールするために、curlを使います。
-
-```bash
-sudo apt install -y curl
-```
-
-インストールできたか確認します。
+curlが使えるか確認します。
 
 ```bash
 curl --version
 ```
 
 `curl` のバージョンが表示されれば成功です。
-
----
-
-## Step 11：Rubyのビルドに必要なライブラリをインストールする
-
-RubyやGemのインストールに必要なライブラリを入れます。
-
-```bash
-sudo apt install -y build-essential
-```
-
-次に、SQLite3用のライブラリを入れます。
-
-```bash
-sudo apt install -y libsqlite3-dev
-```
-
-SQLite3本体を入れます。
-
-```bash
-sudo apt install -y sqlite3
-```
-
-ビルド時に使う `pkg-config` を入れます。
-
-```bash
-sudo apt install -y pkg-config
-```
 
 SQLite3が使えるか確認します。
 
@@ -363,7 +327,7 @@ sqlite3 --version
 
 ---
 
-## Step 12：miseをインストールする
+## Step 10：miseをインストールする
 
 miseをインストールします。
 
@@ -397,7 +361,7 @@ mise --version
 
 ---
 
-## Step 13：Rubyのインストール方法を設定する
+## Step 11：Rubyのインストール方法を設定する
 
 miseでRubyを入れるとき、可能ならプリコンパイル済みのRubyを使うように設定します。
 
@@ -411,7 +375,7 @@ mise settings ruby.compile=false
 
 ---
 
-## Step 14：Rubyをインストールする
+## Step 12：Rubyをインストールする
 
 今回cloneするRailsアプリは、`.ruby-version` で次のRubyを使う前提になっています。
 
@@ -457,7 +421,7 @@ gem -v
 
 ---
 
-## Step 15：BundlerとRailsをインストールする
+## Step 13：BundlerとRailsをインストールする
 
 このアプリの `Gemfile.lock` では、Bundler 4.0.6 が使われています。
 
@@ -491,7 +455,7 @@ rails -v
 
 ---
 
-## Step 16：RailsアプリをGitHubからcloneする
+## Step 14：RailsアプリをGitHubからcloneする
 
 GitHub上のRailsアプリをEC2へコピーします。
 
@@ -521,7 +485,7 @@ pwd
 
 ---
 
-## Step 17：必要なGemをインストールする
+## Step 15：必要なGemをインストールする
 
 Railsアプリで使うGemをインストールします。
 
@@ -535,7 +499,7 @@ bundle install
 
 ---
 
-## Step 18：データベースを準備する
+## Step 16：データベースを準備する
 
 このアプリはSQLite3を使います。
 
@@ -553,7 +517,7 @@ rails db:prepare
 
 ---
 
-## Step 19：Rails serverを起動する
+## Step 17：Rails serverを起動する
 
 EC2の外からアクセスできるように、`0.0.0.0` を指定してRails serverを起動します。
 
@@ -573,7 +537,7 @@ rails server -b 0.0.0.0
 
 ---
 
-## Step 20：まだブラウザから接続できないことを確認する
+## Step 18：まだブラウザから接続できないことを確認する
 
 ブラウザで、次の形式のURLを開きます。
 
@@ -597,7 +561,7 @@ http://54.123.45.67:3000
 
 ---
 
-## Step 21：セキュリティグループで3000番を開ける
+## Step 19：セキュリティグループで3000番を開ける
 
 AWSマネジメントコンソールで操作します。
 
@@ -624,7 +588,7 @@ AWSマネジメントコンソールで操作します。
 
 ---
 
-## Step 22：ブラウザからRailsアプリを確認する
+## Step 20：ブラウザからRailsアプリを確認する
 
 もう一度、ブラウザで次の形式のURLを開きます。
 
@@ -646,7 +610,7 @@ http://EC2のパブリックIPアドレス:3000
 
 ---
 
-## Step 23：Rails serverを停止する
+## Step 21：Rails serverを停止する
 
 Session Managerのターミナルへ戻ります。
 
@@ -660,7 +624,7 @@ Ctrl + C
 
 ---
 
-## Step 24：EC2インスタンスが残っていることを確認する
+## Step 22：EC2インスタンスが残っていることを確認する
 
 Practiceの最後では、EC2インスタンスを終了しません。
 

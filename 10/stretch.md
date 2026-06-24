@@ -310,7 +310,7 @@ sudo apt update
 必要なパッケージをまとめてインストールします。
 
 ```bash
-sudo apt install -y git curl build-essential libsqlite3-dev sqlite3 pkg-config
+sudo apt install -y git curl build-essential autoconf libssl-dev libyaml-dev zlib1g-dev libffi-dev libgmp-dev rustc libsqlite3-dev sqlite3 pkg-config
 ```
 
 miseをインストールします。
