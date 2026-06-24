@@ -250,9 +250,11 @@ rails-dojo-week10-stretch-sg
 
 この時点では、3000番ポートを開けなくて構いません。
 
-`高度な詳細`にIAMインスタンスプロファイルまたはIAMロールの項目がある場合は、Practiceと同じく、授業で指定されたロールを選択します。
+`高度な詳細`を開き、`IAM インスタンスプロファイル`に次を設定します。
 
-AWS Academy Sandboxでは、環境によって `LabInstanceProfile` のような名前のロールを選択することがあります。
+```text
+LabInstanceProfile
+```
 
 この設定は、Session Managerで接続するために必要です。
 
