@@ -18,6 +18,11 @@ Practiceで作成したEC2インスタンスをそのまま使います。
 
 この課題では、clone済みのRailsアプリに自分用のページを追加します。
 
+> [!WARNING]
+> この課題では、練習のためにEC2上のファイルを直接編集します。
+> 実際の開発では、手元の開発環境で変更し、GitHubへpushし、サーバではpullして反映する流れを基本にします。
+> サーバ上で直接ソースコードを編集すると、変更内容がGitで管理されず、あとから再現しにくくなります。
+
 ---
 
 ## Step 1：同じEC2へSession Managerで再接続する
@@ -25,7 +30,7 @@ Practiceで作成したEC2インスタンスをそのまま使います。
 1. EC2のインスタンス一覧を開きます。
 2. `rails-dojo-week10`へチェックを入れます。
 3. `接続`をクリックします。
-4. `Session Manager`タブを開きます。
+4. `SSM Session Manager`タブを開きます。
 5. `接続`をクリックします。
 
 ターミナルが開いたら、現在のユーザーを確認します。
@@ -81,7 +86,7 @@ pwd
 自分用ページを表示するcontrollerを作成します。
 
 ```bash
-rails generate controller Profile show
+bin/rails generate controller Profile show
 ```
 
 次のようなファイルが作成されます。
@@ -231,7 +236,7 @@ rails-dojo-week10-stretch
 AMIは次を選択します。
 
 ```text
-Ubuntu Server 24.04 LTS
+Ubuntu Server 26.04 LTS
 ```
 
 インスタンスタイプは次を選択します。
@@ -242,13 +247,14 @@ t3.medium
 
 セキュリティグループは、新しく作成します。
 
-名前は次のようにします。
+名前は、デフォルトで次のような名前になります。
 
 ```text
-rails-dojo-week10-stretch-sg
+launch-wizard-2
 ```
 
 この時点では、3000番ポートを開けなくて構いません。
+SSHは使用しないため、「からの SSH トラフィックを許可」(※翻訳の誤り。正しくは、「SSH からのトラフィックを許可」)のチェックを外しておいてください。
 
 `高度な詳細`を開き、`IAM インスタンスプロファイル`に次を設定します。
 
@@ -266,7 +272,7 @@ LabInstanceProfile
 
 1. `rails-dojo-week10-stretch`へチェックを入れます。
 2. `接続`をクリックします。
-3. `Session Manager`タブを開きます。
+3. `SSM Session Manager`タブを開きます。
 4. `接続`をクリックします。
 
 接続できたら、現在のユーザーを確認します。
@@ -295,11 +301,7 @@ ubuntu
 
 ---
 
-## Step 3：まとめて環境を準備する
-
-Practiceでは、コマンドを1つずつ確認しながら実行しました。
-
-ここでは、同じような準備をまとめて実行します。
+## Step 3：環境を準備する
 
 まず、パッケージ一覧を更新します。
 
@@ -390,13 +392,13 @@ cd scaffold_app
 メモを管理するCRUDをscaffoldで作ります。
 
 ```bash
-rails generate scaffold Memo title:string body:text
+bin/rails generate scaffold Memo title:string body:text
 ```
 
 migrationを実行します。
 
 ```bash
-rails db:migrate
+bin/rails db:migrate
 ```
 
 エラーが出ず、プロンプトが戻ってくれば成功です。
@@ -408,7 +410,7 @@ rails db:migrate
 Rails serverを起動します。
 
 ```bash
-rails server -b 0.0.0.0
+bin/rails server -b 0.0.0.0
 ```
 
 次のような表示が出れば、Rails serverが起動しています。
@@ -435,7 +437,8 @@ Practiceと同じく、セキュリティグループで3000番を開けてい�
 
 ## Step 8：セキュリティグループで3000番を開ける
 
-`rails-dojo-week10-stretch-sg` のインバウンドルールに、次のルールを追加します。
+`rails-dojo-week10-stretch` インスタンスに割り当てたセキュリティグループのインバウンドルールに、次のルールを追加します。
+セキュリティグループの特定方法は、 Practice の手順を思い出してください。
 
 | 項目 | 設定 |
 |---|---|
