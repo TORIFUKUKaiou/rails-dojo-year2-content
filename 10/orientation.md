@@ -175,7 +175,7 @@ sudo su - ubuntu
 
 ---
 
-## 6. miseとは
+## 6. <ruby>mise<rt>ミーズ</rt></ruby>とは
 
 今回、Rubyのインストールには `mise` を使います。
 
