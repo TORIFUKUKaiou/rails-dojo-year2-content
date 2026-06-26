@@ -262,7 +262,35 @@ PRETTY_NAME="Ubuntu 26.04 LTS"
 NAME="Ubuntu"
 ```
 
-User Dataのセットアップが完了しているか確認します。
+cloud-initの状態を確認します。
+
+```bash
+sudo cloud-init status
+```
+
+次のように表示されれば、EC2起動時の初期処理は正常に完了しています。
+
+```text
+status: done
+```
+
+`status: running` と表示された場合は、まだ処理中です。
+
+1〜2分待ってから、もう一度確認してください。
+
+```bash
+sudo cloud-init status
+```
+
+> [!IMPORTANT]
+> `status: error` と表示された場合は、User Dataの途中でエラーが起きています。
+> 次のコマンドでログを確認し、教員へ画面を見せてください。
+>
+> ```bash
+> sudo tail -n 80 /var/log/cloud-init-output.log
+> ```
+
+User DataによるRails環境セットアップが完了しているか確認します。
 
 ```bash
 ls /opt/rails-dojo/setup-complete
@@ -281,7 +309,7 @@ ls /opt/rails-dojo/setup-complete
 ログを確認したい場合は、次のコマンドを実行します。
 
 ```bash
-sudo tail -n 50 /var/log/cloud-init-output.log
+sudo tail -n 80 /var/log/cloud-init-output.log
 ```
 
 ---
@@ -868,10 +896,20 @@ DELETE_COMPLETE
 
 User Dataがまだ終わっていないか、途中で失敗しています。
 
+まずcloud-initの状態を確認します。
+
+```bash
+sudo cloud-init status
+```
+
+`status: running` の場合は、1〜2分待ってからもう一度確認します。
+
+`status: error` の場合は、User Dataの途中でエラーが起きています。
+
 ログを確認します。
 
 ```bash
-sudo tail -n 50 /var/log/cloud-init-output.log
+sudo tail -n 80 /var/log/cloud-init-output.log
 ```
 
 `apt`、`mise`、`ruby` などのエラーが表示されている場合は、教員へ画面を見せてください。
@@ -914,6 +952,7 @@ sudo tail -n 50 /var/log/cloud-init-output.log
 - [ ] CloudFormationスタックを作成できた
 - [ ] CloudFormationの出力を確認できた
 - [ ] Ubuntu 26.04 LTSのEC2インスタンスへSession Managerで接続できた
+- [ ] `sudo cloud-init status` で `status: done` を確認できた
 - [ ] `/opt/rails-dojo/setup-complete` を確認できた
 - [ ] Ruby 4.0.2を確認できた
 - [ ] Bundler 4.0.6を確認できた
