@@ -60,8 +60,14 @@ us-east-1
 
 この教材のCloudFormationテンプレートを開きます。
 
+[week11-baseline.yaml](infrastructure/week11-baseline.yaml)
+
+リンクを右クリックし、ファイルを自分のPCへダウンロードして保存してください。
+
+保存したファイル名が次の名前になっていることを確認します。
+
 ```text
-year2/content/11/infrastructure/week11-baseline.yaml
+week11-baseline.yaml
 ```
 
 このテンプレートは、次のリソースを作成します。
@@ -100,7 +106,7 @@ ALB、ターゲットグループ、リスナーは作りません。
 `ファイルの選択` をクリックし、次のファイルを選びます。
 
 ```text
-year2/content/11/infrastructure/week11-baseline.yaml
+week11-baseline.yaml
 ```
 
 選択できたら、`次へ` をクリックします。
