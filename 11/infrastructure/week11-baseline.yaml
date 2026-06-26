@@ -146,6 +146,7 @@ Resources:
           export MISE_YES=1
           curl https://mise.run | sh
           grep -q 'mise activate bash' ~/.bashrc || echo 'eval "$($HOME/.local/bin/mise activate bash)"' >> ~/.bashrc
+          export PATH="$HOME/.local/bin:$PATH"
           MISE="$HOME/.local/bin/mise"
           "$MISE" settings ruby.compile=false
           "$MISE" use -g ruby@4.0.2
