@@ -102,7 +102,7 @@ EC2インスタンスの元になるイメージです。
 今回は次のAMIを使います。
 
 ```text
-Ubuntu Server 24.04 LTS
+Ubuntu Server 26.04 LTS
 ```
 
 ### インスタンスタイプ
