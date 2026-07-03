@@ -1,5 +1,7 @@
 # 第10週：AWSデプロイ体験（2）── EC2でRailsアプリを動かす
 
+[PDF資料](https://drive.google.com/file/d/100jRd2HS4hKrRy_BKLFsqDJ1Q05bwZfN/view?usp=drive_link)
+
 ## 今日のゴール
 
 前回は、S3を使ってHTMLファイルを静的Webサイトとして公開しました。
