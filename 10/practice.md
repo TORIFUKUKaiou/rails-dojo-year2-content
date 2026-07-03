@@ -390,15 +390,15 @@ mise settings ruby.compile=false
 今回cloneするRailsアプリは、`.ruby-version` で次のRubyを使う前提になっています。
 
 ```text
-ruby-4.0.2
+ruby-4.0.5
 ```
 
 また、devcontainerの設定でもRuby 4系のイメージを使っています。
 
-そのため、EC2にもRuby 4.0.2をインストールします。
+そのため、EC2にもRuby 4.0.5をインストールします。
 
 ```bash
-mise use -g ruby@4.0.2
+mise use -g ruby@4.0.5
 ```
 
 インストールには数分かかることがあります。
@@ -411,7 +411,7 @@ Rubyが使えるか確認します。
 ruby -v
 ```
 
-`ruby 4.0.2` から始まる表示になれば成功です。
+`ruby 4.0.5` から始まる表示になれば成功です。
 
 どのRubyが使われているか確認します。
 
@@ -656,7 +656,7 @@ sudo su - ubuntu
 whoami
 ```
 
-### `ruby -v` でRuby 4.0.2が表示されない
+### `ruby -v` でRuby 4.0.5が表示されない
 
 miseの設定が読み込まれていない可能性があります。
 
@@ -699,7 +699,7 @@ Railsがアクセス元のホスト名を拒否している可能性がありま
 - [ ] `sudo su - ubuntu` で `ubuntu` ユーザーへ切り替えられた
 - [ ] `pwd` で `/home/ubuntu` を確認できた
 - [ ] miseをインストールできた
-- [ ] Ruby 4.0.2をインストールできた
+- [ ] Ruby 4.0.5をインストールできた
 - [ ] Bundler 4.0.6をインストールできた
 - [ ] Railsアプリで使うGemをインストールできた
 - [ ] GitHubからRailsアプリをcloneできた

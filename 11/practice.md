@@ -334,7 +334,7 @@ source ~/.bashrc
 ruby -v
 ```
 
-`ruby 4.0.2` から始まる表示になれば成功です。
+`ruby 4.0.5` から始まる表示になれば成功です。
 
 どのRubyが使われているか確認します。
 
@@ -977,7 +977,7 @@ sudo tail -n 80 /var/log/cloud-init-output.log
 - [ ] Ubuntu 26.04 LTSのEC2インスタンスへSession Managerで接続できた
 - [ ] `sudo cloud-init status` で `status: done` を確認できた
 - [ ] `/opt/rails-dojo/setup-complete` を確認できた
-- [ ] Ruby 4.0.2を確認できた
+- [ ] Ruby 4.0.5を確認できた
 - [ ] Bundler 4.0.6を確認できた
 - [ ] GitHubからRailsアプリをcloneできた
 - [ ] `bundle install` を実行できた

@@ -744,7 +744,7 @@ sudo su - ubuntu
 - `libpq-dev`
 - `postgresql-client`
 - mise
-- Ruby 4.0.2
+- Ruby 4.0.5
 - Bundler 4.0.6
 
 必要なOSパッケージには、少なくとも次を含めます。
@@ -778,7 +778,7 @@ mise settings ruby.compile=false
 ```
 
 ```bash
-mise use -g ruby@4.0.2
+mise use -g ruby@4.0.5
 ```
 
 ```bash
@@ -799,7 +799,7 @@ bundle -v
 psql --version
 ```
 
-- [ ] Ruby 4.0.2が表示された
+- [ ] Ruby 4.0.5が表示された
 - [ ] Bundler 4.0.6が表示された
 - [ ] PostgreSQLクライアントのバージョンが表示された
 

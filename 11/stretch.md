@@ -140,7 +140,7 @@ mise settings ruby.compile=false
 Rubyをインストールします。
 
 ```bash
-mise use -g ruby@4.0.2
+mise use -g ruby@4.0.5
 ```
 
 Rubyを確認します。
