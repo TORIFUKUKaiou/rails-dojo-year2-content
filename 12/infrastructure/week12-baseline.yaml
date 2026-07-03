@@ -1,0 +1,278 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Rails Dojo Week 12 baseline - VPC, EC2, and ALB for manual RDS practice
+
+Parameters:
+  UbuntuAmiId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/canonical/ubuntu/server/26.04/stable/current/amd64/hvm/ebs-gp3/ami-id
+    Description: Ubuntu Server 26.04 LTS AMI ID from the Canonical public SSM parameter
+
+Resources:
+  RailsDojoVpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: rails-dojo-week12-vpc
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: rails-dojo-week12-igw
+
+  VpcGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref RailsDojoVpc
+      InternetGatewayId: !Ref InternetGateway
+
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref RailsDojoVpc
+      CidrBlock: 10.0.0.0/24
+      AvailabilityZone: !Select [0, !GetAZs '']
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: rails-dojo-week12-public-subnet-1
+
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref RailsDojoVpc
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: !Select [1, !GetAZs '']
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: rails-dojo-week12-public-subnet-2
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref RailsDojoVpc
+      CidrBlock: 10.0.10.0/24
+      AvailabilityZone: !Select [0, !GetAZs '']
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: rails-dojo-week12-private-subnet-1
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref RailsDojoVpc
+      CidrBlock: 10.0.11.0/24
+      AvailabilityZone: !Select [1, !GetAZs '']
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: rails-dojo-week12-private-subnet-2
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref RailsDojoVpc
+      Tags:
+        - Key: Name
+          Value: rails-dojo-week12-public-route-table
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: VpcGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      RouteTableId: !Ref PublicRouteTable
+
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet2
+      RouteTableId: !Ref PublicRouteTable
+
+  AlbSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP from the internet to the Week 12 ALB
+      VpcId: !Ref RailsDojoVpc
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: rails-dojo-week12-alb-sg
+
+  Ec2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow Rails from the internet temporarily and from the Week 12 ALB
+      VpcId: !Ref RailsDojoVpc
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          CidrIp: 0.0.0.0/0
+          Description: Temporary direct access for the lesson
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          SourceSecurityGroupId: !Ref AlbSecurityGroup
+          Description: Rails traffic from the ALB
+      Tags:
+        - Key: Name
+          Value: rails-dojo-week12-ec2-sg
+
+  Ec2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t3.medium
+      ImageId: !Ref UbuntuAmiId
+      SubnetId: !Ref PublicSubnet1
+      SecurityGroupIds:
+        - !Ref Ec2SecurityGroup
+      IamInstanceProfile: LabInstanceProfile
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 16
+            VolumeType: gp3
+            DeleteOnTermination: true
+      Tags:
+        - Key: Name
+          Value: rails-dojo-week12
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          set -euxo pipefail
+
+          mkdir -p /opt/rails-dojo
+          echo "setup started at $(date -Is)" > /opt/rails-dojo/setup-status
+
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y \
+            git \
+            curl \
+            build-essential \
+            autoconf \
+            libssl-dev \
+            libyaml-dev \
+            zlib1g-dev \
+            libffi-dev \
+            libgmp-dev \
+            libreadline-dev \
+            libpq-dev \
+            postgresql-client \
+            rustc \
+            pkg-config \
+            snapd
+
+          if command -v snap >/dev/null 2>&1; then
+            snap install amazon-ssm-agent --classic || true
+            systemctl enable snap.amazon-ssm-agent.amazon-ssm-agent.service || true
+            systemctl restart snap.amazon-ssm-agent.amazon-ssm-agent.service || true
+          fi
+
+          sudo -iu ubuntu bash <<'USER_SCRIPT'
+          set -euxo pipefail
+
+          export MISE_YES=1
+          curl https://mise.run | sh
+          grep -q 'mise activate bash' ~/.bashrc || echo 'eval "$($HOME/.local/bin/mise activate bash)"' >> ~/.bashrc
+          export PATH="$HOME/.local/bin:$PATH"
+          MISE="$HOME/.local/bin/mise"
+          "$MISE" settings ruby.compile=false
+          "$MISE" use -g ruby@4.0.2
+          "$MISE" exec ruby@4.0.2 -- ruby -v
+          "$MISE" exec ruby@4.0.2 -- gem install bundler -v 4.0.6
+          "$MISE" exec ruby@4.0.2 -- bundle -v
+          git --version
+          psql --version
+          USER_SCRIPT
+
+          touch /opt/rails-dojo/setup-complete
+          echo "setup complete at $(date -Is)" >> /opt/rails-dojo/setup-status
+
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: rails-dojo-week12-tg
+      VpcId: !Ref RailsDojoVpc
+      Protocol: HTTP
+      Port: 3000
+      TargetType: instance
+      HealthCheckEnabled: true
+      HealthCheckPath: /up
+      HealthCheckProtocol: HTTP
+      Targets:
+        - Id: !Ref Ec2Instance
+          Port: 3000
+
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    DependsOn: VpcGatewayAttachment
+    Properties:
+      Name: rails-dojo-week12-alb
+      Scheme: internet-facing
+      Type: application
+      SecurityGroups:
+        - !Ref AlbSecurityGroup
+      Subnets:
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+
+  HttpListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup
+
+Outputs:
+  VpcId:
+    Description: VPC ID for Week 12
+    Value: !Ref RailsDojoVpc
+  PublicSubnet1Id:
+    Description: First public subnet ID
+    Value: !Ref PublicSubnet1
+  PublicSubnet2Id:
+    Description: Second public subnet ID
+    Value: !Ref PublicSubnet2
+  PrivateSubnet1Id:
+    Description: First private subnet ID for RDS
+    Value: !Ref PrivateSubnet1
+  PrivateSubnet2Id:
+    Description: Second private subnet ID for RDS
+    Value: !Ref PrivateSubnet2
+  Ec2InstanceId:
+    Description: EC2 instance ID for Rails
+    Value: !Ref Ec2Instance
+  Ec2PublicIp:
+    Description: Public IPv4 address of the Rails EC2 instance
+    Value: !GetAtt Ec2Instance.PublicIp
+  Ec2SecurityGroupId:
+    Description: Security group ID attached to the Rails EC2 instance
+    Value: !Ref Ec2SecurityGroup
+  AlbSecurityGroupId:
+    Description: Security group ID attached to the ALB
+    Value: !Ref AlbSecurityGroup
+  AlbDnsName:
+    Description: DNS name of the ALB
+    Value: !GetAtt ApplicationLoadBalancer.DNSName
