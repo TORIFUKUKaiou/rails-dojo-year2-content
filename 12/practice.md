@@ -349,7 +349,7 @@ Availability Zoneとsubnetでは、CloudFormationで作成した次の2つを追
 2. `データベースの作成`をクリックします。
 3. `標準作成`を選びます。
 4. エンジンに`PostgreSQL`を選びます。
-5. 画面で選択可能な標準のPostgreSQLバージョンを使います。
+5. エンジンバージョンは、PostgreSQL 18を選びます。
 
 次の値を入力します。
 
@@ -913,6 +913,7 @@ EC2用SGには、ALB用SGをソースにした3000番のルールも追加しま
 | 項目 | 設定 |
 |---|---|
 | エンジン | PostgreSQL |
+| エンジンバージョン | PostgreSQL 18 |
 | DBインスタンス識別子 | `rails-dojo-week12-round2-db` |
 | マスターユーザー名 | `rails_dojo` |
 | マスターパスワード | `RailsDojo2026Db` |
