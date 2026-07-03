@@ -79,7 +79,7 @@ flowchart LR
   PostgreSQL --> DB["テーブルにデータを保存"]
 ```
 
-Railsで本を登録すると、RailsがSQLを実行し、RDS上のPostgreSQLへデータが保存されます。
+CodeShelfで技術記事を投稿すると、RailsがSQLを実行し、RDS上のPostgreSQLへ記事のデータが保存されます。
 
 ---
 
