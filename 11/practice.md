@@ -6,22 +6,13 @@
 
 ## この練習で行うこと
 
-- AWS Academy Sandboxを起動する
-- CloudFormationでVPC、public subnet、EC2、EC2用セキュリティグループを作成する
-- Session ManagerでEC2へ接続する
-- User Dataのセットアップ完了を確認する
-- GitHubからRailsアプリをcloneする
-- Railsアプリを起動する
-- EC2のパブリックIPアドレスと3000番ポートで表示する
-- ALB用セキュリティグループを作成する
-- ターゲットグループを作成する
-- ALBとHTTPリスナーを作成する
-- ALBのDNS名からRailsアプリを表示する
-- EC2の3000番ポートをALBからだけ許可する
-- EC2のIPアドレス直アクセスができなくなることを確認する
+- CloudFormationでVPC、public subnet、EC2などを作成する
+- EC2へ接続し、Railsアプリを起動する
+- EC2のパブリックIPアドレスからRailsアプリを表示する
+- ALB、ターゲットグループ、セキュリティグループを作成する
+- ALB経由だけでRailsアプリを表示できる構成にする
 - 異なるAvailability ZoneへEC2をもう1台作成する
-- 2台のEC2を同じターゲットグループへ登録する
-- ALBの負荷分散と、片方のEC2停止時の継続動作を確認する
+- 2台のEC2でALBの負荷分散と継続動作を確認する
 - EC2ごとに記事の表示が異なる現象を観察する
 
 完成すると、次の構成になります。
@@ -432,18 +423,20 @@ bin/rails db:prepare
 EC2の外からアクセスできるように、`0.0.0.0` と3000番ポートを指定してRails serverを起動します。
 
 ```bash
-bin/rails server -b 0.0.0.0 -p 3000
+bin/rails server -b 0.0.0.0 -p 3000 -d
 ```
 
-次のような表示が出れば、Rails serverが起動しています。
+> [!NOTE]
+> `-d` は、Rails serverをバックグラウンドで動かすためのオプションです。
+> コマンド実行後にプロンプトが戻り、Session Managerの接続が切れてもRails serverは動き続けます。
 
-```text
-* Listening on http://0.0.0.0:3000
+起動できたか確認します。
+
+```bash
+curl http://localhost:3000/up
 ```
 
-このターミナルはRails serverが使っているため、コマンド入力には使えません。
-
-Rails serverは起動したままにして、次のStepへ進みます。
+HTMLが表示されれば、Rails serverは起動しています。
 
 ---
 
@@ -1011,16 +1004,16 @@ bin/rails db:prepare
 Rails serverを起動します。
 
 ```bash
-bin/rails server -b 0.0.0.0 -p 3000
+bin/rails server -b 0.0.0.0 -p 3000 -d
 ```
 
-次のような表示が出れば、Rails serverが起動しています。
+起動できたか確認します。
 
-```text
-* Listening on http://0.0.0.0:3000
+```bash
+curl http://localhost:3000/up
 ```
 
-このターミナルではRails serverを起動したままにします。
+HTMLが表示されれば、Rails serverは起動しています。
 
 ---
 
@@ -1223,7 +1216,7 @@ cd ~/rails-dojo-git-practice
 Rails serverを起動します。
 
 ```bash
-bin/rails server -b 0.0.0.0 -p 3000
+bin/rails server -b 0.0.0.0 -p 3000 -d
 ```
 
 ターゲットグループで、2台とも `Healthy` に戻れば成功です。
