@@ -83,23 +83,21 @@ rails-dojo-assets-学籍番号
 
 ---
 
-### Step 4：2台のEC2へ接続する
+### Step 4：EC2 1へ接続する
 
-Session Managerで`rails-dojo-week12-1`と`rails-dojo-week12-2`へ接続します。
-
-両方で`ubuntu`ユーザーへ切り替えます。
+Session Managerで`rails-dojo-week12-1`へ接続し、`ubuntu`ユーザーへ切り替えます。
 
 ```bash
 sudo su - ubuntu
 ```
 
-両方でRailsアプリのディレクトリへ移動します。
+Railsアプリのディレクトリへ移動します。
 
 ```bash
 cd ~/rails-dojo-git-practice
 ```
 
-S3へのアップロードにはEC2 2を使います。EC2 2でAWS CLIを確認します。
+AWS CLIを確認します。
 
 ```bash
 aws --version
@@ -147,7 +145,7 @@ S3の`オブジェクト`タブを開き、`assets`フォルダの中にファ�
 
 教材用アプリには、`RAILS_ASSET_HOST`の値をアセットの接続先として使う設定が入っています。
 
-EC2 1とEC2 2の両方で確認します。
+EC2 1で確認します。
 
 ```bash
 grep RAILS_ASSET_HOST config/environments/production.rb
@@ -162,8 +160,6 @@ config.asset_host = ENV["RAILS_ASSET_HOST"] if ENV["RAILS_ASSET_HOST"].present?
 ---
 
 ### Step 7：RAILS_ASSET_HOSTを設定する
-
-EC2 1とEC2 2の両方で設定します。
 
 `作成したバケット名`を自分のバケット名へ置き換えます。
 
@@ -186,37 +182,87 @@ SECRET_KEY_BASE
 RAILS_ASSET_HOST
 ```
 
-表示されない変数がある場合は、PracticeのStep 16とStep 17を見て、同じ値をもう一度設定します。
+表示されない変数がある場合は、PracticeのStep 16を見て、同じ値をもう一度設定します。
 
 ---
 
-### Step 8：Rails serverを再起動する
+### Step 8：EC2 1のRails serverを再起動する
 
-EC2 1とEC2 2の両方で、現在動いているRails serverを停止します。
+現在動いているRails serverを停止します。
 
 ```bash
 kill "$(cat tmp/pids/server.pid)"
 ```
 
-両方でRails serverを起動します。
+Rails serverを起動します。
 
 ```bash
 bin/rails server -b 0.0.0.0 -p 3000 -d
 ```
 
-両方で起動を確認します。
+起動を確認します。
 
 ```bash
 curl http://localhost:3000/up
 ```
 
-両方でHTMLが表示されることを確認します。
-
-ターゲットグループを開き、EC2 1とEC2 2の両方が`Healthy`になれば成功です。
+HTMLが表示されれば、EC2 1の設定は完了です。
 
 ---
 
-### Step 9：S3から配信されていることを確認する
+### Step 9：EC2 2へ接続する
+
+ALBはEC2 1とEC2 2のどちらへも通信を送ります。
+
+EC2 2にも同じS3を設定しないと、通信先によってアセットの配信元が変わります。
+
+Session Managerで`rails-dojo-week12-2`へ接続し、`ubuntu`ユーザーへ切り替えます。
+
+```bash
+sudo su - ubuntu
+```
+
+Railsアプリのディレクトリへ移動します。
+
+```bash
+cd ~/rails-dojo-git-practice
+```
+
+`作成したバケット名`を自分のバケット名へ置き換えて設定します。
+
+```bash
+export RAILS_ASSET_HOST='https://作成したバケット名.s3.amazonaws.com'
+```
+
+環境変数を確認します。
+
+```bash
+env | grep -E '^(DATABASE_URL|RAILS_ENV|SECRET_KEY_BASE|RAILS_ASSET_HOST)=' | cut -d= -f1
+```
+
+表示されない変数がある場合は、PracticeのStep 17を見て、同じ値をもう一度設定します。
+
+Rails serverを再起動します。
+
+```bash
+kill "$(cat tmp/pids/server.pid)"
+```
+
+```bash
+bin/rails server -b 0.0.0.0 -p 3000 -d
+```
+
+```bash
+curl http://localhost:3000/up
+```
+
+HTMLが表示されれば、EC2 2の設定も完了です。
+
+---
+
+### Step 10：S3から配信されていることを確認する
+
+ターゲットグループを開き、EC2 1とEC2 2が`Healthy`になるまで待ちます。
 
 ALBのURLをブラウザで開きます。
 
