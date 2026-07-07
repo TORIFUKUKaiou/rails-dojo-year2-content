@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Rails Dojo Week 12 baseline - VPC, EC2, and ALB for manual RDS practice
+Description: Rails Dojo Week 12 baseline - VPC, two EC2 instances, and ALB for manual RDS practice
 
 Parameters:
   UbuntuAmiId:
@@ -137,7 +137,7 @@ Resources:
         - Key: Name
           Value: rails-dojo-week12-ec2-sg
 
-  Ec2Instance:
+  Ec2Instance1:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: t3.medium
@@ -154,7 +154,77 @@ Resources:
             DeleteOnTermination: true
       Tags:
         - Key: Name
-          Value: rails-dojo-week12
+          Value: rails-dojo-week12-1
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          set -euxo pipefail
+
+          mkdir -p /opt/rails-dojo
+          echo "setup started at $(date -Is)" > /opt/rails-dojo/setup-status
+
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y \
+            git \
+            curl \
+            build-essential \
+            autoconf \
+            libssl-dev \
+            libyaml-dev \
+            zlib1g-dev \
+            libffi-dev \
+            libgmp-dev \
+            libreadline-dev \
+            libpq-dev \
+            postgresql-client \
+            rustc \
+            pkg-config \
+            snapd
+
+          if command -v snap >/dev/null 2>&1; then
+            snap install amazon-ssm-agent --classic || true
+            systemctl enable snap.amazon-ssm-agent.amazon-ssm-agent.service || true
+            systemctl restart snap.amazon-ssm-agent.amazon-ssm-agent.service || true
+          fi
+
+          sudo -iu ubuntu bash <<'USER_SCRIPT'
+          set -euxo pipefail
+
+          export MISE_YES=1
+          curl https://mise.run | sh
+          grep -q 'mise activate bash' ~/.bashrc || echo 'eval "$($HOME/.local/bin/mise activate bash)"' >> ~/.bashrc
+          export PATH="$HOME/.local/bin:$PATH"
+          MISE="$HOME/.local/bin/mise"
+          "$MISE" settings ruby.compile=false
+          "$MISE" use -g ruby@4.0.5
+          "$MISE" exec ruby@4.0.5 -- ruby -v
+          "$MISE" exec ruby@4.0.5 -- gem install bundler -v 4.0.6
+          "$MISE" exec ruby@4.0.5 -- bundle -v
+          git --version
+          psql --version
+          USER_SCRIPT
+
+          touch /opt/rails-dojo/setup-complete
+          echo "setup complete at $(date -Is)" >> /opt/rails-dojo/setup-status
+
+  Ec2Instance2:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t3.medium
+      ImageId: !Ref UbuntuAmiId
+      SubnetId: !Ref PublicSubnet2
+      SecurityGroupIds:
+        - !Ref Ec2SecurityGroup
+      IamInstanceProfile: LabInstanceProfile
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 16
+            VolumeType: gp3
+            DeleteOnTermination: true
+      Tags:
+        - Key: Name
+          Value: rails-dojo-week12-2
       UserData:
         Fn::Base64: |
           #!/bin/bash
@@ -219,7 +289,9 @@ Resources:
       HealthCheckPath: /up
       HealthCheckProtocol: HTTP
       Targets:
-        - Id: !Ref Ec2Instance
+        - Id: !Ref Ec2Instance1
+          Port: 3000
+        - Id: !Ref Ec2Instance2
           Port: 3000
 
   ApplicationLoadBalancer:
@@ -261,14 +333,20 @@ Outputs:
   PrivateSubnet2Id:
     Description: Second private subnet ID for RDS
     Value: !Ref PrivateSubnet2
-  Ec2InstanceId:
-    Description: EC2 instance ID for Rails
-    Value: !Ref Ec2Instance
-  Ec2PublicIp:
-    Description: Public IPv4 address of the Rails EC2 instance
-    Value: !GetAtt Ec2Instance.PublicIp
+  Ec2Instance1Id:
+    Description: First EC2 instance ID for Rails
+    Value: !Ref Ec2Instance1
+  Ec2Instance1PublicIp:
+    Description: Public IPv4 address of the first Rails EC2 instance
+    Value: !GetAtt Ec2Instance1.PublicIp
+  Ec2Instance2Id:
+    Description: Second EC2 instance ID for Rails
+    Value: !Ref Ec2Instance2
+  Ec2Instance2PublicIp:
+    Description: Public IPv4 address of the second Rails EC2 instance
+    Value: !GetAtt Ec2Instance2.PublicIp
   Ec2SecurityGroupId:
-    Description: Security group ID attached to the Rails EC2 instance
+    Description: Security group ID attached to both Rails EC2 instances
     Value: !Ref Ec2SecurityGroup
   AlbSecurityGroupId:
     Description: Security group ID attached to the ALB
