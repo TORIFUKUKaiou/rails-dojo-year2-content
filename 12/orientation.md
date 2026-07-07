@@ -190,13 +190,19 @@ postgresql://ユーザー名:パスワード@RDSのendpoint:5432/データベー
 
 productionモードで起動する前に、CSSやJavaScriptなどのアセットを準備します。
 
+CSSやJavaScriptは、利用者がアクセスするたびに作り直す必要がありません。先にブラウザへ配信できるファイルへ変換しておくと、同じファイルを効率よく配信し、キャッシュも利用できます。
+
+`SECRET_KEY_BASE`は、CookieなどがRailsによって作られた正しいデータか確認するために使う秘密値です。
+
+アセットをプリコンパイルするときも、Railsはproductionモードで起動します。そのため、通常は`SECRET_KEY_BASE`が必要です。
+
 ```bash
 SECRET_KEY_BASE_DUMMY=1 RAILS_ENV=production bin/rails assets:precompile
 ```
 
-`SECRET_KEY_BASE_DUMMY=1`は、アセットを準備する処理だけを行うときに使う仮の設定です。
+`SECRET_KEY_BASE_DUMMY=1`を付けると、Railsがプリコンパイル用の一時的な秘密値を自動生成します。
 
-実際にRails serverを起動するときは、2台で共通の`SECRET_KEY_BASE`を設定します。
+Rails serverの起動時には使わず、2台で共通の本番用`SECRET_KEY_BASE`を設定します。
 
 ---
 
