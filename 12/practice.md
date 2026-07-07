@@ -788,6 +788,60 @@ ALBは、正常なEC2 2だけへ通信を送っています。
 
 ---
 
+## Step 30：EC2 1を再起動して2台構成へ戻す
+
+1. EC2のインスタンス一覧で`rails-dojo-week12-1`を選択します。
+2. `インスタンスの状態`をクリックします。
+3. `インスタンスを開始`をクリックします。
+4. インスタンスが`実行中`になるまで待ちます。
+5. Session ManagerでEC2 1へ接続します。
+
+`ubuntu`ユーザーへ切り替えます。
+
+```bash
+sudo su - ubuntu
+```
+
+Railsアプリのディレクトリへ移動します。
+
+```bash
+cd ~/rails-dojo-git-practice
+```
+
+PracticeのStep 16と同じ値で、3つの環境変数を設定します。
+
+```bash
+export DATABASE_URL='postgresql://rails_dojo:RailsDojo2026Db@RDSのendpoint:5432/rails_dojo_production'
+```
+
+```bash
+export RAILS_ENV=production
+```
+
+```bash
+export SECRET_KEY_BASE='コピーしたSECRET_KEY_BASE'
+```
+
+停止前のPIDファイルが残っている場合に備えて削除します。
+
+```bash
+rm -f tmp/pids/server.pid
+```
+
+Rails serverを起動します。
+
+```bash
+bin/rails server -b 0.0.0.0 -p 3000 -d
+```
+
+```bash
+curl http://localhost:3000/up
+```
+
+ターゲットグループを開き、EC2 1とEC2 2の両方が`Healthy`になれば、2台構成へ戻っています。
+
+---
+
 ## トラブルシューティング
 
 ### Session Managerで接続できない

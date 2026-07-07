@@ -9,11 +9,12 @@ Practiceでは、HTML、CSS、JavaScriptをEC2上のRailsから配信しまし�
 ```mermaid
 flowchart LR
   U["利用者のブラウザ"] -->|"HTML"| ALB["ALB"]
-  ALB --> EC2["EC2 2<br>Rails"]
+  ALB --> EC21["EC2 1<br>Rails"]
+  ALB --> EC22["EC2 2<br>Rails"]
   U -->|"CSS / JavaScript"| S3["S3"]
 ```
 
-Practiceの最後に動いていた`rails-dojo-week12-2`を使います。
+Practiceの最後に2台とも`Healthy`へ戻した構成を使います。
 
 ---
 
@@ -82,21 +83,23 @@ rails-dojo-assets-学籍番号
 
 ---
 
-### Step 4：EC2 2へ接続する
+### Step 4：2台のEC2へ接続する
 
-Session Managerで`rails-dojo-week12-2`へ接続し、`ubuntu`ユーザーへ切り替えます。
+Session Managerで`rails-dojo-week12-1`と`rails-dojo-week12-2`へ接続します。
+
+両方で`ubuntu`ユーザーへ切り替えます。
 
 ```bash
 sudo su - ubuntu
 ```
 
-Railsアプリのディレクトリへ移動します。
+両方でRailsアプリのディレクトリへ移動します。
 
 ```bash
 cd ~/rails-dojo-git-practice
 ```
 
-AWS CLIを確認します。
+S3へのアップロードにはEC2 2を使います。EC2 2でAWS CLIを確認します。
 
 ```bash
 aws --version
@@ -144,7 +147,7 @@ S3の`オブジェクト`タブを開き、`assets`フォルダの中にファ�
 
 教材用アプリには、`RAILS_ASSET_HOST`の値をアセットの接続先として使う設定が入っています。
 
-EC2 2で確認します。
+EC2 1とEC2 2の両方で確認します。
 
 ```bash
 grep RAILS_ASSET_HOST config/environments/production.rb
@@ -159,6 +162,8 @@ config.asset_host = ENV["RAILS_ASSET_HOST"] if ENV["RAILS_ASSET_HOST"].present?
 ---
 
 ### Step 7：RAILS_ASSET_HOSTを設定する
+
+EC2 1とEC2 2の両方で設定します。
 
 `作成したバケット名`を自分のバケット名へ置き換えます。
 
@@ -181,31 +186,33 @@ SECRET_KEY_BASE
 RAILS_ASSET_HOST
 ```
 
-表示されない変数がある場合は、PracticeのStep 17を見て、同じ値をもう一度設定します。
+表示されない変数がある場合は、PracticeのStep 16とStep 17を見て、同じ値をもう一度設定します。
 
 ---
 
 ### Step 8：Rails serverを再起動する
 
-現在動いているRails serverを停止します。
+EC2 1とEC2 2の両方で、現在動いているRails serverを停止します。
 
 ```bash
 kill "$(cat tmp/pids/server.pid)"
 ```
 
-Rails serverを起動します。
+両方でRails serverを起動します。
 
 ```bash
 bin/rails server -b 0.0.0.0 -p 3000 -d
 ```
 
-起動を確認します。
+両方で起動を確認します。
 
 ```bash
 curl http://localhost:3000/up
 ```
 
-HTMLが表示されれば成功です。
+両方でHTMLが表示されることを確認します。
+
+ターゲットグループを開き、EC2 1とEC2 2の両方が`Healthy`になれば成功です。
 
 ---
 
