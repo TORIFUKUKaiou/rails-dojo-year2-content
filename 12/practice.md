@@ -56,6 +56,18 @@ us-east-1
 
 [week12-baseline.yaml](infrastructure/week12-baseline.yaml)
 
+1. 上のリンクを開きます。
+2. GitHubでテンプレートの内容が表示されることを確認します。
+3. 画面右上のダウンロードボタンをクリックします。
+
+![GitHubのテンプレート表示画面にあるダウンロードボタン](../images/download-cf-template.png)
+
+保存したファイル名が次の名前になっていることを確認します。
+
+```text
+week12-baseline.yaml
+```
+
 このテンプレートは、次のリソースを作成します。
 
 - VPC

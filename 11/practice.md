@@ -56,9 +56,11 @@ us-east-1
 
 [week11-baseline.yaml](infrastructure/week11-baseline.yaml)
 
-右クリックして別タブで開き、ダウンロードしてください。
+1. 上のリンクを開きます。
+2. GitHubでテンプレートの内容が表示されることを確認します。
+3. 画面右上のダウンロードボタンをクリックします。
 
-![](../images/download-cf-template.png)
+![GitHubのテンプレート表示画面にあるダウンロードボタン](../images/download-cf-template.png)
 
 保存したファイル名が次の名前になっていることを確認します。
 
