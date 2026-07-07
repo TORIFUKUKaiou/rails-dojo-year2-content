@@ -106,7 +106,7 @@ Practiceでは、まずEC2を1台だけ登録します。
 
 まずは「入口をEC2からALBへ変える」ことに集中します。
 
-その後のStretchでは、EC2を2台に増やし、ALB経由でアクセスしたときの動きを観察します。
+その後、Practiceの後半でEC2を2台に増やし、ALB経由でアクセスしたときの動きを観察します。
 
 ---
 
@@ -167,7 +167,7 @@ Availability Zoneは、AWSのリージョン内にある、互いに分離され
 
 EC2が1台だけの場合、そのEC2が停止するとアプリを表示できなくなります。
 
-Stretchでは、異なるAvailability ZoneにEC2を1台ずつ置き、両方を同じターゲットグループへ登録します。
+Practiceの後半では、異なるAvailability ZoneにEC2を1台ずつ置き、両方を同じターゲットグループへ登録します。
 
 このように複数のAvailability Zoneを使う構成を、Multi-AZ構成といいます。
 
