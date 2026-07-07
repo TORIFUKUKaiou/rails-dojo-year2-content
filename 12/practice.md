@@ -1,33 +1,36 @@
-# 第12週：練習 ── RDS PostgreSQLへデータを保存する
+# 第12週：練習 ── 2台のRailsからRDS PostgreSQLを使う
 
-この練習では、EC2上のRailsをRDS PostgreSQLへ接続し、productionモードで公開します。
+この練習では、異なるAvailability Zoneにある2台のEC2から、同じRDS PostgreSQLへ接続します。
 
 先に、[第12週の説明](orientation.md)を読んでください。
 
 ## この練習で行うこと
 
-このPracticeは2周します。
+- CloudFormationでVPC、EC2 2台、ALBを作成する
+- RDS用セキュリティグループとDB Subnet Groupを作成する
+- Single-AZのRDS PostgreSQLを作成する
+- 2台のEC2へ同じRailsアプリを準備する
+- 2台へ同じ環境変数を設定する
+- production用アセットを準備し、Railsを起動する
+- 2台から同じ記事を表示できることを確認する
+- EC2を1台停止しても利用を続けられることを確認する
 
-### 1周目
+完成すると、次の構成になります。
 
-- CloudFormationでVPC、EC2、ALBまで作成する
-- DB Subnet Group、RDS、RDS用セキュリティグループを手動で作成する
-- Railsをproductionモードで起動し、RDSへデータを保存する
-- ALB経由だけでRailsへ接続できる状態にする
-
-### 2周目
-
-- デフォルトVPCを使い、EC2、ALB、RDSを手動で作成する
-- 1周目と同じ完成状態をもう一度作る
+```mermaid
+flowchart LR
+  U["利用者"] --> ALB["ALB"]
+  ALB --> EC21["Availability Zone 1<br>EC2 1 / Rails"]
+  ALB --> EC22["Availability Zone 2<br>EC2 2 / Rails"]
+  EC21 --> RDS["RDS PostgreSQL<br>共通のデータベース"]
+  EC22 --> RDS
+```
 
 > [!IMPORTANT]
-> AWS AcademyのSandboxは、授業では無料で利用できます。
-> 各周の確認が終わったら、作成したリソースを教材の手順どおりに削除します。
-> 1周目と2周目のリソースが混ざらないよう、削除を確認してから次へ進んでください。
+> AWS Academyの制限があるため、この練習ではSingle-AZのRDSを作成します。
+> RDSのMulti-AZ構成は作成しません。
 
 ---
-
-# 1周目：CloudFormationからRDS接続まで
 
 ## Step 1：AWS Academy Sandboxを起動する
 
@@ -53,34 +56,35 @@ us-east-1
 
 [week12-baseline.yaml](infrastructure/week12-baseline.yaml)
 
-このテンプレートが作るものは次のとおりです。
+このテンプレートは、次のリソースを作成します。
 
 - VPC
 - public subnet 2つ
 - private subnet 2つ
 - Internet Gatewayとroute table
+- Ubuntu 26.04 LTSのEC2 2台
 - EC2用セキュリティグループ
 - ALB用セキュリティグループ
-- Ubuntu 26.04 LTSのEC2と16GBのEBS
 - ターゲットグループ
 - ALBとHTTP 80リスナー
 
-次のものは作成しません。このあと自分で作成します。
+2台のEC2は異なるAvailability Zoneに作成されます。
 
+次のリソースは、このあとAWSマネジメントコンソールから作成します。
+
+- RDS用セキュリティグループ
 - DB Subnet Group
 - RDS PostgreSQL
-- RDS用セキュリティグループ
 
 ---
 
 ## Step 3：CloudFormationスタックを作成する
 
-1. AWSコンソール上部の検索欄で`CloudFormation`を検索します。
-2. CloudFormationを開きます。
-3. `スタックの作成`から`新しいリソースを使用`を選びます。
-4. `テンプレートファイルのアップロード`を選びます。
-5. ダウンロードした`week12-baseline.yaml`を指定します。
-6. `次へ`をクリックします。
+1. AWSマネジメントコンソールで`CloudFormation`を開きます。
+2. `スタックの作成`から`新しいリソースを使用`を選びます。
+3. `テンプレートファイルのアップロード`を選びます。
+4. `week12-baseline.yaml`を指定します。
+5. `次へ`をクリックします。
 
 スタック名は次にします。
 
@@ -100,35 +104,161 @@ rails-dojo-week12
 CREATE_COMPLETE
 ```
 
-`出力`タブを開き、次の値が表示されていることを確認します。
+`出力`タブを開き、次の値を確認します。
 
 | 出力キー | あとで使う場所 |
 |---|---|
 | `VpcId` | RDS用SG、DB Subnet Group |
 | `PrivateSubnet1Id` | DB Subnet Group |
 | `PrivateSubnet2Id` | DB Subnet Group |
-| `Ec2InstanceId` | Session Manager |
-| `Ec2PublicIp` | EC2への直接アクセス |
+| `Ec2Instance1Id` | 1台目の確認 |
+| `Ec2Instance1PublicIp` | 1台目への直接アクセス |
+| `Ec2Instance2Id` | 2台目の確認 |
+| `Ec2Instance2PublicIp` | 2台目への直接アクセス |
 | `Ec2SecurityGroupId` | RDS用SGの接続元 |
 | `AlbDnsName` | ALB経由のアクセス |
 
-ブラウザの別タブで出力を残しておいてください。
+この画面は、あとで値を確認できるように開いたままにします。
+
+> [!NOTE]
+> この時点ではRails serverが起動していないため、ターゲットグループの2台は`Unhealthy`になります。
+> これは想定どおりの状態です。
 
 ---
 
-## Step 5：Session ManagerでEC2へ接続する
+## Step 5：RDS用セキュリティグループを作成する
+
+1. EC2の左メニューから`セキュリティグループ`を開きます。
+2. `セキュリティグループを作成`をクリックします。
+3. 次の内容を入力します。
+
+| 項目 | 設定 |
+|---|---|
+| セキュリティグループ名 | `rails-dojo-week12-rds-sg` |
+| 説明 | `Allow PostgreSQL from Week 12 EC2` |
+| VPC | `rails-dojo-week12-vpc` |
+
+インバウンドルールを追加します。
+
+| 項目 | 設定 |
+|---|---|
+| タイプ | PostgreSQL |
+| ポート | `5432` |
+| ソース | `rails-dojo-week12-ec2-sg` |
+
+`Anywhere-IPv4`は選びません。
+
+2台のEC2は同じEC2用セキュリティグループを使っています。そのため、このルールで2台からRDSへ接続できます。
+
+---
+
+## Step 6：DB Subnet Groupを作成する
+
+1. AWSマネジメントコンソールで`RDS`を開きます。
+2. 左メニューから`サブネットグループ`を開きます。
+3. `DBサブネットグループを作成`をクリックします。
+4. 次の内容を入力します。
+
+| 項目 | 設定 |
+|---|---|
+| 名前 | `rails-dojo-week12-db-subnet-group` |
+| 説明 | `Private subnets for Rails Dojo Week 12` |
+| VPC | `rails-dojo-week12-vpc` |
+
+CloudFormationで作成した次の2つのsubnetを追加します。
+
+- `rails-dojo-week12-private-subnet-1`
+- `rails-dojo-week12-private-subnet-2`
+
+2つが異なるAvailability Zoneにあることを確認し、DB Subnet Groupを作成します。
+
+---
+
+## Step 7：Single-AZのRDS PostgreSQLを作成する
+
+1. RDSの左メニューから`データベース`を開きます。
+2. `データベースの作成`をクリックします。
+3. `標準作成`を選びます。
+4. エンジンに`PostgreSQL`を選びます。
+5. エンジンバージョンは、PostgreSQL 18を選びます。
+
+次の値を入力します。
+
+| 項目 | 設定 |
+|---|---|
+| 可用性と耐久性 | Single DB instance / スタンバイを作成しない |
+| DBインスタンス識別子 | `rails-dojo-week12-db` |
+| マスターユーザー名 | `rails_dojo` |
+| マスターパスワード | `RailsDojo2026Db` |
+| DBインスタンスクラス | 選択できる小さいクラス |
+| 初期データベース名 | `rails_dojo_production` |
+
+接続設定は次のようにします。
+
+| 項目 | 設定 |
+|---|---|
+| VPC | `rails-dojo-week12-vpc` |
+| DB Subnet Group | `rails-dojo-week12-db-subnet-group` |
+| Public access | `No` |
+| VPC security group | `rails-dojo-week12-rds-sg`のみ |
+| ポート | `5432` |
+
+設定を確認し、データベースを作成します。
+
+> [!IMPORTANT]
+> `Public access`は必ず`No`にします。
+> Multi-AZやスタンバイを作成する選択肢は選びません。
+
+> [!NOTE]
+> パスワードは、この授業だけで使う固定値です。
+> 実際のサービスでは、パスワードを教材やGit管理されるファイルへ書きません。
+
+---
+
+## Step 8：RDSの作成完了とendpointを確認する
+
+RDSの状態が次になるまで待ちます。
+
+```text
+Available
+```
+
+作成した`rails-dojo-week12-db`を開き、`接続とセキュリティ`からendpointをコピーします。
+
+endpointは次のような文字列です。
+
+```text
+rails-dojo-week12-db.xxxxxxxxxxxx.us-east-1.rds.amazonaws.com
+```
+
+ポートが`5432`、Public accessが`No`になっていることも確認します。
+
+---
+
+## Step 9：EC2が異なるAvailability Zoneにあることを確認する
 
 1. EC2の`インスタンス`を開きます。
-2. `rails-dojo-week12`を選びます。
-3. `接続`をクリックします。
-4. `Session Manager`タブを開きます。
-5. `接続`をクリックします。
+2. `rails-dojo-week12-1`と`rails-dojo-week12-2`を探します。
+3. 2台とも`実行中`になるまで待ちます。
+4. 2台の`Availability Zone`を比べます。
 
-現在のユーザーを確認します。
+次のようにAvailability Zoneが異なっていれば成功です。
 
-```bash
-whoami
+```text
+rails-dojo-week12-1   us-east-1a
+rails-dojo-week12-2   us-east-1b
 ```
+
+実際に表示されるAvailability Zoneは、この例と異なる場合があります。
+
+---
+
+## Step 10：1台目へSession Managerで接続する
+
+1. `rails-dojo-week12-1`を選びます。
+2. `接続`をクリックします。
+3. `Session Manager`タブを開きます。
+4. `接続`をクリックします。
 
 `ubuntu`ユーザーへ切り替えます。
 
@@ -136,7 +266,7 @@ whoami
 sudo su - ubuntu
 ```
 
-次の2つを実行します。
+現在のユーザーと場所を確認します。
 
 ```bash
 whoami
@@ -153,11 +283,11 @@ ubuntu
 /home/ubuntu
 ```
 
+このタブは、1台目の操作に使います。
+
 ---
 
-## Step 6：User Dataの完了を確認する
-
-cloud-initの状態を確認します。
+## Step 11：1台目のUser Data完了を確認する
 
 ```bash
 sudo cloud-init status
@@ -187,17 +317,50 @@ ls /opt/rails-dojo/setup-complete
 
 ---
 
-## Step 7：インストール済みの道具を確認する
+## Step 12：2台目へSession Managerで接続する
 
-User Dataでは、OSのパッケージ、mise、Ruby、Bundler、PostgreSQLクライアントまでをインストールしました。
+EC2のインスタンス一覧を別タブで開きます。
 
-設定を読み込みます。
+1. `rails-dojo-week12-2`を選びます。
+2. `接続`をクリックします。
+3. `Session Manager`タブを開きます。
+4. `接続`をクリックします。
+
+`ubuntu`ユーザーへ切り替えます。
+
+```bash
+sudo su - ubuntu
+```
+
+2台目でもUser Dataの完了を確認します。
+
+```bash
+sudo cloud-init status
+```
+
+```bash
+ls /opt/rails-dojo/setup-complete
+```
+
+`status: done`と完了確認ファイルが表示されれば成功です。
+
+> [!IMPORTANT]
+> ここからはSession Managerのタブを2つ使います。
+> コマンドを実行する前に、EC2 1とEC2 2のどちらを操作しているか確認してください。
+
+---
+
+## Step 13：2台へRailsアプリを準備する
+
+このStepのコマンドは、EC2 1とEC2 2の両方で実行します。
+
+まず、両方のターミナルで設定を読み込みます。
 
 ```bash
 source ~/.bashrc
 ```
 
-次を順に確認します。
+Ruby、Bundler、PostgreSQLクライアントを確認します。
 
 ```bash
 ruby -v
@@ -208,28 +371,10 @@ bundle -v
 ```
 
 ```bash
-git --version
-```
-
-```bash
 psql --version
 ```
 
-すべてでバージョン番号が表示されれば成功です。
-
-User Dataは、次の操作を行っていません。
-
-- Railsアプリのclone
-- Gemのインストール
-- RDSの作成や接続設定
-- migration
-- Rails serverの起動
-
-ここからはSession Managerで自分で操作します。
-
----
-
-## Step 8：Railsアプリをcloneする
+続けて、両方でRailsアプリをcloneします。
 
 ```bash
 git clone https://github.com/TORIFUKUKaiou/rails-dojo-git-practice.git
@@ -239,171 +384,21 @@ git clone https://github.com/TORIFUKUKaiou/rails-dojo-git-practice.git
 cd rails-dojo-git-practice
 ```
 
-```bash
-pwd
-```
-
-次のように表示されれば成功です。
-
-```text
-/home/ubuntu/rails-dojo-git-practice
-```
-
----
-
-## Step 9：Gemをインストールする
+Gemをインストールします。
 
 ```bash
 bundle install
 ```
 
-数分かかる場合があります。最後にエラーが出ず、プロンプトへ戻れば成功です。
+両方のターミナルでエラーが出ず、プロンプトへ戻れば成功です。
 
 ---
 
-## Step 10：productionモードの疎通だけを確認する
+## Step 14：2台からpsqlでRDSへ接続する
 
-RDSはまだ作成していないため、データを使う画面は正常に表示できません。
+EC2 1とEC2 2の両方で、次のコマンドを実行します。
 
-ここでは、Railsがproductionモードで起動し、ヘルスチェック用の`/up`へ応答できることだけを確認します。
-
-```bash
-SECRET_KEY_BASE_DUMMY=1 RAILS_ENV=production bin/rails server -b 0.0.0.0 -p 3000
-```
-
-次のような表示が出れば、Rails serverが起動しています。
-
-```text
-* Listening on http://0.0.0.0:3000
-```
-
-ブラウザで次を開きます。
-
-```text
-http://EC2のパブリックIPアドレス:3000/up
-```
-
-`EC2のパブリックIPアドレス`には、CloudFormationの出力`Ec2PublicIp`を入れます。
-
-正常な応答が表示されれば、EC2の3000番まで通信が届いています。
-
-確認後、Rails serverを起動したターミナルで`Ctrl + C`を押します。
-
-> [!IMPORTANT]
-> このStepではアプリの一覧画面や登録画面を確認しません。
-> RDS接続前なので、データベースを使う画面でエラーが出る可能性があります。
-
----
-
-## Step 11：RDS用セキュリティグループを作成する
-
-1. EC2の左メニューから`セキュリティグループ`を開きます。
-2. `セキュリティグループを作成`をクリックします。
-3. 次の内容を入力します。
-
-| 項目 | 設定 |
-|---|---|
-| セキュリティグループ名 | `rails-dojo-week12-rds-sg` |
-| 説明 | `Allow PostgreSQL from Week 12 EC2` |
-| VPC | CloudFormationで作成した`rails-dojo-week12-vpc` |
-
-インバウンドルールを追加します。
-
-| 項目 | 設定 |
-|---|---|
-| タイプ | PostgreSQL |
-| ポート | `5432` |
-| ソース | CloudFormationで作成した`rails-dojo-week12-ec2-sg` |
-
-`Anywhere-IPv4`は選びません。
-
-作成後、セキュリティグループIDを控えます。
-
----
-
-## Step 12：DB Subnet Groupを作成する
-
-1. AWSコンソールで`RDS`を検索して開きます。
-2. 左メニューから`サブネットグループ`を開きます。
-3. `DBサブネットグループを作成`をクリックします。
-4. 次の内容を入力します。
-
-| 項目 | 設定 |
-|---|---|
-| 名前 | `rails-dojo-week12-db-subnet-group` |
-| 説明 | `Private subnets for Rails Dojo Week 12` |
-| VPC | `rails-dojo-week12-vpc` |
-
-Availability Zoneとsubnetでは、CloudFormationで作成した次の2つを追加します。
-
-- `rails-dojo-week12-private-subnet-1`
-- `rails-dojo-week12-private-subnet-2`
-
-2つが異なるAvailability Zoneにあることを確認し、DB Subnet Groupを作成します。
-
----
-
-## Step 13：RDS PostgreSQLを作成する
-
-1. RDSの左メニューから`データベース`を開きます。
-2. `データベースの作成`をクリックします。
-3. `標準作成`を選びます。
-4. エンジンに`PostgreSQL`を選びます。
-5. エンジンバージョンは、PostgreSQL 18を選びます。
-
-次の値を入力します。
-
-| 項目 | 設定 |
-|---|---|
-| DBインスタンス識別子 | `rails-dojo-week12-db` |
-| マスターユーザー名 | `rails_dojo` |
-| マスターパスワード | `RailsDojo2026Db` |
-| DBインスタンスクラス | 選択できる小さいクラス |
-| 初期データベース名 | `rails_dojo_production` |
-
-接続設定は次のようにします。
-
-| 項目 | 設定 |
-|---|---|
-| VPC | `rails-dojo-week12-vpc` |
-| DB Subnet Group | `rails-dojo-week12-db-subnet-group` |
-| Public access | `No` |
-| VPC security group | `rails-dojo-week12-rds-sg`のみ |
-| ポート | `5432` |
-
-不要な追加機能は有効にせず、データベースを作成します。
-
-> [!IMPORTANT]
-> `Public access`は必ず`No`にします。
-> パスワードはこの授業用の固定値です。実際のサービスでは、教材に固定パスワードを書いて共有する運用はしません。
-
----
-
-## Step 14：RDSの作成完了とendpointを確認する
-
-RDSの状態が次になるまで待ちます。
-
-```text
-Available
-```
-
-作成した`rails-dojo-week12-db`を開き、`接続とセキュリティ`からendpointをコピーします。
-
-endpointは次のような文字列です。
-
-```text
-rails-dojo-week12-db.xxxxxxxxxxxx.us-east-1.rds.amazonaws.com
-```
-
-ポートが`5432`、Public accessが`No`になっていることも確認します。
-
----
-
-## Step 15：EC2からpsqlで接続する
-
-Session Managerへ戻ります。
-
-次のコマンドの`RDSのendpoint`を、コピーした値へ置き換えて実行します。
+`RDSのendpoint`は、コピーした値へ置き換えます。
 
 ```bash
 psql -h RDSのendpoint -U rails_dojo -d rails_dojo_production
@@ -415,7 +410,7 @@ psql -h RDSのendpoint -U rails_dojo -d rails_dojo_production
 RailsDojo2026Db
 ```
 
-次のようなプロンプトになれば、EC2からRDSへ接続できています。
+次のプロンプトが表示されれば、RDSへ接続できています。
 
 ```text
 rails_dojo_production=>
@@ -433,29 +428,49 @@ psqlを終了します。
 \q
 ```
 
+両方のEC2から接続できたことを確認してから次へ進みます。
+
 ---
 
-## Step 16：RDS接続用の環境変数を設定する
+## Step 15：2台で使うSECRET_KEY_BASEを作成する
 
-次の`RDSのendpoint`だけを自分の値へ置き換えます。
+EC2 1のターミナルだけで、次を実行します。
+
+```bash
+bin/rails secret
+```
+
+長い文字列が表示されます。この値をメモ帳などへコピーします。
+
+このあと、EC2 1とEC2 2の両方で同じ値を使います。
+
+> [!WARNING]
+> `SECRET_KEY_BASE`は秘密値です。
+> 今回は授業用の一時環境でのみ使用し、GitHubやチャットへ投稿しないでください。
+
+---
+
+## Step 16：1台目へ環境変数を設定する
+
+EC2 1のターミナルで実行します。
+
+`RDSのendpoint`を、自分のRDSのendpointへ置き換えます。
 
 ```bash
 export DATABASE_URL='postgresql://rails_dojo:RailsDojo2026Db@RDSのendpoint:5432/rails_dojo_production'
 ```
 
-productionモードも設定します。
-
 ```bash
 export RAILS_ENV=production
 ```
 
-productionモードで署名に使う秘密値を生成し、このターミナルの環境変数へ設定します。
+`コピーしたSECRET_KEY_BASE`を、Step 15でコピーした値へ置き換えます。
 
 ```bash
-export SECRET_KEY_BASE="$(bin/rails secret)"
+export SECRET_KEY_BASE='コピーしたSECRET_KEY_BASE'
 ```
 
-設定された変数名を確認します。パスワードを画面へ表示する必要はありません。
+設定された変数名を確認します。
 
 ```bash
 env | grep -E '^(DATABASE_URL|RAILS_ENV|SECRET_KEY_BASE)=' | cut -d= -f1
@@ -470,12 +485,42 @@ SECRET_KEY_BASE
 ```
 
 > [!WARNING]
-> `echo $DATABASE_URL`を実行すると、パスワードも画面へ表示されます。
-> 今回は値全体を表示せず、変数名だけを確認します。
+> `echo $DATABASE_URL`や`echo $SECRET_KEY_BASE`は実行しません。
+> パスワードや秘密値が画面へ表示されます。
 
 ---
 
-## Step 17：production用データベースを準備する
+## Step 17：2台目へ同じ環境変数を設定する
+
+EC2 2のターミナルでも、Step 16と同じ3つの環境変数を設定します。
+
+```bash
+export DATABASE_URL='postgresql://rails_dojo:RailsDojo2026Db@RDSのendpoint:5432/rails_dojo_production'
+```
+
+```bash
+export RAILS_ENV=production
+```
+
+```bash
+export SECRET_KEY_BASE='コピーしたSECRET_KEY_BASE'
+```
+
+`RDSのendpoint`と`コピーしたSECRET_KEY_BASE`は、EC2 1で設定した値と同じものへ置き換えます。
+
+変数名を確認します。
+
+```bash
+env | grep -E '^(DATABASE_URL|RAILS_ENV|SECRET_KEY_BASE)=' | cut -d= -f1
+```
+
+2台とも`DATABASE_URL`、`RAILS_ENV`、`SECRET_KEY_BASE`が設定された状態にします。
+
+---
+
+## Step 18：production用データベースを準備する
+
+EC2 1のターミナルだけで実行します。
 
 Railsアプリのディレクトリにいることを確認します。
 
@@ -483,15 +528,13 @@ Railsアプリのディレクトリにいることを確認します。
 pwd
 ```
 
-次を実行します。
-
 ```bash
 bin/rails db:prepare
 ```
 
 エラーが出ず、プロンプトへ戻ればmigrationまで完了しています。
 
-テーブルができたことをRailsから確認します。
+接続しているデータベースを確認します。
 
 ```bash
 bin/rails runner 'puts ActiveRecord::Base.connection.adapter_name'
@@ -503,56 +546,120 @@ bin/rails runner 'puts ActiveRecord::Base.connection.adapter_name'
 PostgreSQL
 ```
 
+2台が同じRDSを使うため、`db:prepare`はEC2 1だけで実行します。
+
 ---
 
-## Step 18：Railsをproductionモードで起動する
+## Step 19：1台目でアセットを準備してRailsを起動する
+
+EC2 1のターミナルで実行します。
+
+production用のアセットを準備します。
 
 ```bash
-bin/rails server -b 0.0.0.0 -p 3000
+SECRET_KEY_BASE_DUMMY=1 RAILS_ENV=production bin/rails assets:precompile
 ```
 
-次のような表示が出れば起動しています。
+エラーが出ず、プロンプトへ戻れば成功です。
 
-```text
-* Environment: production
-* Listening on http://0.0.0.0:3000
-```
-
-このターミナルはRails serverが使います。起動したまま、ブラウザへ移ります。
-
----
-
-## Step 19：EC2へ直接アクセスしてデータを登録する
-
-ブラウザで次を開きます。
-
-```text
-http://EC2のパブリックIPアドレス:3000
-```
-
-`CodeShelf`が表示されることを確認します。
-
-画面から記事を1件登録します。あとでRDS上でも確認できるよう、タイトルを次にします。
-
-```text
-RDSで保存する記事
-```
-
-本文も入力して記事を公開し、一覧に`RDSで保存する記事`が表示されることを確認します。
-
----
-
-## Step 20：RDSにデータが保存されたことを確認する
-
-Rails serverを止めずに、新しいSession Manager接続をもう一つ開きます。
-
-新しいターミナルで`ubuntu`ユーザーへ切り替えます。
+Rails serverをバックグラウンドで起動します。
 
 ```bash
-sudo su - ubuntu
+bin/rails server -b 0.0.0.0 -p 3000 -d
 ```
 
-次の`RDSのendpoint`を置き換えて接続します。
+起動できたか確認します。
+
+```bash
+curl http://localhost:3000/up
+```
+
+HTMLが表示されれば成功です。
+
+---
+
+## Step 20：2台目でアセットを準備してRailsを起動する
+
+EC2 2のターミナルでも、同じ操作を行います。
+
+```bash
+SECRET_KEY_BASE_DUMMY=1 RAILS_ENV=production bin/rails assets:precompile
+```
+
+```bash
+bin/rails server -b 0.0.0.0 -p 3000 -d
+```
+
+```bash
+curl http://localhost:3000/up
+```
+
+EC2 2でもHTMLが表示されれば成功です。
+
+> [!IMPORTANT]
+> Rails serverを起動したあとも、Session Managerのタブは閉じずに残します。
+> トラブルが起きたときは、どちらのEC2を操作しているか確認します。
+
+---
+
+## Step 21：2台ともHealthyになることを確認する
+
+1. EC2の左メニューから`ターゲットグループ`を開きます。
+2. `rails-dojo-week12-tg`を開きます。
+3. `ターゲット`タブを開きます。
+
+数分待ち、2台とも次の状態になることを確認します。
+
+```text
+Healthy
+```
+
+`Unhealthy`の場合は、そのEC2で`curl http://localhost:3000/up`を実行し、Rails serverが動いているか確認します。
+
+---
+
+## Step 22：1台目から記事を登録する
+
+ブラウザでEC2 1へ直接アクセスします。
+
+```text
+http://EC2 1のパブリックIPアドレス:3000
+```
+
+`CodeShelf`が表示されれば成功です。
+
+次の記事を登録します。
+
+```text
+タイトル：2台で共有する記事
+本文：RDS PostgreSQLに保存します
+```
+
+記事一覧に`2台で共有する記事`が表示されることを確認します。
+
+---
+
+## Step 23：2台目から同じ記事を確認する
+
+ブラウザでEC2 2へ直接アクセスします。
+
+```text
+http://EC2 2のパブリックIPアドレス:3000
+```
+
+記事一覧に、EC2 1から登録した次の記事が表示されることを確認します。
+
+```text
+2台で共有する記事
+```
+
+2台のRailsが同じRDSへ接続しているため、どちらのEC2からでも同じ記事を表示できます。
+
+---
+
+## Step 24：RDSに記事が保存されたことを確認する
+
+EC2 1またはEC2 2のSession Managerで、次を実行します。
 
 ```bash
 psql -h RDSのendpoint -U rails_dojo -d rails_dojo_production
@@ -560,21 +667,15 @@ psql -h RDSのendpoint -U rails_dojo -d rails_dojo_production
 
 パスワード`RailsDojo2026Db`を入力します。
 
-テーブルを確認します。
-
-```sql
-\dt
-```
-
-アプリの記事を保存するテーブルから、登録したタイトルを確認します。
+記事のタイトルを確認します。
 
 ```sql
 SELECT title FROM articles ORDER BY id DESC LIMIT 5;
 ```
 
-`RDSで保存する記事`が表示されれば、ブラウザから登録したデータがRDSへ保存されています。
+`2台で共有する記事`が表示されれば、RDSへ保存されています。
 
-確認後、psqlを終了します。
+psqlを終了します。
 
 ```sql
 \q
@@ -582,23 +683,7 @@ SELECT title FROM articles ORDER BY id DESC LIMIT 5;
 
 ---
 
-## Step 21：ALBのターゲットを確認する
-
-1. EC2の左メニューから`ターゲットグループ`を開きます。
-2. `rails-dojo-week12-tg`を開きます。
-3. `ターゲット`タブを開きます。
-
-Rails server起動後、数分待つと状態が次になります。
-
-```text
-Healthy
-```
-
-`Unhealthy`の場合は、Rails serverが起動しているか、`/up`へ応答しているかを確認します。
-
----
-
-## Step 22：ALBのDNS名から表示する
+## Step 25：ALBから同じ記事を確認する
 
 CloudFormationの出力`AlbDnsName`を使い、ブラウザで次を開きます。
 
@@ -606,14 +691,16 @@ CloudFormationの出力`AlbDnsName`を使い、ブラウザで次を開きます
 http://ALBのDNS名
 ```
 
-確認する内容は次です。
+何度かリロードし、次を確認します。
 
 - `CodeShelf`が表示される
-- 登録した`RDSで保存する記事`が表示される
+- `2台で共有する記事`が毎回表示される
+
+第11週とは異なり、どちらのEC2へ通信が届いても、同じRDSから記事を読み込みます。
 
 ---
 
-## Step 23：EC2への直接アクセスを閉じる
+## Step 26：EC2への直接アクセスを閉じる
 
 1. EC2の`セキュリティグループ`を開きます。
 2. `rails-dojo-week12-ec2-sg`を開きます。
@@ -634,392 +721,58 @@ http://ALBのDNS名
 
 ---
 
-## Step 24：2つのURLの結果を比べる
+## Step 27：ALB経由だけで表示できることを確認する
 
-まず、ALB経由で再読み込みします。
+ALBのURLを開きます。
 
 ```text
 http://ALBのDNS名
 ```
 
-引き続き表示されれば成功です。
+`CodeShelf`と`2台で共有する記事`が表示されることを確認します。
 
-次に、EC2へ直接アクセスします。
+次に、EC2 1とEC2 2へ直接アクセスします。
 
 ```text
-http://EC2のパブリックIPアドレス:3000
+http://EC2 1のパブリックIPアドレス:3000
+http://EC2 2のパブリックIPアドレス:3000
 ```
 
-接続できなければ成功です。
-
-| 接続 | 結果 |
-|---|---|
-| ブラウザ → ALB → EC2 | 表示される |
-| ブラウザ → EC2:3000 | 表示されない |
-| EC2 → RDS:5432 | 接続できる |
+どちらも接続できなければ成功です。
 
 ---
 
-## Step 25：1周目のリソースを削除する
+## Step 28：EC2を1台停止する
 
-Rails serverのターミナルで`Ctrl + C`を押します。
-
-次の順番で削除します。
-
-1. RDSの`rails-dojo-week12-db`を削除する
-2. 最終スナップショットを作成しない設定を選ぶ
-3. RDSが削除されるまで待つ
-4. DB Subnet Groupの`rails-dojo-week12-db-subnet-group`を削除する
-5. RDS用SGの`rails-dojo-week12-rds-sg`を削除する
-6. CloudFormationスタック`rails-dojo-week12`を削除する
+1. EC2のインスタンス一覧を開きます。
+2. `rails-dojo-week12-1`を選択します。
+3. `インスタンスの状態`をクリックします。
+4. `インスタンスを停止`をクリックします。
+5. 確認画面で停止を実行します。
 
 > [!IMPORTANT]
-> RDSが残っている間は、DB Subnet GroupやRDS用SGを削除できない場合があります。
-> RDSの状態が一覧から消えてから、次を削除してください。
+> `終了`ではなく`停止`を選びます。
 
-CloudFormationスタックが一覧から消えたら、1周目は完了です。
-
----
-
-# 2周目：デフォルトVPCで手動構築する
-
-2周目は、CloudFormationを使いません。
-
-デフォルトVPCを使い、EC2、ALB、RDSを手動で作ります。第10週、第11週、1周目の手順も参照して進めてください。
-
-各Stepのチェックをすべて確認してから次へ進みます。
-
-## Step 26：デフォルトVPCを確認する
-
-VPCの画面を開き、`default`と表示されるVPCを確認します。
-
-- [ ] デフォルトVPCのVPC IDを控えた
-- [ ] 異なるAvailability Zoneのsubnetを2つ以上確認した
-- [ ] 以降のEC2、ALB、RDSで同じデフォルトVPCを選ぶ
+ターゲットグループを開き、EC2 1が`Unhealthy`などの通信対象から外れた状態になるまで待ちます。
 
 ---
 
-## Step 27：EC2を手動で作成する
+## Step 29：片方のEC2だけで利用を続けられることを確認する
 
-次の設定でEC2を作成します。
-
-| 項目 | 設定 |
-|---|---|
-| 名前 | `rails-dojo-week12-round2` |
-| AMI | Ubuntu Server 26.04 LTS |
-| インスタンスタイプ | `t3.medium` |
-| キーペア | なし |
-| VPC | デフォルトVPC |
-| subnet | パブリックIPv4を割り当てられるsubnet |
-| パブリックIPの自動割り当て | 有効 |
-| ストレージ | 16GB gp3 |
-| IAMインスタンスプロフィール | `LabInstanceProfile` |
-
-EC2用SGは新しく作成し、名前を次にします。
+ALBのURLを何度かリロードします。
 
 ```text
-rails-dojo-week12-round2-ec2-sg
+http://ALBのDNS名
 ```
 
-最初は3000番を`Anywhere-IPv4`から許可します。SSH 22番は追加しません。
+次を確認します。
 
-- [ ] EC2が`実行中`になった
-- [ ] ステータスチェックに合格した
-- [ ] パブリックIPv4アドレスを控えた
-- [ ] Session Managerで接続できた
+- Railsアプリを引き続き表示できる
+- `2台で共有する記事`が表示される
 
----
+ALBは、正常なEC2 2だけへ通信を送っています。
 
-## Step 28：EC2の環境を手動で準備する
-
-Session Managerで接続し、`ubuntu`ユーザーへ切り替えます。
-
-```bash
-sudo su - ubuntu
-```
-
-第11週Stretchの環境構築手順を参照し、次を自分でインストールします。
-
-- Git、curl、ビルドに必要なパッケージ
-- `libpq-dev`
-- `postgresql-client`
-- mise
-- Ruby 4.0.5
-- Bundler 4.0.6
-
-必要なOSパッケージには、少なくとも次を含めます。
-
-```bash
-sudo apt update
-```
-
-```bash
-sudo apt install -y git curl build-essential autoconf libssl-dev libyaml-dev zlib1g-dev libffi-dev libgmp-dev libreadline-dev libpq-dev postgresql-client rustc pkg-config
-```
-
-miseをインストールします。
-
-```bash
-curl https://mise.run | sh
-```
-
-```bash
-echo 'eval "$($HOME/.local/bin/mise activate bash)"' >> ~/.bashrc
-```
-
-```bash
-source ~/.bashrc
-```
-
-RubyとBundlerをインストールします。
-
-```bash
-mise settings ruby.compile=false
-```
-
-```bash
-mise use -g ruby@4.0.5
-```
-
-```bash
-gem install bundler -v 4.0.6
-```
-
-インストール後に確認します。
-
-```bash
-ruby -v
-```
-
-```bash
-bundle -v
-```
-
-```bash
-psql --version
-```
-
-- [ ] Ruby 4.0.5が表示された
-- [ ] Bundler 4.0.6が表示された
-- [ ] PostgreSQLクライアントのバージョンが表示された
-
----
-
-## Step 29：Railsアプリを準備する
-
-1周目と同じリポジトリをcloneします。
-
-```bash
-git clone https://github.com/TORIFUKUKaiou/rails-dojo-git-practice.git
-```
-
-```bash
-cd rails-dojo-git-practice
-```
-
-```bash
-bundle install
-```
-
-RDS接続前は、次のコマンドでproductionの`/up`だけを起動して確認します。
-
-```bash
-SECRET_KEY_BASE_DUMMY=1 RAILS_ENV=production bin/rails server -b 0.0.0.0 -p 3000
-```
-
-確認URL：
-
-```text
-http://2周目のEC2パブリックIP:3000/up
-```
-
-確認後、`Ctrl + C`で停止します。
-
-- [ ] `/up`が応答した
-- [ ] EC2の3000番まで通信が届くことを確認した
-
----
-
-## Step 30：ALBを手動で作成する
-
-第11週Practiceを参照し、次を作成します。
-
-### ALB用SG
-
-| 項目 | 設定 |
-|---|---|
-| 名前 | `rails-dojo-week12-round2-alb-sg` |
-| VPC | デフォルトVPC |
-| インバウンド | HTTP 80 / Anywhere-IPv4 |
-
-### ターゲットグループ
-
-| 項目 | 設定 |
-|---|---|
-| 名前 | `rails-dojo-week12-round2-tg` |
-| ターゲットタイプ | Instances |
-| プロトコルとポート | HTTP / 3000 |
-| VPC | デフォルトVPC |
-| ヘルスチェックパス | `/up` |
-| 登録するターゲット | 2周目のEC2 |
-
-### ALB
-
-| 項目 | 設定 |
-|---|---|
-| 名前 | `rails-dojo-week12-round2-alb` |
-| スキーム | Internet-facing |
-| VPC | デフォルトVPC |
-| subnet | 異なるAZから2つ |
-| セキュリティグループ | 2周目のALB用SG |
-| リスナー | HTTP 80 |
-| 転送先 | 2周目のターゲットグループ |
-
-EC2用SGには、ALB用SGをソースにした3000番のルールも追加します。この時点では直接接続確認用の`Anywhere-IPv4`ルールも残します。
-
-- [ ] ALBのDNS名を控えた
-- [ ] ALBからEC2へ3000番で通信できるSG設定にした
-
----
-
-## Step 31：DB Subnet GroupとRDS用SGを作成する
-
-### RDS用SG
-
-| 項目 | 設定 |
-|---|---|
-| 名前 | `rails-dojo-week12-round2-rds-sg` |
-| VPC | デフォルトVPC |
-| インバウンド | PostgreSQL 5432 / 2周目のEC2用SG |
-
-### DB Subnet Group
-
-| 項目 | 設定 |
-|---|---|
-| 名前 | `rails-dojo-week12-round2-db-subnet-group` |
-| VPC | デフォルトVPC |
-| subnet | 異なるAZから2つ以上 |
-
-デフォルトVPCのsubnetを使いますが、RDS作成時の`Public access`は`No`にします。
-
-- [ ] RDS用SGのソースがEC2用SGになっている
-- [ ] `0.0.0.0/0`から5432番を許可していない
-- [ ] DB Subnet Groupに異なるAZのsubnetが入っている
-
----
-
-## Step 32：2周目のRDSを作成する
-
-| 項目 | 設定 |
-|---|---|
-| エンジン | PostgreSQL |
-| エンジンバージョン | PostgreSQL 18 |
-| DBインスタンス識別子 | `rails-dojo-week12-round2-db` |
-| マスターユーザー名 | `rails_dojo` |
-| マスターパスワード | `RailsDojo2026Db` |
-| 初期データベース名 | `rails_dojo_production` |
-| VPC | デフォルトVPC |
-| DB Subnet Group | 2周目に作成したもの |
-| Public access | `No` |
-| VPC security group | 2周目のRDS用SGのみ |
-| ポート | `5432` |
-
-作成後、状態が`Available`になるまで待ち、endpointを控えます。
-
-- [ ] Public accessが`No`になっている
-- [ ] endpointとポート5432を確認した
-
----
-
-## Step 33：RailsをRDSへ接続する
-
-まず`psql`で接続します。
-
-```bash
-psql -h 2周目のRDSのendpoint -U rails_dojo -d rails_dojo_production
-```
-
-パスワードを入力し、接続できたら`\q`で終了します。
-
-1周目と同じ3つの環境変数を設定します。
-
-```bash
-export DATABASE_URL='postgresql://rails_dojo:RailsDojo2026Db@2周目のRDSのendpoint:5432/rails_dojo_production'
-```
-
-```bash
-export RAILS_ENV=production
-```
-
-```bash
-export SECRET_KEY_BASE="$(bin/rails secret)"
-```
-
-データベースを準備し、Rails serverを起動します。
-
-```bash
-bin/rails db:prepare
-```
-
-```bash
-bin/rails runner 'puts ActiveRecord::Base.connection.adapter_name'
-```
-
-```bash
-bin/rails server -b 0.0.0.0 -p 3000
-```
-
-- [ ] `PostgreSQL`と表示された
-- [ ] productionモードでRailsが起動した
-
----
-
-## Step 34：2周目の完成状態を確認する
-
-次を順番に確認します。
-
-1. EC2のIPアドレス`:3000`で`CodeShelf`を表示する
-2. `2周目にRDSへ保存`というタイトルと任意の本文で記事を登録する
-3. ターゲットグループが`Healthy`になるまで待つ
-4. ALBのDNS名で同じ記事が表示されることを確認する
-5. EC2用SGから`3000 / Anywhere-IPv4`を削除する
-6. ALBのDNS名では引き続き表示されることを確認する
-7. EC2のIPアドレス`:3000`では接続できないことを確認する
-
-新しいSession Manager接続からpsqlを使い、RDS上のデータも確認します。
-
-```sql
-SELECT title FROM articles ORDER BY id DESC LIMIT 5;
-```
-
-- [ ] `2周目にRDSへ保存`が表示された
-- [ ] ALB経由では表示された
-- [ ] EC2直アクセスでは表示されなかった
-- [ ] EC2からRDSへ接続できた
-
----
-
-## Step 35：2周目のリソースを削除する
-
-Rails serverを`Ctrl + C`で停止します。
-
-次の順番で削除します。
-
-1. `rails-dojo-week12-round2-alb`
-2. `rails-dojo-week12-round2-tg`
-3. `rails-dojo-week12-round2-db`
-4. RDSが削除されるまで待つ
-5. `rails-dojo-week12-round2-db-subnet-group`
-6. `rails-dojo-week12-round2-rds-sg`
-7. `rails-dojo-week12-round2` EC2インスタンス
-8. `rails-dojo-week12-round2-alb-sg`
-9. `rails-dojo-week12-round2-ec2-sg`
-
-デフォルトVPCと最初から存在していたsubnetは削除しません。
-
-> [!IMPORTANT]
-> 自分で作成したリソースだけを削除します。
-> デフォルトVPC、デフォルトsubnet、デフォルトセキュリティグループは削除しません。
+記事は共通のRDSに保存されているため、EC2 1を停止しても同じ記事を表示できます。
 
 ---
 
@@ -1027,57 +780,68 @@ Rails serverを`Ctrl + C`で停止します。
 
 ### Session Managerで接続できない
 
-- EC2へ`LabInstanceProfile`を設定したか
-- EC2が`実行中`か
+- 対象のEC2が`実行中`か
 - ステータスチェックに合格しているか
-- public subnetにあり、インターネットへ通信できるか
+- User Dataの処理が終わるまで数分待ったか
+
+### User Dataが完了しない
+
+状態を確認します。
+
+```bash
+sudo cloud-init status
+```
+
+`status: error`の場合はログを確認します。
+
+```bash
+sudo tail -n 80 /var/log/cloud-init-output.log
+```
 
 ### `psql`でRDSへ接続できない
 
 - EC2とRDSが同じVPCにあるか
-- endpointを正しくコピーしたか
+- endpointを正しく置き換えたか
 - RDSの状態が`Available`か
-- RDS用SGで5432番を許可しているか
-- RDS用SGのソースがEC2用SGになっているか
+- RDS用SGでEC2用SGからの5432番を許可しているか
 - DB名、ユーザー名、パスワードが教材の値と一致しているか
 
 ### `bin/rails db:prepare`が失敗する
 
 - `DATABASE_URL`のendpointを置き換えたか
-- URLの前後をシングルクォートで囲んでいるか
-- `libpq-dev`を入れてから`bundle install`したか
 - `psql`では同じendpointへ接続できるか
+- `RAILS_ENV`が`production`になっているか
+
+### Rails serverを起動できない
+
+環境変数の名前を確認します。
+
+```bash
+env | grep -E '^(DATABASE_URL|RAILS_ENV|SECRET_KEY_BASE)=' | cut -d= -f1
+```
+
+productionのログを確認します。
+
+```bash
+tail -n 100 log/production.log
+```
 
 ### ALBのターゲットがUnhealthyになる
 
-- Rails serverが起動したままか
-- Railsが`0.0.0.0:3000`で待ち受けているか
-- ヘルスチェックパスが`/up`か
-- EC2用SGでALB用SGから3000番を許可しているか
+- 対象のEC2で`curl http://localhost:3000/up`が成功するか
+- Railsが3000番ポートで起動しているか
+- EC2用SGでALB用SGからの3000番を許可しているか
 
-### ALBでは表示できるがデータ登録でエラーになる
+### 2台で記事の表示が異なる
 
-- Rails serverを起動したターミナルに`DATABASE_URL`が設定されているか
-- `RAILS_ENV=production`で`db:prepare`を実行したか
-- RDSが`Available`か
-- Rails serverのターミナルに表示されたエラーを確認したか
+両方のEC2で、同じRDSへ接続しているか確認します。
+
+```bash
+bin/rails runner 'puts ActiveRecord::Base.connection_db_config.host'
+```
+
+2台で同じRDSのendpointが表示されることを確認します。
 
 ---
-
-## 今日の確認
-
-- [ ] 1周目でCloudFormationスタックを作成した
-- [ ] User DataがRuby、Bundler、PostgreSQLクライアントまで準備したことを確認した
-- [ ] 異なるAZのprivate subnetでDB Subnet Groupを作成した
-- [ ] Public accessが`No`のRDS PostgreSQLを作成した
-- [ ] RDS用SGでEC2用SGからの5432番だけを許可した
-- [ ] `psql`でEC2からRDSへ接続した
-- [ ] Railsをproductionモードで起動した
-- [ ] ブラウザから登録したデータをRDS上で確認した
-- [ ] ALB経由では表示でき、EC2直アクセスでは表示できない状態にした
-- [ ] 1周目のRDSとCloudFormationスタックを削除した
-- [ ] 2周目でEC2、ALB、RDSを手動作成した
-- [ ] 2周目でもデータ保存と通信制限を確認した
-- [ ] 2周目に作成した課金対象リソースを削除した
 
 Practiceが終わったら、[Stretch](stretch.md)へ進みましょう。
