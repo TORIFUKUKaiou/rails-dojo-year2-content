@@ -1,67 +1,62 @@
-# 第12週：AWSデプロイ体験（4）── RDS PostgreSQLへデータを保存する
+# 第12週：AWSデプロイ体験（4）── 2台のRailsからRDSを使う
 
 ## 今日のゴール
 
-前回は、ALBをRailsアプリの入口にし、EC2へ直接アクセスできない構成を作りました。
+前回は、異なるAvailability ZoneにEC2を1台ずつ置き、ALBから2台のRailsへ通信を振り分けました。
 
-今回は、Railsが使うデータベースをEC2の中からRDSへ移します。
+しかし、記事はEC2ごとのSQLiteに保存されていたため、どちらのEC2へ通信が届くかによって表示が変わりました。
 
-第12週のゴールは、次の5つです。
+今回は、2台のRailsから同じRDS PostgreSQLへ接続します。
 
 - RDSとPostgreSQLの役割を説明できる
-- DB Subnet Groupの役割を説明できる
-- EC2からだけRDSへ接続できるセキュリティグループを設定できる
-- Railsをproductionモードで起動し、RDSへデータを保存できる
-- EC2、ALB、RDSを組み合わせた構成を作れる
+- 2台のRailsから同じデータベースを使う理由を説明できる
+- EC2からだけRDSへ接続できる構成を作れる
+- Railsをproductionモードで起動できる
+- EC2を1台停止しても、ALB経由で利用を続けられることを確認できる
 
-講義で用語を確認したら、実際にAWS上で構成を2回作ります。
-
----
-
-## 1. 前回の構成
-
-第11週の完成状態では、利用者はALBのDNS名へアクセスしました。
-
-```mermaid
-flowchart LR
-  U["利用者のブラウザ"] -->|"HTTP 80"| ALB["ALB"]
-  ALB -->|"HTTP 3000"| EC2["EC2<br>Rails / SQLite3"]
-  U -.->|"直接接続は拒否"| EC2
-```
-
-SQLite3のデータベースファイルは、Railsと同じEC2の中にありました。
-
-この構成は学習や小さな開発には便利ですが、EC2を削除すると、EC2内のデータも一緒に失う可能性があります。
+> [!IMPORTANT]
+> AWS Academy Sandboxは3時間で終了し、作成した環境が消えます。
+> 第11週のリソースは引き継がず、今回の構成を新しく作ります。
 
 ---
 
-## 2. 今日作る構成
+## 1. 前回起きたこと
 
-今回は、データベースをRDSへ分けます。
+第11週では、2台のEC2がそれぞれSQLiteを持っていました。
 
 ```mermaid
 flowchart LR
-  U["利用者のブラウザ"] -->|"HTTP 80"| ALB["ALB"]
-  ALB -->|"HTTP 3000"| EC2["EC2<br>Rails / Puma<br>production"]
-  EC2 -->|"PostgreSQL 5432"| RDS["RDS<br>PostgreSQL"]
-  U -.->|"直接接続は拒否"| EC2
-  INTERNET["インターネット"] -.->|"直接接続は不可"| RDS
+  U["利用者"] --> ALB["ALB"]
+  ALB --> EC21["EC2 1<br>Rails"]
+  ALB --> EC22["EC2 2<br>Rails"]
+  EC21 --> DB1["SQLite 1"]
+  EC22 --> DB2["SQLite 2"]
 ```
 
-通信の順番は次のとおりです。
+EC2 1で保存した記事は、EC2 2のSQLiteには入りません。
 
-```text
-ブラウザ → ALB:80 → EC2上のRails:3000 → RDS PostgreSQL:5432
+そのため、同じALBのURLを開いても、記事が表示されたり表示されなかったりしました。
+
+Webサーバーを2台に増やすだけでは、データは自動的に共有されません。
+
+---
+
+## 2. 今回作る構成
+
+今回は、2台のRailsから同じRDS PostgreSQLへ接続します。
+
+```mermaid
+flowchart LR
+  U["利用者"] -->|"HTTP 80"| ALB["ALB"]
+  ALB -->|"HTTP 3000"| EC21["Availability Zone 1<br>EC2 1 / Rails"]
+  ALB -->|"HTTP 3000"| EC22["Availability Zone 2<br>EC2 2 / Rails"]
+  EC21 -->|"PostgreSQL 5432"| RDS["RDS PostgreSQL<br>共通のデータベース"]
+  EC22 -->|"PostgreSQL 5432"| RDS
 ```
 
-完成後は、次の結果を確認します。
+記事をどちらのRailsから保存しても、同じRDSへ入ります。
 
-| 確認するURL・接続 | 結果 |
-|---|---|
-| `http://ALBのDNS名` | Railsアプリが表示される |
-| `http://EC2のパブリックIPアドレス:3000` | 接続できない |
-| インターネットからRDSへ直接接続 | 接続できない |
-| EC2上のRailsからRDSへ接続 | 接続できる |
+その後、ALBからどちらのEC2へ通信が送られても、同じ記事を表示できます。
 
 ---
 
@@ -69,17 +64,18 @@ flowchart LR
 
 RDSは、AWSが提供するリレーショナルデータベースのサービスです。
 
-OSへ自分でデータベースをインストールする代わりに、AWSの画面からデータベースを作成できます。
+データベース用のEC2を自分で用意しなくても、AWSの画面からデータベースを作成できます。
 
 RDSでは複数のデータベースエンジンを選べます。今回はPostgreSQLを使います。
 
 ```mermaid
 flowchart LR
-  Rails["Rails"] -->|"SQL"| PostgreSQL["PostgreSQL"]
-  PostgreSQL --> DB["テーブルにデータを保存"]
+  Rails1["Rails 1"] --> RDS["RDS PostgreSQL"]
+  Rails2["Rails 2"] --> RDS
+  RDS --> DATA["共通の記事データ"]
 ```
 
-CodeShelfで技術記事を投稿すると、RailsがSQLを実行し、RDS上のPostgreSQLへ記事のデータが保存されます。
+RDSには接続先を表すendpointがあります。2台のRailsは、同じendpointへ接続します。
 
 ---
 
@@ -87,26 +83,28 @@ CodeShelfで技術記事を投稿すると、RailsがSQLを実行し、RDS上の
 
 ALBは利用者からの通信を受け取るため、public subnetへ置きます。
 
-今回のRDSは、インターネットから直接アクセスさせません。そのため、2つのprivate subnetを使います。
+EC2も、今回の演習ではSession Managerやインターネットを使ったセットアップができるよう、public subnetへ置きます。
+
+RDSはインターネットから直接アクセスさせません。RDSが利用するsubnetとして、異なるAvailability Zoneのprivate subnetを2つ用意します。
 
 ```mermaid
 flowchart TB
   Internet["インターネット"] --> ALB["public subnet<br>ALB"]
-  ALB --> EC2["public subnet<br>EC2"]
-  EC2 --> RDS["private subnet<br>RDS"]
+  ALB --> EC21["public subnet<br>EC2 1"]
+  ALB --> EC22["public subnet<br>EC2 2"]
+  EC21 --> RDS["private subnet<br>RDS"]
+  EC22 --> RDS
 ```
 
-private subnetに置くだけで、すべての通信が自動的に安全になるわけではありません。
-
-RDSを作成するときは、`Public access`を`No`にし、セキュリティグループでも接続元を制限します。
+RDSを作成するときは、`Public access`を`No`にします。
 
 ---
 
 ## 5. DB Subnet Group
 
-RDSをVPC内に作成するときは、どのsubnetを利用できるかをDB Subnet Groupで指定します。
+DB Subnet Groupは、RDSが利用できるsubnetをまとめる設定です。
 
-今回のDB Subnet Groupには、異なるAvailability Zoneにある2つのprivate subnetを登録します。
+今回は、異なるAvailability Zoneにある2つのprivate subnetを登録します。
 
 ```mermaid
 flowchart LR
@@ -115,15 +113,36 @@ flowchart LR
   DSG --> RDS["RDS PostgreSQL"]
 ```
 
-Practiceでは、CloudFormationがprivate subnetを2つ用意します。DB Subnet GroupとRDSは、自分でAWSの画面から作成します。
+DB Subnet Groupへ2つのsubnetを登録しても、それだけでRDSがMulti-AZ構成になるわけではありません。
 
 ---
 
-## 6. RDS用セキュリティグループ
+## 6. RDSのMulti-AZ
 
-PostgreSQLは通常、5432番ポートを使います。
+本番環境では、データベースにも障害への備えが必要です。
 
-RDS用セキュリティグループでは、`Anywhere-IPv4`を通信元にしません。EC2用セキュリティグループを通信元にします。
+RDSのMulti-AZ構成では、通常使うデータベースとは異なるAvailability Zoneに、待機用のデータベースが用意されます。
+
+```mermaid
+flowchart LR
+  Rails["Rails"] --> ENDPOINT["RDS endpoint"]
+  ENDPOINT --> PRIMARY["AZ 1<br>プライマリ"]
+  PRIMARY -.->|"データを同期"| STANDBY["AZ 2<br>スタンバイ"]
+```
+
+プライマリに障害が起きた場合は、RDSがスタンバイへ切り替えます。Railsは同じendpointを使って接続を続けます。
+
+> [!IMPORTANT]
+> AWS Academyの制限があるため、今回のPracticeではMulti-AZのRDSを作成しません。
+> PracticeではSingle-AZのRDSを使い、2台のRailsが同じデータを利用できることを確認します。
+
+---
+
+## 7. セキュリティグループ
+
+RDSをprivate subnetへ置くだけでは、接続元を制限できません。
+
+RDS用セキュリティグループでは、PostgreSQLの5432番ポートをEC2用セキュリティグループからだけ許可します。
 
 | 対象 | 許可する通信 |
 |---|---|
@@ -133,61 +152,79 @@ RDS用セキュリティグループでは、`Anywhere-IPv4`を通信元にし�
 
 ```mermaid
 flowchart LR
-  ALBSG["ALB用SG"] -->|"3000を許可"| EC2SG["EC2用SG"]
+  ALBSG["ALB用SG"] -->|"3000を許可"| EC2SG["2台で使うEC2用SG"]
   EC2SG -->|"5432を許可"| RDSSG["RDS用SG"]
 ```
 
-これにより、RDSへ接続できる相手を、今回のEC2に限定できます。
+2台のEC2には同じEC2用セキュリティグループを設定します。
 
 ---
 
-## 7. developmentモードとproductionモード
+## 8. productionモードで必要な設定
 
-これまでは、主にdevelopmentモードでRailsを起動しました。
+今回は、2台のRailsをproductionモードで起動します。
 
-今回は、公開環境を想定したproductionモードで起動します。
+2台には、次の環境変数を同じ内容で設定します。
 
-```bash
-RAILS_ENV=production bin/rails server -b 0.0.0.0 -p 3000
-```
+| 環境変数 | 役割 |
+|---|---|
+| `DATABASE_URL` | RDSの接続先をRailsへ伝える |
+| `RAILS_ENV` | productionモードを指定する |
+| `SECRET_KEY_BASE` | Cookieなどの署名に使う秘密値 |
 
-RailsへRDSの接続先を伝えるため、`DATABASE_URL`という環境変数を使います。
+`DATABASE_URL`には、RDSのendpoint、ユーザー名、パスワード、データベース名が入ります。
 
 ```text
 postgresql://ユーザー名:パスワード@RDSのendpoint:5432/データベース名
 ```
 
-パスワードをRubyファイルやGit管理されるファイルへ書きません。今回の演習では、Session Managerのターミナルで環境変数に設定します。
+2台で異なる`DATABASE_URL`を設定すると、同じデータベースを利用できません。
+
+`SECRET_KEY_BASE`も2台で同じ値にします。値が異なると、アクセス先のEC2が変わったときにCookieを正しく読み取れない場合があります。
+
+パスワードや`SECRET_KEY_BASE`は、RubyファイルやGit管理されるファイルへ書きません。
 
 ---
 
-## 8. IaCとCloudFormationの復習
+## 9. アセットのプリコンパイル
 
-IaCは、インフラの構成をコードで管理する考え方です。
+productionモードで起動する前に、CSSやJavaScriptなどのアセットを準備します。
 
-Practiceの1周目では、CloudFormationから次の土台を作ります。
+```bash
+SECRET_KEY_BASE_DUMMY=1 RAILS_ENV=production bin/rails assets:precompile
+```
 
-- VPCとsubnet
-- EC2とEBS
-- EC2用・ALB用セキュリティグループ
-- ALB、ターゲットグループ、リスナー
+`SECRET_KEY_BASE_DUMMY=1`は、アセットを準備する処理だけを行うときに使う仮の設定です。
 
-DB Subnet Group、RDS、RDS用セキュリティグループは自分で作成します。
+実際にRails serverを起動するときは、2台で共通の`SECRET_KEY_BASE`を設定します。
 
-2周目では、デフォルトVPCを使い、EC2、ALB、RDSを手動で作成します。
+---
+
+## 10. 片方のEC2が停止した場合
+
+2台のEC2が正常なとき、ALBは両方へ通信を送ります。
+
+片方のEC2が停止すると、ALBはヘルスチェックに成功しているEC2だけへ通信を送ります。
+
+```mermaid
+flowchart LR
+  U["利用者"] --> ALB["ALB"]
+  ALB -->|"通信を送る"| EC21["EC2 1<br>Healthy"]
+  ALB -.->|"通信を送らない"| EC22["EC2 2<br>Unhealthy"]
+  EC21 --> RDS["共通のRDS"]
+```
+
+第11週とは異なり、記事は共通のRDSにあります。そのため、片方のEC2が停止しても、残ったEC2から同じ記事を表示できます。
 
 ---
 
 ## 今回のまとめ
 
-| 用語 | 意味 |
-|---|---|
-| RDS | AWSが提供するリレーショナルデータベースサービス |
-| PostgreSQL | 今回RDSで使うデータベースエンジン |
-| DB Subnet Group | RDSが利用できるsubnetをまとめる設定 |
-| private subnet | インターネットへ直接公開しないリソースを置くsubnet |
-| endpoint | RDSへ接続するときに使うホスト名 |
-| `DATABASE_URL` | Railsへデータベースの接続先を渡す環境変数 |
-| productionモード | 公開環境を想定したRailsの実行モード |
+- 2台のRailsから同じRDS PostgreSQLへ接続する
+- 記事を共通のRDSへ保存し、第11週の表示不整合を解消する
+- RDSへはEC2用セキュリティグループからだけ接続を許可する
+- 2台で`DATABASE_URL`、`RAILS_ENV`、`SECRET_KEY_BASE`を同じ設定にする
+- production起動前にアセットをプリコンパイルする
+- RDS Multi-AZは説明だけ扱い、PracticeではSingle-AZのRDSを作成する
 
 準備ができたら、[練習](practice.md)へ進みましょう。
