@@ -162,6 +162,22 @@ flowchart LR
 
 ## 8. productionモードで必要な設定
 
+Railsには、主に次の3つの実行環境があります。
+
+| 実行環境 | 用途 |
+|---|---|
+| development | 開発中に使う。コードの変更を確認しやすい |
+| test | 自動テストを実行するときに使う |
+| production | 利用者へ公開するときに使う |
+
+これまで`bin/rails server`で起動していたRailsは、developmentモードでした。
+
+実行環境は`RAILS_ENV`で指定できます。
+
+```bash
+export RAILS_ENV=production
+```
+
 今回は、2台のRailsをproductionモードで起動します。
 
 2台には、次の環境変数を同じ内容で設定します。
