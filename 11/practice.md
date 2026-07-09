@@ -148,7 +148,7 @@ CREATE_COMPLETE
 
 数分かかることがあります。
 
-![](../images/cf-create-complete.png)
+![](../images/cf-reload.png)
 
 > [!IMPORTANT]
 > `CREATE_COMPLETE` になるまでは、次のStepへ進まないでください。
