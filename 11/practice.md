@@ -1065,6 +1065,8 @@ rails-dojo-week11-2   Healthy
 
 2台とも `Healthy` になるまで数分かかることがあります。
 
+![](../images/tg-healthys.png)
+
 > [!IMPORTANT]
 > 2台とも `Healthy` になるまでは、次へ進まないでください。
 
