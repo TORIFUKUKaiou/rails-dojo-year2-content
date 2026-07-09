@@ -830,6 +830,8 @@ flowchart LR
 us-east-1a
 ```
 
+![](../images/ec2-az.png)
+
 2台目は、この値とは異なるAvailability Zoneへ作成します。
 
 ---
