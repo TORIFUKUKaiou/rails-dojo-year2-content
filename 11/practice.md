@@ -439,6 +439,8 @@ curl http://localhost:3000/up
 
 HTMLの応答があれば、Rails serverは起動しています。
 
+![](../images/curl-html.png)
+
 ---
 
 ## Step 15：まだブラウザから接続できないことを確認する
