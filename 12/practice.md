@@ -525,7 +525,9 @@ bin/rails server -b 0.0.0.0 -p 3000 -d
 curl http://localhost:3000/up
 ```
 
-HTMLが表示されれば成功です。
+HTMLの応答があれば、Rails serverは起動しています。
+
+![](../images/curl-html.png)
 
 ---
 
@@ -737,7 +739,9 @@ bin/rails server -b 0.0.0.0 -p 3000 -d
 curl http://localhost:3000/up
 ```
 
-EC2 ②でもHTMLが表示されれば成功です。
+EC2 ②でも、HTMLの応答があれば成功です。
+
+![](../images/curl-html.png)
 
 > [!IMPORTANT]
 > Rails serverを起動したあとも、Session Managerのタブは閉じずに残します。

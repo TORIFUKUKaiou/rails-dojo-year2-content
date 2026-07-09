@@ -9,8 +9,8 @@ Practiceでは、HTML、CSS、JavaScriptをEC2上のRailsから配信しまし�
 ```mermaid
 flowchart LR
   U["利用者のブラウザ"] -->|"HTML"| ALB["ALB"]
-  ALB --> EC21["EC2 1<br>Rails"]
-  ALB --> EC22["EC2 2<br>Rails"]
+  ALB --> EC21["EC2 ①<br>Rails"]
+  ALB --> EC22["EC2 ②<br>Rails"]
   U -->|"CSS / JavaScript"| S3["S3"]
 ```
 
@@ -83,7 +83,7 @@ rails-dojo-assets-学籍番号
 
 ---
 
-### Step 4：EC2 1へ接続する
+### Step 4：EC2 ①へ接続する
 
 Session Managerで`rails-dojo-week12-1`へ接続し、`ubuntu`ユーザーへ切り替えます。
 
@@ -145,7 +145,7 @@ S3の`オブジェクト`タブを開き、`assets`フォルダの中にファ�
 
 教材用アプリには、`RAILS_ASSET_HOST`の値をアセットの接続先として使う設定が入っています。
 
-EC2 1で確認します。
+EC2 ①で確認します。
 
 ```bash
 grep RAILS_ASSET_HOST config/environments/production.rb
@@ -186,7 +186,7 @@ RAILS_ASSET_HOST
 
 ---
 
-### Step 8：EC2 1のRails serverを再起動する
+### Step 8：EC2 ①のRails serverを再起動する
 
 現在動いているRails serverを停止します。
 
@@ -206,15 +206,15 @@ bin/rails server -b 0.0.0.0 -p 3000 -d
 curl http://localhost:3000/up
 ```
 
-HTMLが表示されれば、EC2 1の設定は完了です。
+HTMLが表示されれば、EC2 ①の設定は完了です。
 
 ---
 
-### Step 9：EC2 2へ接続する
+### Step 9：EC2 ②へ接続する
 
-ALBはEC2 1とEC2 2のどちらへも通信を送ります。
+ALBはEC2 ①とEC2 ②のどちらへも通信を送ります。
 
-EC2 2にも同じS3を設定しないと、通信先によってアセットの配信元が変わります。
+EC2 ②にも同じS3を設定しないと、通信先によってアセットの配信元が変わります。
 
 Session Managerで`rails-dojo-week12-2`へ接続し、`ubuntu`ユーザーへ切り替えます。
 
@@ -256,13 +256,13 @@ bin/rails server -b 0.0.0.0 -p 3000 -d
 curl http://localhost:3000/up
 ```
 
-HTMLが表示されれば、EC2 2の設定も完了です。
+HTMLが表示されれば、EC2 ②の設定も完了です。
 
 ---
 
 ### Step 10：S3から配信されていることを確認する
 
-ターゲットグループを開き、EC2 1とEC2 2が`Healthy`になるまで待ちます。
+ターゲットグループを開き、EC2 ①とEC2 ②が`Healthy`になるまで待ちます。
 
 ALBのURLをブラウザで開きます。
 
