@@ -20,8 +20,8 @@
 ```mermaid
 flowchart LR
   U["利用者"] --> ALB["ALB"]
-  ALB --> EC21["Availability Zone 1<br>EC2 1 / Rails"]
-  ALB --> EC22["Availability Zone 2<br>EC2 2 / Rails"]
+  ALB --> EC21["Availability Zone 1<br>EC2 ① / Rails"]
+  ALB --> EC22["Availability Zone 2<br>EC2 ② / Rails"]
   EC21 --> RDS["RDS PostgreSQL<br>共通のデータベース"]
   EC22 --> RDS
 ```
@@ -123,10 +123,10 @@ CREATE_COMPLETE
 | `VpcId` | RDS用SG、DB Subnet Group |
 | `PrivateSubnet1Id` | DB Subnet Group |
 | `PrivateSubnet2Id` | DB Subnet Group |
-| `Ec2Instance1Id` | 1台目の確認 |
-| `Ec2Instance1PublicIp` | 1台目への直接アクセス |
-| `Ec2Instance2Id` | 2台目の確認 |
-| `Ec2Instance2PublicIp` | 2台目への直接アクセス |
+| `Ec2Instance1Id` | EC2 ①の確認 |
+| `Ec2Instance1PublicIp` | EC2 ①への直接アクセス |
+| `Ec2Instance2Id` | EC2 ②の確認 |
+| `Ec2Instance2PublicIp` | EC2 ②への直接アクセス |
 | `Ec2SecurityGroupId` | RDS用SGの接続元 |
 | `AlbDnsName` | ALB経由のアクセス |
 
@@ -265,7 +265,7 @@ rails-dojo-week12-2   us-east-1b
 
 ---
 
-## Step 10：1台目へSession Managerで接続する
+## Step 10：EC2 ①へSession Managerで接続する
 
 1. `rails-dojo-week12-1`を選びます。
 2. `接続`をクリックします。
@@ -295,11 +295,11 @@ ubuntu
 /home/ubuntu
 ```
 
-このタブは、1台目の操作に使います。
+このタブは、EC2 ①の操作に使います。
 
 ---
 
-## Step 11：1台目のUser Data完了を確認する
+## Step 11：EC2 ①のUser Data完了を確認する
 
 ```bash
 sudo cloud-init status
@@ -329,44 +329,11 @@ ls /opt/rails-dojo/setup-complete
 
 ---
 
-## Step 12：2台目へSession Managerで接続する
+## Step 12：EC2 ①へRailsアプリを準備する
 
-EC2のインスタンス一覧を別タブで開きます。
+EC2 ①のターミナルで実行します。
 
-1. `rails-dojo-week12-2`を選びます。
-2. `接続`をクリックします。
-3. `Session Manager`タブを開きます。
-4. `接続`をクリックします。
-
-`ubuntu`ユーザーへ切り替えます。
-
-```bash
-sudo su - ubuntu
-```
-
-2台目でもUser Dataの完了を確認します。
-
-```bash
-sudo cloud-init status
-```
-
-```bash
-ls /opt/rails-dojo/setup-complete
-```
-
-`status: done`と完了確認ファイルが表示されれば成功です。
-
-> [!IMPORTANT]
-> ここからはSession Managerのタブを2つ使います。
-> コマンドを実行する前に、EC2 1とEC2 2のどちらを操作しているか確認してください。
-
----
-
-## Step 13：2台へRailsアプリを準備する
-
-このStepのコマンドは、EC2 1とEC2 2の両方で実行します。
-
-まず、両方のターミナルで設定を読み込みます。
+まず、設定を読み込みます。
 
 ```bash
 source ~/.bashrc
@@ -386,7 +353,7 @@ bundle -v
 psql --version
 ```
 
-続けて、両方でRailsアプリをcloneします。
+Railsアプリをcloneします。
 
 ```bash
 git clone https://github.com/TORIFUKUKaiou/rails-dojo-git-practice.git
@@ -402,13 +369,13 @@ Gemをインストールします。
 bundle install
 ```
 
-両方のターミナルでエラーが出ず、プロンプトへ戻れば成功です。
+エラーが出ず、プロンプトへ戻れば成功です。
 
 ---
 
-## Step 14：2台からpsqlでRDSへ接続する
+## Step 13：EC2 ①からpsqlでRDSへ接続する
 
-EC2 1とEC2 2の両方で、次のコマンドを実行します。
+EC2 ①のターミナルで実行します。
 
 `RDSのendpoint`は、コピーした値へ置き換えます。
 
@@ -440,13 +407,13 @@ psqlを終了します。
 \q
 ```
 
-両方のEC2から接続できたことを確認してから次へ進みます。
+EC2 ①からRDSへ接続できたことを確認してから次へ進みます。
 
 ---
 
-## Step 15：2台で使うSECRET_KEY_BASEを作成する
+## Step 14：EC2 ①でSECRET_KEY_BASEを作成する
 
-EC2 1のターミナルだけで、次を実行します。
+EC2 ①のターミナルだけで、次を実行します。
 
 ```bash
 bin/rails secret
@@ -454,7 +421,7 @@ bin/rails secret
 
 長い文字列が表示されます。この値をメモ帳などへコピーします。
 
-このあと、EC2 1とEC2 2の両方で同じ値を使います。
+このあと、EC2 ①とEC2 ②の両方で同じ値を使います。
 
 > [!WARNING]
 > `SECRET_KEY_BASE`は秘密値です。
@@ -462,9 +429,9 @@ bin/rails secret
 
 ---
 
-## Step 16：1台目へ環境変数を設定する
+## Step 15：EC2 ①へ環境変数を設定する
 
-EC2 1のターミナルで実行します。
+EC2 ①のターミナルで実行します。
 
 `RDSのendpoint`を、自分のRDSのendpointへ置き換えます。
 
@@ -476,7 +443,7 @@ export DATABASE_URL='postgresql://rails_dojo:RailsDojo2026Db@RDSのendpoint:5432
 export RAILS_ENV=production
 ```
 
-`コピーしたSECRET_KEY_BASE`を、Step 15でコピーした値へ置き換えます。
+`コピーしたSECRET_KEY_BASE`を、Step 14でコピーした値へ置き換えます。
 
 ```bash
 export SECRET_KEY_BASE='コピーしたSECRET_KEY_BASE'
@@ -502,37 +469,9 @@ SECRET_KEY_BASE
 
 ---
 
-## Step 17：2台目へ同じ環境変数を設定する
+## Step 16：EC2 ①でproduction用データベースを準備する
 
-EC2 2のターミナルでも、Step 16と同じ3つの環境変数を設定します。
-
-```bash
-export DATABASE_URL='postgresql://rails_dojo:RailsDojo2026Db@RDSのendpoint:5432/rails_dojo_production'
-```
-
-```bash
-export RAILS_ENV=production
-```
-
-```bash
-export SECRET_KEY_BASE='コピーしたSECRET_KEY_BASE'
-```
-
-`RDSのendpoint`と`コピーしたSECRET_KEY_BASE`は、EC2 1で設定した値と同じものへ置き換えます。
-
-変数名を確認します。
-
-```bash
-env | grep -E '^(DATABASE_URL|RAILS_ENV|SECRET_KEY_BASE)=' | cut -d= -f1
-```
-
-2台とも`DATABASE_URL`、`RAILS_ENV`、`SECRET_KEY_BASE`が設定された状態にします。
-
----
-
-## Step 18：production用データベースを準備する
-
-EC2 1のターミナルだけで実行します。
+EC2 ①のターミナルだけで実行します。
 
 Railsアプリのディレクトリにいることを確認します。
 
@@ -558,13 +497,13 @@ bin/rails runner 'puts ActiveRecord::Base.connection.adapter_name'
 PostgreSQL
 ```
 
-2台が同じRDSを使うため、`db:prepare`はEC2 1だけで実行します。
+EC2 ①とEC2 ②は同じRDSを使います。そのため、`db:prepare`はEC2 ①だけで実行します。
 
 ---
 
-## Step 19：1台目でアセットを準備してRailsを起動する
+## Step 17：EC2 ①でアセットを準備してRailsを起動する
 
-EC2 1のターミナルで実行します。
+EC2 ①のターミナルで実行します。
 
 production用のアセットを準備します。
 
@@ -590,9 +529,201 @@ HTMLが表示されれば成功です。
 
 ---
 
-## Step 20：2台目でアセットを準備してRailsを起動する
+## Step 18：EC2 ②へSession Managerで接続する
 
-EC2 2のターミナルでも、同じ操作を行います。
+EC2のインスタンス一覧を別タブで開きます。
+
+1. `rails-dojo-week12-2`を選びます。
+2. `接続`をクリックします。
+3. `Session Manager`タブを開きます。
+4. `接続`をクリックします。
+
+`ubuntu`ユーザーへ切り替えます。
+
+```bash
+sudo su - ubuntu
+```
+
+現在のユーザーと場所を確認します。
+
+```bash
+whoami
+```
+
+```bash
+pwd
+```
+
+次のように表示されれば成功です。
+
+```text
+ubuntu
+/home/ubuntu
+```
+
+このタブは、EC2 ②の操作に使います。
+
+---
+
+## Step 19：EC2 ②のUser Data完了を確認する
+
+EC2 ②のターミナルで実行します。
+
+```bash
+sudo cloud-init status
+```
+
+次の表示になれば初期処理は完了しています。
+
+```text
+status: done
+```
+
+完了確認ファイルも確認します。
+
+```bash
+ls /opt/rails-dojo/setup-complete
+```
+
+次のように表示されれば成功です。
+
+```text
+/opt/rails-dojo/setup-complete
+```
+
+> [!IMPORTANT]
+> `status: running`の場合は1〜2分待って、もう一度確認します。
+> `status: error`の場合は`sudo tail -n 80 /var/log/cloud-init-output.log`を実行し、教員へ画面を見せてください。
+
+---
+
+## Step 20：EC2 ②へRailsアプリを準備する
+
+EC2 ②のターミナルで実行します。
+
+まず、設定を読み込みます。
+
+```bash
+source ~/.bashrc
+```
+
+Ruby、Bundler、PostgreSQLクライアントを確認します。
+
+```bash
+ruby -v
+```
+
+```bash
+bundle -v
+```
+
+```bash
+psql --version
+```
+
+Railsアプリをcloneします。
+
+```bash
+git clone https://github.com/TORIFUKUKaiou/rails-dojo-git-practice.git
+```
+
+```bash
+cd rails-dojo-git-practice
+```
+
+Gemをインストールします。
+
+```bash
+bundle install
+```
+
+エラーが出ず、プロンプトへ戻れば成功です。
+
+---
+
+## Step 21：EC2 ②からpsqlでRDSへ接続する
+
+EC2 ②のターミナルで実行します。
+
+`RDSのendpoint`は、EC2 ①で使った値と同じものへ置き換えます。
+
+```bash
+psql -h RDSのendpoint -U rails_dojo -d rails_dojo_production
+```
+
+パスワードを求められたら、次を入力します。入力中の文字は画面に表示されません。
+
+```text
+RailsDojo2026Db
+```
+
+次のプロンプトが表示されれば、RDSへ接続できています。
+
+```text
+rails_dojo_production=>
+```
+
+接続先を確認します。
+
+```sql
+\conninfo
+```
+
+psqlを終了します。
+
+```sql
+\q
+```
+
+EC2 ②からRDSへ接続できたことを確認してから次へ進みます。
+
+---
+
+## Step 22：EC2 ②へEC2 ①と同じ環境変数を設定する
+
+EC2 ②のターミナルで実行します。
+
+`RDSのendpoint`は、EC2 ①で使ったRDSのendpointへ置き換えます。
+
+```bash
+export DATABASE_URL='postgresql://rails_dojo:RailsDojo2026Db@RDSのendpoint:5432/rails_dojo_production'
+```
+
+```bash
+export RAILS_ENV=production
+```
+
+`コピーしたSECRET_KEY_BASE`は、Step 14でコピーした値へ置き換えます。
+
+```bash
+export SECRET_KEY_BASE='コピーしたSECRET_KEY_BASE'
+```
+
+設定された変数名を確認します。
+
+```bash
+env | grep -E '^(DATABASE_URL|RAILS_ENV|SECRET_KEY_BASE)=' | cut -d= -f1
+```
+
+次の3行が表示されれば成功です。
+
+```text
+DATABASE_URL
+RAILS_ENV
+SECRET_KEY_BASE
+```
+
+EC2 ①とEC2 ②は同じRDSを使っています。データベースの準備はEC2 ①で終わっているため、EC2 ②では`bin/rails db:prepare`を実行しません。
+
+> [!WARNING]
+> `echo $DATABASE_URL`や`echo $SECRET_KEY_BASE`は実行しません。
+> パスワードや秘密値が画面へ表示されます。
+
+---
+
+## Step 23：EC2 ②でアセットを準備してRailsを起動する
+
+EC2 ②のターミナルで実行します。
 
 ```bash
 SECRET_KEY_BASE_DUMMY=1 RAILS_ENV=production bin/rails assets:precompile
@@ -606,15 +737,15 @@ bin/rails server -b 0.0.0.0 -p 3000 -d
 curl http://localhost:3000/up
 ```
 
-EC2 2でもHTMLが表示されれば成功です。
+EC2 ②でもHTMLが表示されれば成功です。
 
 > [!IMPORTANT]
 > Rails serverを起動したあとも、Session Managerのタブは閉じずに残します。
-> トラブルが起きたときは、どちらのEC2を操作しているか確認します。
+> トラブルが起きたときは、EC2 ①とEC2 ②のどちらを操作しているか確認します。
 
 ---
 
-## Step 21：2台ともHealthyになることを確認する
+## Step 24：2台ともHealthyになることを確認する
 
 1. EC2の左メニューから`ターゲットグループ`を開きます。
 2. `rails-dojo-week12-tg`を開きます。
@@ -630,12 +761,12 @@ Healthy
 
 ---
 
-## Step 22：1台目から記事を登録する
+## Step 25：EC2 ①から記事を登録する
 
-ブラウザでEC2 1へ直接アクセスします。
+ブラウザでEC2 ①へ直接アクセスします。
 
 ```text
-http://EC2 1のパブリックIPアドレス:3000
+http://EC2 ①のパブリックIPアドレス:3000
 ```
 
 `CodeShelf`が表示されれば成功です。
@@ -651,15 +782,15 @@ http://EC2 1のパブリックIPアドレス:3000
 
 ---
 
-## Step 23：2台目から同じ記事を確認する
+## Step 26：EC2 ②から同じ記事を確認する
 
-ブラウザでEC2 2へ直接アクセスします。
+ブラウザでEC2 ②へ直接アクセスします。
 
 ```text
-http://EC2 2のパブリックIPアドレス:3000
+http://EC2 ②のパブリックIPアドレス:3000
 ```
 
-記事一覧に、EC2 1から登録した次の記事が表示されることを確認します。
+記事一覧に、EC2 ①から登録した次の記事が表示されることを確認します。
 
 ```text
 2台で共有する記事
@@ -669,9 +800,9 @@ http://EC2 2のパブリックIPアドレス:3000
 
 ---
 
-## Step 24：RDSに記事が保存されたことを確認する
+## Step 27：RDSに記事が保存されたことを確認する
 
-EC2 1またはEC2 2のSession Managerで、次を実行します。
+EC2 ①またはEC2 ②のSession Managerで、次を実行します。
 
 ```bash
 psql -h RDSのendpoint -U rails_dojo -d rails_dojo_production
@@ -695,7 +826,7 @@ psqlを終了します。
 
 ---
 
-## Step 25：ALBから同じ記事を確認する
+## Step 28：ALBから同じ記事を確認する
 
 CloudFormationの出力`AlbDnsName`を使い、ブラウザで次を開きます。
 
@@ -712,7 +843,7 @@ http://ALBのDNS名
 
 ---
 
-## Step 26：EC2への直接アクセスを閉じる
+## Step 29：EC2への直接アクセスを閉じる
 
 1. EC2の`セキュリティグループ`を開きます。
 2. `rails-dojo-week12-ec2-sg`を開きます。
@@ -733,7 +864,7 @@ http://ALBのDNS名
 
 ---
 
-## Step 27：ALB経由だけで表示できることを確認する
+## Step 30：ALB経由だけで表示できることを確認する
 
 ALBのURLを開きます。
 
@@ -743,18 +874,18 @@ http://ALBのDNS名
 
 `CodeShelf`と`2台で共有する記事`が表示されることを確認します。
 
-次に、EC2 1とEC2 2へ直接アクセスします。
+次に、EC2 ①とEC2 ②へ直接アクセスします。
 
 ```text
-http://EC2 1のパブリックIPアドレス:3000
-http://EC2 2のパブリックIPアドレス:3000
+http://EC2 ①のパブリックIPアドレス:3000
+http://EC2 ②のパブリックIPアドレス:3000
 ```
 
 どちらも接続できなければ成功です。
 
 ---
 
-## Step 28：EC2を1台停止する
+## Step 31：EC2 ①を停止する
 
 1. EC2のインスタンス一覧を開きます。
 2. `rails-dojo-week12-1`を選択します。
@@ -765,11 +896,11 @@ http://EC2 2のパブリックIPアドレス:3000
 > [!IMPORTANT]
 > `終了`ではなく`停止`を選びます。
 
-ターゲットグループを開き、EC2 1が`Unhealthy`などの通信対象から外れた状態になるまで待ちます。
+ターゲットグループを開き、EC2 ①が`Unhealthy`などの通信対象から外れた状態になるまで待ちます。
 
 ---
 
-## Step 29：片方のEC2だけで利用を続けられることを確認する
+## Step 32：EC2 ②だけで利用を続けられることを確認する
 
 ALBのURLを何度かリロードします。
 
@@ -782,19 +913,19 @@ http://ALBのDNS名
 - Railsアプリを引き続き表示できる
 - `2台で共有する記事`が表示される
 
-ALBは、正常なEC2 2だけへ通信を送っています。
+ALBは、正常なEC2 ②だけへ通信を送っています。
 
-記事は共通のRDSに保存されているため、EC2 1を停止しても同じ記事を表示できます。
+記事は共通のRDSに保存されているため、EC2 ①を停止しても同じ記事を表示できます。
 
 ---
 
-## Step 30：EC2 1を再起動して2台構成へ戻す
+## Step 33：EC2 ①を再起動して2台構成へ戻す
 
 1. EC2のインスタンス一覧で`rails-dojo-week12-1`を選択します。
 2. `インスタンスの状態`をクリックします。
 3. `インスタンスを開始`をクリックします。
 4. インスタンスが`実行中`になるまで待ちます。
-5. Session ManagerでEC2 1へ接続します。
+5. Session ManagerでEC2 ①へ接続します。
 
 `ubuntu`ユーザーへ切り替えます。
 
@@ -808,7 +939,7 @@ Railsアプリのディレクトリへ移動します。
 cd ~/rails-dojo-git-practice
 ```
 
-PracticeのStep 16と同じ値で、3つの環境変数を設定します。
+PracticeのStep 15と同じ値で、3つの環境変数を設定します。
 
 ```bash
 export DATABASE_URL='postgresql://rails_dojo:RailsDojo2026Db@RDSのendpoint:5432/rails_dojo_production'
@@ -838,7 +969,7 @@ bin/rails server -b 0.0.0.0 -p 3000 -d
 curl http://localhost:3000/up
 ```
 
-ターゲットグループを開き、EC2 1とEC2 2の両方が`Healthy`になれば、2台構成へ戻っています。
+ターゲットグループを開き、EC2 ①とEC2 ②の両方が`Healthy`になれば、2台構成へ戻っています。
 
 ---
 
@@ -900,7 +1031,7 @@ tail -n 100 log/production.log
 
 ### 2台で記事の表示が異なる
 
-両方のEC2で、同じRDSへ接続しているか確認します。
+EC2 ①とEC2 ②で、同じRDSへ接続しているか確認します。
 
 ```bash
 bin/rails runner 'puts ActiveRecord::Base.connection_db_config.host'

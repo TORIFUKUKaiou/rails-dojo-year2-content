@@ -27,13 +27,13 @@
 ```mermaid
 flowchart LR
   U["利用者"] --> ALB["ALB"]
-  ALB --> EC21["EC2 1<br>Rails"]
-  ALB --> EC22["EC2 2<br>Rails"]
+  ALB --> EC21["EC2 ①<br>Rails"]
+  ALB --> EC22["EC2 ②<br>Rails"]
   EC21 --> DB1["SQLite 1"]
   EC22 --> DB2["SQLite 2"]
 ```
 
-EC2 1で保存した記事は、EC2 2のSQLiteには入りません。
+EC2 ①で保存した記事は、EC2 ②のSQLiteには入りません。
 
 そのため、同じALBのURLを開いても、記事が表示されたり表示されなかったりしました。
 
@@ -48,8 +48,8 @@ Webサーバーを2台に増やすだけでは、データは自動的に共有�
 ```mermaid
 flowchart LR
   U["利用者"] -->|"HTTP 80"| ALB["ALB"]
-  ALB -->|"HTTP 3000"| EC21["Availability Zone 1<br>EC2 1 / Rails"]
-  ALB -->|"HTTP 3000"| EC22["Availability Zone 2<br>EC2 2 / Rails"]
+  ALB -->|"HTTP 3000"| EC21["Availability Zone 1<br>EC2 ① / Rails"]
+  ALB -->|"HTTP 3000"| EC22["Availability Zone 2<br>EC2 ② / Rails"]
   EC21 -->|"PostgreSQL 5432"| RDS["RDS PostgreSQL<br>共通のデータベース"]
   EC22 -->|"PostgreSQL 5432"| RDS
 ```
@@ -90,8 +90,8 @@ RDSはインターネットから直接アクセスさせません。RDSが利�
 ```mermaid
 flowchart TB
   Internet["インターネット"] --> ALB["public subnet<br>ALB"]
-  ALB --> EC21["public subnet<br>EC2 1"]
-  ALB --> EC22["public subnet<br>EC2 2"]
+  ALB --> EC21["public subnet<br>EC2 ①"]
+  ALB --> EC22["public subnet<br>EC2 ②"]
   EC21 --> RDS["private subnet<br>RDS"]
   EC22 --> RDS
 ```
@@ -102,16 +102,31 @@ RDSを作成するときは、`Public access`を`No`にします。
 
 ## 5. DB Subnet Group
 
-DB Subnet Groupは、RDSが利用できるsubnetをまとめる設定です。
+DB Subnet Groupは、RDSを置けるprivate subnetの候補をまとめる設定です。
 
 今回は、異なるAvailability Zoneにある2つのprivate subnetを登録します。
 
 ```mermaid
-flowchart LR
-  DSG["DB Subnet Group"] --> P1["private subnet 1<br>AZ 1"]
-  DSG --> P2["private subnet 2<br>AZ 2"]
-  DSG --> RDS["RDS PostgreSQL"]
+flowchart TB
+  DSG["DB Subnet Group<br>RDSを置けるsubnetの候補"]
+
+  subgraph AZ1["Availability Zone 1"]
+    subgraph P1["private subnet 1"]
+      RDS["RDS PostgreSQL<br>配置される例"]
+    end
+  end
+
+  subgraph AZ2["Availability Zone 2"]
+    P2["private subnet 2"]
+  end
+
+  DSG -.->|"登録"| P1
+  DSG -.->|"登録"| P2
 ```
+
+RDSはDB Subnet Groupの外に作られるのではなく、DB Subnet Groupへ登録したprivate subnetの中に作られます。
+
+今回のPracticeではSingle-AZのRDSを作成するため、登録したprivate subnetのどちらか一方にRDSが配置されます。
 
 DB Subnet Groupへ2つのsubnetを登録しても、それだけでRDSがMulti-AZ構成になるわけではありません。
 
@@ -231,8 +246,8 @@ Rails serverの起動時には使わず、2台で共通の本番用`SECRET_KEY_B
 ```mermaid
 flowchart LR
   U["利用者"] --> ALB["ALB"]
-  ALB -->|"通信を送る"| EC21["EC2 1<br>Healthy"]
-  ALB -.->|"通信を送らない"| EC22["EC2 2<br>Unhealthy"]
+  ALB -->|"通信を送る"| EC21["EC2 ①<br>Healthy"]
+  ALB -.->|"通信を送らない"| EC22["EC2 ②<br>Unhealthy"]
   EC21 --> RDS["共通のRDS"]
 ```
 
