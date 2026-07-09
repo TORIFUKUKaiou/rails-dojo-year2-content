@@ -345,7 +345,7 @@ Bundlerも確認します。
 bundle -v
 ```
 
-`Bundler version 4.0.6` のように表示されれば成功です。
+`Bundler version 4.0.15` のように表示されれば成功です。
 
 GitとSQLite3も確認します。
 
@@ -975,7 +975,7 @@ mise use -g ruby@4.0.5
 Bundlerをインストールします。
 
 ```bash
-gem install bundler -v 4.0.6
+gem install bundler -v 4.0.15
 ```
 
 バージョンを確認します。
@@ -988,7 +988,7 @@ ruby -v
 bundle -v
 ```
 
-Ruby 4.0.5とBundler 4.0.6のバージョンが表示されれば成功です。
+Ruby 4.0.5とBundler 4.0.15のバージョンが表示されれば成功です。
 
 ---
 

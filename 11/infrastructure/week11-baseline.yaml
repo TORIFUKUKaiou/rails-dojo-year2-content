@@ -151,7 +151,7 @@ Resources:
           "$MISE" settings ruby.compile=false
           "$MISE" use -g ruby@4.0.5
           "$MISE" exec ruby@4.0.5 -- ruby -v
-          "$MISE" exec ruby@4.0.5 -- gem install bundler -v 4.0.6
+          "$MISE" exec ruby@4.0.5 -- gem install bundler -v 4.0.15
           "$MISE" exec ruby@4.0.5 -- bundle -v
           git --version
           sqlite3 --version
