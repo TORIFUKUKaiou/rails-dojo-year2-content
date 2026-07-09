@@ -52,7 +52,7 @@ us-east-1
 
 ## Step 2：CloudFormationテンプレートを開く
 
-この教材のCloudFormationテンプレートを開きます。
+次のテンプレートをダウンロードします。
 
 [week11-baseline.yaml](infrastructure/week11-baseline.yaml)
 
