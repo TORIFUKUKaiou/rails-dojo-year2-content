@@ -621,12 +621,14 @@ VPCは、CloudFormationで作成した次のVPCを選びます。
 rails-dojo-week11-vpc
 ```
 
-マッピングでは、2つのアベイラビリティゾーンを選び、それぞれ次のpublic subnetを選択します。
+アベイラビリティーゾーンとサブネットでは、2つのアベイラビリティゾーンを選び、それぞれ次のpublic subnetを選択します。
 
 ```text
 rails-dojo-week11-public-subnet-1
 rails-dojo-week11-public-subnet-2
 ```
+
+![](../images/alb-az-subnet-setting.png)
 
 > [!IMPORTANT]
 > ALBは、少なくとも2つのアベイラビリティゾーンにまたがるサブネットを選ぶ必要があります。
