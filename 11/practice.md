@@ -857,7 +857,7 @@ EC2のインスタンス一覧で、`インスタンスを起動` をクリッ�
 | サブネット | 1台目とは異なるAvailability Zoneの `rails-dojo-week11-public-subnet` |
 | パブリックIPの自動割り当て | `有効化` |
 | ファイアウォール | `既存のセキュリティグループを選択する` |
-| セキュリティグループ | `rails-dojo-week11-ec2-sg` |
+| セキュリティグループ | `rails-dojo-week11-RailsDojoEc2SecurityGroup-xxxxx` (`xxxxx` は読み替え) |
 
 > [!IMPORTANT]
 > デフォルトVPCは選びません。
