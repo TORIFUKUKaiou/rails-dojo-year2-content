@@ -283,10 +283,6 @@ status: done
 
 1〜2分待ってから、もう一度確認してください。
 
-```bash
-sudo cloud-init status
-```
-
 > [!IMPORTANT]
 > `status: error` と表示された場合は、User Dataの途中でエラーが起きています。
 > 次のコマンドでログを確認し、教員へ画面を見せてください。
@@ -333,7 +329,7 @@ source ~/.bashrc
 ruby -v
 ```
 
-`ruby 4.0.5` から始まる表示になれば成功です。
+`ruby 4.0.10` から始まる表示になれば成功です。
 
 どのRubyが使われているか確認します。
 
@@ -441,7 +437,7 @@ bin/rails server -b 0.0.0.0 -p 3000 -d
 curl http://localhost:3000/up
 ```
 
-HTMLが表示されれば、Rails serverは起動しています。
+HTMLの応答があれば、Rails serverは起動しています。
 
 ---
 
