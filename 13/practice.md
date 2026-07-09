@@ -1,0 +1,1362 @@
+# 第13週：練習 ── 手動deployを3周体験する
+
+この練習では、自分のGitHubリポジトリでCodeShelfを変更し、AWS上の2台のEC2へ手動でdeployします。
+
+先に、[第13週の説明](orientation.md)を読んでください。
+
+## この練習で行うこと
+
+- CloudFormationでVPC、EC2 2台、ALB、RDS PostgreSQLを作成する
+- GitHubで自分用のCodeShelfリポジトリを作成する
+- 変更前のCodeShelfをAWS上で動かす
+- 1周目：画面だけを変更してdeployする
+- 2周目：`Article`に`category`を追加し、migrationを含むdeployを行う
+- 3周目：`Author` scaffoldを追加し、CRUD追加を含むdeployを行う
+
+完成すると、次の構成で3回deployを行います。
+
+```mermaid
+flowchart LR
+  C["Codespaces<br>開発"] -->|"git push"| G["GitHub<br>自分用リポジトリ"]
+  G -->|"git pull"| EC21["EC2 ①<br>Rails"]
+  G -->|"git pull"| EC22["EC2 ②<br>Rails"]
+  U["ブラウザ"] --> ALB["ALB"]
+  ALB --> EC21
+  ALB --> EC22
+  EC21 --> RDS["RDS PostgreSQL"]
+  EC22 --> RDS
+```
+
+> [!IMPORTANT]
+> この練習では、同じdeploy手順を3周します。
+> 1周だけで終わらせず、変更の種類が変わるとdeployで何が増えるかを確認してください。
+
+---
+
+## Step 1：AWS Academy Sandboxを起動する
+
+1. AWS Academyへログインします。
+2. 対象コースの`サンドボックス ラボ`を開きます。
+3. `Start Lab`をクリックします。
+4. `Lab status`が`ready`になるまで待ちます。
+5. `AWS`をクリックし、AWSマネジメントコンソールを開きます。
+6. 画面右上のリージョンを確認します。
+
+使用するリージョンは次です。
+
+```text
+米国（バージニア北部）
+us-east-1
+```
+
+---
+
+## Step 2：CloudFormationテンプレートを開く
+
+次のテンプレートをダウンロードします。
+
+[week13-baseline.yaml](infrastructure/week13-baseline.yaml)
+
+1. 上のリンクを開きます。
+2. GitHubでテンプレートの内容が表示されることを確認します。
+3. 画面右上のダウンロードボタンをクリックします。
+
+保存したファイル名が次の名前になっていることを確認します。
+
+```text
+week13-baseline.yaml
+```
+
+このテンプレートは、次のリソースを作成します。
+
+- VPC
+- public subnet 2つ
+- private subnet 2つ
+- EC2 2台
+- ALB
+- ターゲットグループ
+- RDS PostgreSQL
+- ALB用、EC2用、RDS用セキュリティグループ
+
+---
+
+## Step 3：CloudFormationスタックを作成する
+
+1. AWSマネジメントコンソールで`CloudFormation`を開きます。
+2. `スタックの作成`から`新しいリソースを使用`を選びます。
+3. `テンプレートファイルのアップロード`を選びます。
+4. `week13-baseline.yaml`を指定します。
+5. `次へ`をクリックします。
+
+スタック名は次にします。
+
+```text
+rails-dojo-week13
+```
+
+パラメータは変更しません。
+
+最後の確認画面まで進み、`送信`または`スタックの作成`をクリックします。
+
+---
+
+## Step 4：スタックの作成完了と出力を確認する
+
+スタックの状態が次になるまで待ちます。
+
+```text
+CREATE_COMPLETE
+```
+
+`出力`タブを開き、次の値をメモ帳などへ控えます。
+
+| 出力キー | 使う場所 |
+|---|---|
+| `Ec2Instance1Id` | EC2 ①へ接続するとき |
+| `Ec2Instance2Id` | EC2 ②へ接続するとき |
+| `AlbDnsName` | ブラウザで本番環境を確認するとき |
+| `RdsEndpoint` | `DATABASE_URL`を作るとき |
+| `DatabaseName` | `DATABASE_URL`を作るとき |
+| `DatabaseUser` | `DATABASE_URL`を作るとき |
+
+> [!NOTE]
+> この時点ではRails serverが起動していないため、ターゲットグループの2台は`Unhealthy`になります。
+> これは想定どおりです。
+
+---
+
+## Step 5：GitHubで自分用リポジトリを作る
+
+ブラウザで次のリポジトリを開きます。
+
+[TORIFUKUKaiou/rails-dojo-git-practice](https://github.com/TORIFUKUKaiou/rails-dojo-git-practice)
+
+`Use this template` > `Create a new repository`から、自分用リポジトリを作成します。
+
+リポジトリ名は次のようにします。
+
+```text
+rails-dojo-week13-自分の名前
+```
+
+例：
+
+```text
+rails-dojo-week13-yamada
+```
+
+`Public`を選びます。
+
+作成できたら、自分用リポジトリのURLを確認します。
+
+```text
+https://github.com/自分のユーザー名/rails-dojo-week13-自分の名前
+```
+
+> [!IMPORTANT]
+> ここから先は、必ず自分用リポジトリで作業します。
+> `TORIFUKUKaiou/rails-dojo-git-practice`を直接編集しないでください。
+
+---
+
+## Step 6：Codespacesでas-isを確認する
+
+自分用リポジトリで、`Code` → `Codespaces` → `Create codespace on main`をクリックします。
+
+VS Codeの画面が開き、ターミナルの準備が終わるまで待ちます。
+
+作業場所を確認します。
+
+```bash
+pwd
+```
+
+次のように表示されれば、Railsアプリの場所にいます。
+
+```text
+/home/vscode/app
+```
+
+データベースを準備します。
+
+```bash
+bin/rails db:prepare
+```
+
+Rails serverを起動します。
+
+```bash
+bin/rails server
+```
+
+ポート`3000`をブラウザで開き、`CodeShelf`が表示されることを確認します。
+
+> [!IMPORTANT]
+> Rails serverを起動したターミナルは、そのまま動かしておきます。
+> GitコマンドやRails generateを実行するときは、新しいターミナルを開いてください。
+
+---
+
+## Step 7：EC2 ①へ接続する
+
+AWSマネジメントコンソールでEC2を開きます。
+
+`rails-dojo-week13-1`を選び、`接続`からSession Managerで接続します。
+
+`ubuntu`ユーザーへ切り替えます。
+
+```bash
+sudo su - ubuntu
+```
+
+現在のユーザーと場所を確認します。
+
+```bash
+whoami
+```
+
+```bash
+pwd
+```
+
+次のように表示されれば成功です。
+
+```text
+ubuntu
+/home/ubuntu
+```
+
+User Dataの完了を確認します。
+
+```bash
+sudo cloud-init status
+```
+
+次の表示になれば完了です。
+
+```text
+status: done
+```
+
+設定を読み込みます。
+
+```bash
+source ~/.bashrc
+```
+
+---
+
+## Step 8：EC2 ①へ自分用リポジトリをcloneする
+
+EC2 ①のターミナルで実行します。
+
+`自分のリポジトリURL`は、Step 5で作成した自分用リポジトリのURLへ置き換えます。
+
+```bash
+git clone 自分のリポジトリURL
+```
+
+cloneしたディレクトリへ移動します。
+
+```bash
+cd rails-dojo-week13-自分の名前
+```
+
+Gemをインストールします。
+
+```bash
+bundle install
+```
+
+エラーが出ず、プロンプトへ戻れば成功です。
+
+---
+
+## Step 9：EC2 ①からRDSへ接続できることを確認する
+
+CloudFormationの出力`RdsEndpoint`を使います。
+
+`RDSのendpoint`を、自分の出力値へ置き換えます。
+
+```bash
+psql -h RDSのendpoint -U rails_dojo -d rails_dojo_production
+```
+
+パスワードを求められたら、次を入力します。入力中の文字は画面に表示されません。
+
+```text
+RailsDojo2026Db
+```
+
+次のプロンプトが表示されれば、RDSへ接続できています。
+
+```text
+rails_dojo_production=>
+```
+
+接続先を確認します。
+
+```sql
+\conninfo
+```
+
+psqlを終了します。
+
+```sql
+\q
+```
+
+---
+
+## Step 10：EC2 ①で環境変数ファイルを作る
+
+Railsアプリのディレクトリにいることを確認します。
+
+```bash
+pwd
+```
+
+`SECRET_KEY_BASE`を作成します。
+
+```bash
+bin/rails secret
+```
+
+表示された長い文字列をメモ帳などへコピーします。
+
+> [!WARNING]
+> `SECRET_KEY_BASE`は秘密値です。
+> GitHub、README、チャットへ貼り付けないでください。
+
+環境変数ファイルを作成します。
+
+```bash
+nano ~/rails-dojo-week13.env
+```
+
+次を入力します。
+
+`RDSのendpoint`と`コピーしたSECRET_KEY_BASE`は、自分の値へ置き換えます。
+
+```bash
+export DATABASE_URL='postgresql://rails_dojo:RailsDojo2026Db@RDSのendpoint:5432/rails_dojo_production'
+export RAILS_ENV=production
+export SECRET_KEY_BASE='コピーしたSECRET_KEY_BASE'
+```
+
+保存して閉じます。
+
+設定を読み込みます。
+
+```bash
+source ~/rails-dojo-week13.env
+```
+
+設定された変数名を確認します。
+
+```bash
+env | grep -E '^(DATABASE_URL|RAILS_ENV|SECRET_KEY_BASE)=' | cut -d= -f1
+```
+
+次の3行が表示されれば成功です。
+
+```text
+DATABASE_URL
+RAILS_ENV
+SECRET_KEY_BASE
+```
+
+---
+
+## Step 11：EC2 ①でas-isを起動する
+
+EC2 ①のターミナルで実行します。
+
+```bash
+bin/rails db:prepare
+```
+
+production用のアセットを準備します。
+
+```bash
+SECRET_KEY_BASE_DUMMY=1 RAILS_ENV=production bin/rails assets:precompile
+```
+
+Rails serverを起動します。
+
+```bash
+bin/rails server -b 0.0.0.0 -p 3000 -d
+```
+
+起動を確認します。
+
+```bash
+curl http://localhost:3000/up
+```
+
+HTMLが表示されれば、EC2 ①のRails serverは起動しています。
+
+---
+
+## Step 12：EC2 ②でもas-isを起動する
+
+AWSマネジメントコンソールでEC2を開きます。
+
+`rails-dojo-week13-2`を選び、Session Managerで接続します。
+
+`ubuntu`ユーザーへ切り替えます。
+
+```bash
+sudo su - ubuntu
+```
+
+設定を読み込みます。
+
+```bash
+source ~/.bashrc
+```
+
+User Dataの完了を確認します。
+
+```bash
+sudo cloud-init status
+```
+
+次の表示になれば完了です。
+
+```text
+status: done
+```
+
+自分用リポジトリをcloneします。
+
+```bash
+git clone 自分のリポジトリURL
+```
+
+cloneしたディレクトリへ移動します。
+
+```bash
+cd rails-dojo-week13-自分の名前
+```
+
+Gemをインストールします。
+
+```bash
+bundle install
+```
+
+EC2 ①と同じ内容で環境変数ファイルを作成します。
+
+```bash
+nano ~/rails-dojo-week13.env
+```
+
+EC2 ①と同じ値を入力します。
+
+```bash
+export DATABASE_URL='postgresql://rails_dojo:RailsDojo2026Db@RDSのendpoint:5432/rails_dojo_production'
+export RAILS_ENV=production
+export SECRET_KEY_BASE='コピーしたSECRET_KEY_BASE'
+```
+
+保存して閉じます。
+
+設定を読み込みます。
+
+```bash
+source ~/rails-dojo-week13.env
+```
+
+EC2 ②では、`bin/rails db:prepare`は実行しません。
+
+EC2 ①で同じRDSに対して実行済みだからです。
+
+アセットを準備します。
+
+```bash
+SECRET_KEY_BASE_DUMMY=1 RAILS_ENV=production bin/rails assets:precompile
+```
+
+Rails serverを起動します。
+
+```bash
+bin/rails server -b 0.0.0.0 -p 3000 -d
+```
+
+起動を確認します。
+
+```bash
+curl http://localhost:3000/up
+```
+
+HTMLが表示されれば、EC2 ②のRails serverも起動しています。
+
+---
+
+## Step 13：ALBでas-isを確認する
+
+CloudFormationの出力`AlbDnsName`を使い、ブラウザで次を開きます。
+
+```text
+http://ALBのDNS名
+```
+
+`CodeShelf`が表示されれば成功です。
+
+ターゲットグループも確認します。
+
+1. EC2の左メニューから`ターゲットグループ`を開きます。
+2. `rails-dojo-week13-tg`を開きます。
+3. `ターゲット`タブを開きます。
+
+2台とも次の状態になれば成功です。
+
+```text
+Healthy
+```
+
+---
+
+# 1周目：画面だけを変更してdeployする
+
+1周目では、データベースを変更しません。
+
+Codespacesで画面を変更し、GitHubへpushし、EC2 2台で `git pull` して反映します。
+
+## Step 14：【Codespaces】トップ画面の説明を追加する
+
+Codespacesの新しいターミナルで作業します。
+
+Rails serverを起動しているターミナルではなく、別のターミナルを使います。
+
+次のファイルを開きます。
+
+```text
+app/views/articles/index.html.erb
+```
+
+次の部分を探します。
+
+```erb
+<p class="hero-lead">Ruby と Rails の知識を記事にして発信する、技術記事共有スペース。</p>
+```
+
+次のように変更します。
+
+```erb
+<p class="hero-lead">Ruby と Rails の知識を記事にして発信する、技術記事共有スペース。</p>
+<p class="hero-lead">授業で学んだエラー、Git、AWSの気づきを記事として残していきましょう。</p>
+```
+
+ブラウザのCodespacesプレビューを再読み込みし、追加した文章が表示されることを確認します。
+
+---
+
+## Step 15：【Codespaces】1周目をcommitしてpushする
+
+変更状態を確認します。
+
+```bash
+git status
+```
+
+`app/views/articles/index.html.erb`が変更されていることを確認します。
+
+差分を確認します。
+
+```bash
+git diff
+```
+
+追加した行が`+`付きで表示されることを確認します。
+
+commitに含めます。
+
+```bash
+git add app/views/articles/index.html.erb
+```
+
+commitします。
+
+```bash
+git commit -m "トップ画面に授業用の説明を追加"
+```
+
+GitHubへpushします。
+
+```bash
+git push origin main
+```
+
+GitHubの自分用リポジトリを開き、commitが増えていることを確認します。
+
+---
+
+## Step 16：【EC2 ①】1周目をdeployする
+
+EC2 ①のターミナルで実行します。
+
+Railsアプリのディレクトリへ移動します。
+
+```bash
+cd ~/rails-dojo-week13-自分の名前
+```
+
+最新コードを取得します。
+
+```bash
+git pull
+```
+
+commit hashを確認します。
+
+```bash
+git log --oneline -1
+```
+
+環境変数を読み込みます。
+
+```bash
+source ~/rails-dojo-week13.env
+```
+
+Rails serverを停止します。
+
+```bash
+kill "$(cat tmp/pids/server.pid)"
+```
+
+PIDファイルを削除します。
+
+```bash
+rm -f tmp/pids/server.pid
+```
+
+Rails serverを起動します。
+
+```bash
+bin/rails server -b 0.0.0.0 -p 3000 -d
+```
+
+起動を確認します。
+
+```bash
+curl http://localhost:3000/up
+```
+
+---
+
+## Step 17：【EC2 ②】1周目をdeployする
+
+EC2 ②でも、EC2 ①と同じ作業を行います。
+
+```bash
+cd ~/rails-dojo-week13-自分の名前
+```
+
+```bash
+git pull
+```
+
+```bash
+git log --oneline -1
+```
+
+```bash
+source ~/rails-dojo-week13.env
+```
+
+```bash
+kill "$(cat tmp/pids/server.pid)"
+```
+
+```bash
+rm -f tmp/pids/server.pid
+```
+
+```bash
+bin/rails server -b 0.0.0.0 -p 3000 -d
+```
+
+```bash
+curl http://localhost:3000/up
+```
+
+EC2 ①とEC2 ②で、`git log --oneline -1`のcommit hashが同じことを確認します。
+
+---
+
+## Step 18：【ブラウザ】1周目の反映をALBで確認する
+
+ALBのURLを開きます。
+
+```text
+http://ALBのDNS名
+```
+
+トップ画面に、追加した次の文章が表示されることを確認します。
+
+```text
+授業で学んだエラー、Git、AWSの気づきを記事として残していきましょう。
+```
+
+何度かリロードしても同じ文章が表示されれば、2台とも反映できています。
+
+---
+
+# 2周目：Articleにcategoryを追加してdeployする
+
+2周目では、`articles`テーブルに列を追加します。
+
+この周では、deploy時にRDSへmigrationを実行します。
+
+## Step 19：【Codespaces】category列を追加するmigrationを作る
+
+Codespacesのターミナルで実行します。
+
+```bash
+bin/rails generate migration AddCategoryToArticles category:string
+```
+
+migrationファイルが作成されたことを確認します。
+
+```bash
+ls db/migrate
+```
+
+development環境のDBへmigrationを実行します。
+
+```bash
+bin/rails db:migrate
+```
+
+エラーが出ず、プロンプトへ戻れば成功です。
+
+---
+
+## Step 20：【Codespaces】strong parametersへcategoryを追加する
+
+次のファイルを開きます。
+
+```text
+app/controllers/articles_controller.rb
+```
+
+`article_params`を探します。
+
+変更前：
+
+```ruby
+params.expect(article: [ :title, :body ])
+```
+
+変更後：
+
+```ruby
+params.expect(article: [ :title, :body, :category ])
+```
+
+保存します。
+
+---
+
+## Step 21：【Codespaces】記事フォームへcategoryを追加する
+
+次のファイルを開きます。
+
+```text
+app/views/articles/_form.html.erb
+```
+
+`title`の入力欄と`body`の入力欄の間に、次を追加します。
+
+```erb
+<div class="field">
+  <%= form.label :category, "カテゴリ" %>
+  <%= form.text_field :category, placeholder: "Rails / Git / AWS など" %>
+</div>
+```
+
+保存します。
+
+---
+
+## Step 22：【Codespaces】記事一覧と詳細にcategoryを表示する
+
+次のファイルを開きます。
+
+```text
+app/views/articles/_article.html.erb
+```
+
+タイトルや本文を表示している場所の近くに、次を追加します。
+
+```erb
+<% if article.category.present? %>
+  <p class="article-category">カテゴリ：<%= article.category %></p>
+<% end %>
+```
+
+次のファイルも開きます。
+
+```text
+app/views/articles/show.html.erb
+```
+
+詳細画面の`detail-meta`の中に、次を追加します。
+
+```erb
+<% if @article.category.present? %>
+  <span>カテゴリ：<%= @article.category %></span>
+<% end %>
+```
+
+保存します。
+
+---
+
+## Step 23：【Codespaces】カテゴリ付き記事を作成して確認する
+
+Codespacesのブラウザプレビューで記事作成画面を開きます。
+
+次の記事を作成します。
+
+```text
+タイトル：migrationを含むdeploy
+カテゴリ：AWS
+本文：本番環境でもdb:migrateが必要になることを確認しました。
+```
+
+記事一覧または詳細画面に、カテゴリ`AWS`が表示されることを確認します。
+
+---
+
+## Step 24：【Codespaces】2周目をcommitしてpushする
+
+変更状態を確認します。
+
+```bash
+git status
+```
+
+差分を確認します。
+
+```bash
+git diff
+```
+
+migration、controller、viewの変更が含まれていることを確認します。
+
+変更をcommitに含めます。
+
+```bash
+git add db/migrate app/controllers/articles_controller.rb app/views/articles/_form.html.erb app/views/articles/_article.html.erb app/views/articles/show.html.erb db/schema.rb
+```
+
+commitします。
+
+```bash
+git commit -m "記事にカテゴリを追加"
+```
+
+GitHubへpushします。
+
+```bash
+git push origin main
+```
+
+---
+
+## Step 25：【EC2 ①】2周目をdeployし、RDSへmigrationする
+
+EC2 ①のターミナルで実行します。
+
+```bash
+cd ~/rails-dojo-week13-自分の名前
+```
+
+最新コードを取得します。
+
+```bash
+git pull
+```
+
+環境変数を読み込みます。
+
+```bash
+source ~/rails-dojo-week13.env
+```
+
+RDSへmigrationを実行します。
+
+```bash
+bin/rails db:migrate
+```
+
+エラーが出ず、プロンプトへ戻れば成功です。
+
+Rails serverを再起動します。
+
+```bash
+kill "$(cat tmp/pids/server.pid)"
+```
+
+```bash
+rm -f tmp/pids/server.pid
+```
+
+```bash
+bin/rails server -b 0.0.0.0 -p 3000 -d
+```
+
+```bash
+curl http://localhost:3000/up
+```
+
+---
+
+## Step 26：【EC2 ②】2周目をdeployする
+
+EC2 ②のターミナルで実行します。
+
+```bash
+cd ~/rails-dojo-week13-自分の名前
+```
+
+```bash
+git pull
+```
+
+```bash
+source ~/rails-dojo-week13.env
+```
+
+EC2 ②では、`bin/rails db:migrate`を実行しません。
+
+RDSはEC2 ①と共通で、Step 25でmigration済みだからです。
+
+Rails serverを再起動します。
+
+```bash
+kill "$(cat tmp/pids/server.pid)"
+```
+
+```bash
+rm -f tmp/pids/server.pid
+```
+
+```bash
+bin/rails server -b 0.0.0.0 -p 3000 -d
+```
+
+```bash
+curl http://localhost:3000/up
+```
+
+EC2 ①とEC2 ②で、commit hashが同じことを確認します。
+
+```bash
+git log --oneline -1
+```
+
+---
+
+## Step 27：【ブラウザ】カテゴリ付き記事をALBで確認する
+
+ALBのURLを開きます。
+
+```text
+http://ALBのDNS名
+```
+
+記事作成画面から、次の記事を作成します。
+
+```text
+タイトル：本番DBへmigrationしました
+カテゴリ：RDS
+本文：EC2 ①でdb:migrateを実行し、EC2 ②からも同じ記事を表示できます。
+```
+
+記事一覧または詳細画面に、カテゴリ`RDS`が表示されることを確認します。
+
+ALBのURLを何度かリロードします。
+
+カテゴリが毎回表示されれば、2台とも新しいコードで動いています。
+
+---
+
+## Step 28：【EC2 ①】RDSにcategory列があることを確認する
+
+EC2 ①のターミナルで実行します。
+
+```bash
+bin/rails runner 'puts Article.column_names'
+```
+
+表示の中に次が含まれていれば成功です。
+
+```text
+category
+```
+
+---
+
+# 3周目：Author scaffoldを追加してdeployする
+
+3周目では、記事を書いた人のプロフィールを管理するCRUDを追加します。
+
+この周では、scaffoldによってmodel、controller、view、route、migrationがまとめて追加されます。
+
+## Step 29：【Codespaces】Author scaffoldを作る
+
+Codespacesのターミナルで実行します。
+
+```bash
+bin/rails generate scaffold Author name:string role:string bio:text
+```
+
+development環境のDBへmigrationを実行します。
+
+```bash
+bin/rails db:migrate
+```
+
+routesを確認します。
+
+```bash
+bin/rails routes | grep authors
+```
+
+`authors`に関するrouteが表示されれば成功です。
+
+---
+
+## Step 30：【Codespaces】ナビゲーションにAuthorsリンクを追加する
+
+次のファイルを開きます。
+
+```text
+app/views/layouts/application.html.erb
+```
+
+ナビゲーション部分を探します。
+
+```erb
+<%= link_to "記事を探す", articles_path, class: "nav-link" %>
+<%= link_to "記事を書く", new_article_path, class: "button button-primary" %>
+```
+
+次のように、Authorsへのリンクを追加します。
+
+```erb
+<%= link_to "記事を探す", articles_path, class: "nav-link" %>
+<%= link_to "著者を見る", authors_path, class: "nav-link" %>
+<%= link_to "記事を書く", new_article_path, class: "button button-primary" %>
+```
+
+保存します。
+
+---
+
+## Step 31：【Codespaces】Author CRUDを確認する
+
+Codespacesのブラウザプレビューで次を開きます。
+
+```text
+/authors
+```
+
+Authorを1件作成します。
+
+```text
+Name：山田 太郎
+Role：Rails学習者
+Bio：GitとAWSを使ってCodeShelfを育てています。
+```
+
+次を確認します。
+
+- 一覧にAuthorが表示される
+- 詳細画面を開ける
+- 編集できる
+- 削除できる
+
+---
+
+## Step 32：【Codespaces】3周目をcommitしてpushする
+
+変更状態を確認します。
+
+```bash
+git status
+```
+
+scaffoldで追加されたファイルが多く表示されます。
+
+差分を確認します。
+
+```bash
+git diff
+```
+
+新規ファイルも含めて確認します。
+
+```bash
+git status --short
+```
+
+変更をcommitに含めます。
+
+```bash
+git add app db config test
+```
+
+commitします。
+
+```bash
+git commit -m "著者プロフィール機能を追加"
+```
+
+GitHubへpushします。
+
+```bash
+git push origin main
+```
+
+---
+
+## Step 33：【EC2 ①】3周目をdeployし、RDSへmigrationする
+
+EC2 ①のターミナルで実行します。
+
+```bash
+cd ~/rails-dojo-week13-自分の名前
+```
+
+```bash
+git pull
+```
+
+```bash
+source ~/rails-dojo-week13.env
+```
+
+RDSへmigrationを実行します。
+
+```bash
+bin/rails db:migrate
+```
+
+Rails serverを再起動します。
+
+```bash
+kill "$(cat tmp/pids/server.pid)"
+```
+
+```bash
+rm -f tmp/pids/server.pid
+```
+
+```bash
+bin/rails server -b 0.0.0.0 -p 3000 -d
+```
+
+```bash
+curl http://localhost:3000/up
+```
+
+---
+
+## Step 34：【EC2 ②】3周目をdeployする
+
+EC2 ②のターミナルで実行します。
+
+```bash
+cd ~/rails-dojo-week13-自分の名前
+```
+
+```bash
+git pull
+```
+
+```bash
+source ~/rails-dojo-week13.env
+```
+
+EC2 ②では、`bin/rails db:migrate`を実行しません。
+
+Rails serverを再起動します。
+
+```bash
+kill "$(cat tmp/pids/server.pid)"
+```
+
+```bash
+rm -f tmp/pids/server.pid
+```
+
+```bash
+bin/rails server -b 0.0.0.0 -p 3000 -d
+```
+
+```bash
+curl http://localhost:3000/up
+```
+
+EC2 ①とEC2 ②で、commit hashが同じことを確認します。
+
+```bash
+git log --oneline -1
+```
+
+---
+
+## Step 35：【ブラウザ】Author CRUDをALBで確認する
+
+ALBのURLを開きます。
+
+```text
+http://ALBのDNS名
+```
+
+ナビゲーションの`著者を見る`をクリックします。
+
+Authorを1件作成します。
+
+```text
+Name：佐藤 花子
+Role：AWS担当
+Bio：ALBとRDSを使ったdeployを練習しました。
+```
+
+次を確認します。
+
+- `/authors`をALB経由で開ける
+- Authorを作成できる
+- 一覧に表示される
+- 詳細を開ける
+- 編集できる
+- 削除できる
+
+ALBのURLを何度かリロードし、同じAuthorが表示されることを確認します。
+
+---
+
+## Step 36：2台とも同じcommitで動いていることを確認する
+
+EC2 ①で実行します。
+
+```bash
+cd ~/rails-dojo-week13-自分の名前
+```
+
+```bash
+git log --oneline -1
+```
+
+EC2 ②でも同じコマンドを実行します。
+
+```bash
+cd ~/rails-dojo-week13-自分の名前
+```
+
+```bash
+git log --oneline -1
+```
+
+2台で同じcommit hashが表示されれば成功です。
+
+ターゲットグループも確認します。
+
+```text
+rails-dojo-week13-tg
+```
+
+2台とも次の状態であることを確認します。
+
+```text
+Healthy
+```
+
+---
+
+## Step 37：3周の違いを確認する
+
+今回の3周を振り返ります。
+
+| 周 | 変更内容 | 本番DBのmigration | EC2 2台の再起動 |
+|---|---|---|---|
+| 1周目 | view変更 | 不要 | 必要 |
+| 2周目 | `Article`に列追加 | 必要 | 必要 |
+| 3周目 | `Author` scaffold追加 | 必要 | 必要 |
+
+同じdeployでも、変更内容によって必要な作業が変わります。
+
+最後に、ALBのURLで次を確認します。
+
+- トップ画面に1周目の説明文が表示される
+- 記事にカテゴリを付けられる
+- `/authors`で著者プロフィールCRUDを使える
+
+---
+
+## トラブルシューティング
+
+### `git pull`しても本番画面が変わらない
+
+- Rails serverを再起動したか確認します。
+- EC2 ①とEC2 ②の両方で`git pull`したか確認します。
+- ALBのURLを何度かリロードし、古い表示が混ざっていないか確認します。
+
+### `bin/rails db:migrate`で失敗する
+
+- `source ~/rails-dojo-week13.env`を実行したか確認します。
+- `DATABASE_URL`のRDS endpointが正しいか確認します。
+- RDSが`Available`になっているか確認します。
+
+### ALBのターゲットが`Unhealthy`になる
+
+対象のEC2で確認します。
+
+```bash
+curl http://localhost:3000/up
+```
+
+Rails serverが動いていない場合は、環境変数を読み込み、再起動します。
+
+```bash
+source ~/rails-dojo-week13.env
+```
+
+```bash
+bin/rails server -b 0.0.0.0 -p 3000 -d
+```
+
+### `kill`でエラーになる
+
+Rails serverがすでに停止している場合があります。
+
+PIDファイルを削除してから起動します。
+
+```bash
+rm -f tmp/pids/server.pid
+```
+
+```bash
+bin/rails server -b 0.0.0.0 -p 3000 -d
+```
+
+### 片方のEC2だけ古い画面になる
+
+EC2 ①とEC2 ②でcommit hashを確認します。
+
+```bash
+git log --oneline -1
+```
+
+違うcommitが表示された場合は、古い方のEC2で`git pull`し、Rails serverを再起動します。
+
+---
+
+Practiceが終わったら、[Stretch](stretch.md)へ進みましょう。
