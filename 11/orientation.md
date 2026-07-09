@@ -1,5 +1,7 @@
 # 第11週：AWSデプロイ体験（3）── ALBを使ってRailsアプリを公開する
 
+[PDF資料](https://drive.google.com/file/d/1KGHOV2oIH4GweJHYssENa7OM3ShiPb-C/view?usp=drive_link)
+
 ## 今日のゴール
 
 前回は、EC2のパブリックIPアドレスと3000番ポートを使って、Railsアプリへ直接アクセスしました。
