@@ -136,7 +136,7 @@ rails-dojo-week11
 
 ## Step 4：スタックの作成完了を待つ
 
-CloudFormationのスタック一覧で、`rails-dojo-week11` を開きます。
+CloudFormationの、`rails-dojo-week11` が自動的に開かれます。
 
 `イベント` タブを開くと、作成中のリソースが表示されます。
 
@@ -147,6 +147,8 @@ CREATE_COMPLETE
 ```
 
 数分かかることがあります。
+
+![](../images/cf-create-complete.png)
 
 > [!IMPORTANT]
 > `CREATE_COMPLETE` になるまでは、次のStepへ進まないでください。
