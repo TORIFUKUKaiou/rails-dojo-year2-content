@@ -928,7 +928,20 @@ sudo apt update
 必要なパッケージをインストールします。
 
 ```bash
-sudo apt install -y git curl build-essential autoconf libssl-dev libyaml-dev zlib1g-dev libffi-dev libgmp-dev libreadline-dev rustc libsqlite3-dev sqlite3 pkg-config
+sudo apt install -y git \
+curl \
+build-essential \
+autoconf \
+libssl-dev \
+libyaml-dev \
+zlib1g-dev \
+libffi-dev \
+libgmp-dev \
+libreadline-dev \
+rustc \
+libsqlite3-dev \
+sqlite3 \
+pkg-config
 ```
 
 miseをインストールします。
