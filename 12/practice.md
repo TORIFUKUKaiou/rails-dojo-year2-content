@@ -814,13 +814,19 @@ SECRET_KEY_BASE
 > `echo $DATABASE_URL`や`echo $SECRET_KEY_BASE`は実行しません。
 > パスワードや秘密値が画面へ表示されます。
 
-EC2 ①とEC2 ②は同じRDSを使っています。データベースの準備はEC2 ①で終わっているため、EC2 ②では必ずしも、`bin/rails db:prepare`を実行する必要はありません。ただし、正しく設定がされていることを確認するため、ここでは実行します。
+EC2 ①とEC2 ②は同じRDSを使っています。データベースの準備はEC2 ①で終わっているため、EC2 ②では`bin/rails db:prepare`を実行しません。
+
+EC2 ②のRailsが接続しているデータベース名を確認します。
 
 ```bash
-bin/rails db:prepare
+bin/rails runner 'puts ActiveRecord::Base.connection.select_value("SELECT current_database()")'
 ```
 
-なにも出力されず、プロンプトへ戻れば成功です。
+次のように表示されれば、EC2 ②のRailsも`rails_dojo_production`へ接続できています。
+
+```text
+rails_dojo_production
+```
 
 ---
 
