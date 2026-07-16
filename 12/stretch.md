@@ -182,7 +182,7 @@ SECRET_KEY_BASE
 RAILS_ASSET_HOST
 ```
 
-表示されない変数がある場合は、PracticeのStep 16を見て、同じ値をもう一度設定します。
+表示されない変数がある場合は、[PracticeのStep 15](practice.md#step-15ec2-①へ環境変数を設定する)を見て、同じ値をもう一度設定します。
 
 ---
 
@@ -240,7 +240,7 @@ export RAILS_ASSET_HOST='https://作成したバケット名.s3.amazonaws.com'
 env | grep -E '^(DATABASE_URL|RAILS_ENV|SECRET_KEY_BASE|RAILS_ASSET_HOST)=' | cut -d= -f1
 ```
 
-表示されない変数がある場合は、PracticeのStep 17を見て、同じ値をもう一度設定します。
+表示されない変数がある場合は、[PracticeのStep 22](practice.md#step-22ec2-②へec2-①と同じ環境変数を設定する)を見て、同じ値をもう一度設定します。
 
 Rails serverを再起動します。
 
@@ -274,9 +274,13 @@ http://ALBのDNS名
 
 ページのHTMLを確認し、CSSやJavaScriptのURLに次のS3バケット名が含まれていることを探します。
 
+右クリック -> 「ページのソースを表示」
+
 ```text
 作成したバケット名.s3.amazonaws.com
 ```
+
+![](../images/show-page-source.png)
 
 HTMLはEC2上のRailsから、CSSやJavaScriptはS3から配信されていれば成功です。
 
