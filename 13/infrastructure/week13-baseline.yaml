@@ -125,9 +125,14 @@ Resources:
   Ec2SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow Rails from the Week 13 ALB
+      GroupDescription: Allow Rails from the Week 13 ALB and temporary direct access
       VpcId: !Ref RailsDojoVpc
       SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          CidrIp: 0.0.0.0/0
+          Description: Temporary direct access for troubleshooting during the lesson
         - IpProtocol: tcp
           FromPort: 3000
           ToPort: 3000
