@@ -42,7 +42,7 @@ rails-dojo-assets-学籍番号
 
 `バケットポリシー`へ次を入力します。
 
-`作成したバケット名`は、自分のバケット名へ2か所とも置き換えます。
+`作成したバケット名`は、自分のバケット名へ置き換えます。
 
 ```json
 {
@@ -191,7 +191,7 @@ RAILS_ASSET_HOST
 現在動いているRails serverを停止します。
 
 ```bash
-kill "$(cat tmp/pids/server.pid)"
+pkill -9 -f 'puma.*rails-dojo-git-practice'
 ```
 
 Rails serverを起動します。
@@ -245,7 +245,7 @@ env | grep -E '^(DATABASE_URL|RAILS_ENV|SECRET_KEY_BASE|RAILS_ASSET_HOST)=' | cu
 Rails serverを再起動します。
 
 ```bash
-kill "$(cat tmp/pids/server.pid)"
+pkill -9 -f 'puma.*rails-dojo-git-practice'
 ```
 
 ```bash
