@@ -1,5 +1,7 @@
 # 第12週：AWSデプロイ体験（4）── 2台のRailsからRDSを使う
 
+[PDF資料](https://drive.google.com/file/d/1jW6bSoLoISbmUSbmNWdYJ_3l-jv6T3tr/view?usp=drive_link)
+
 ## 今日のゴール
 
 前回は、異なるAvailability ZoneにEC2を1台ずつ置き、ALBから2台のRailsへ通信を振り分けました。
