@@ -1,5 +1,7 @@
 # 第13週：DevOps体験 ── 開発した変更を本番環境へ届ける
 
+[PDF資料](https://drive.google.com/file/d/1uO9eH8U_OFBRrdZrJHbV8wEvRPrCPn8N/view?usp=drive_link)
+
 ## 今日のゴール
 
 第12週では、2台のRailsアプリから同じRDS PostgreSQLを使う構成を作りました。
