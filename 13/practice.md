@@ -147,6 +147,12 @@ rails-dojo-week13-yamada
 
 `Public`を選びます。
 
+---
+
+![](../images/Createanewrepository.png)
+
+---
+
 作成できたら、自分用リポジトリのURLを確認します。
 
 ```text
@@ -163,7 +169,7 @@ https://github.com/自分のユーザー名/rails-dojo-week13-自分の名前
 
 自分用リポジトリで、`Code` → `Codespaces` → `Create codespace on main`をクリックします。
 
-VS Codeの画面が開き、ターミナルの準備が終わるまで待ちます。
+VS Codeの画面が開き、ターミナルの準備が終わるまで待ちます。（3分〜5分程度）
 
 作業場所を確認します。
 
@@ -229,7 +235,7 @@ ubuntu
 User Dataの完了を確認します。
 
 ```bash
-sudo cloud-init status
+sudo cloud-init status --wait
 ```
 
 次の表示になれば完了です。
@@ -256,6 +262,8 @@ EC2 ①のターミナルで実行します。
 git clone 自分のリポジトリURL
 ```
 
+例: `git clone https://github.com/yamauchi-haw/rails-dojo-week13-yamauchi.git`
+
 cloneしたディレクトリへ移動します。
 
 ```bash
@@ -279,8 +287,10 @@ CloudFormationの出力`RdsEndpoint`を使います。
 `RDSのendpoint`を、自分の出力値へ置き換えます。
 
 ```bash
-psql -h RDSのendpoint -U rails_dojo -d rails_dojo_production
+psql -h <RDSのendpoint> -U rails_dojo -d rails_dojo_production
 ```
+
+例: `psql -h rails-dojo-week13-db.cixstnczuqiy.us-east-1.rds.amazonaws.com -U rails_dojo -d rails_dojo_production`
 
 パスワードを求められたら、次を入力します。入力中の文字は画面に表示されません。
 
@@ -316,6 +326,9 @@ Railsアプリのディレクトリにいることを確認します。
 pwd
 ```
 
+例: `/home/ubuntu/rails-dojo-week13-yamauchi`
+
+
 `SECRET_KEY_BASE`を作成します。
 
 ```bash
@@ -339,12 +352,24 @@ nano ~/rails-dojo-week13.env
 `RDSのendpoint`と`コピーしたSECRET_KEY_BASE`は、自分の値へ置き換えます。
 
 ```bash
-export DATABASE_URL='postgresql://rails_dojo:RailsDojo2026Db@RDSのendpoint:5432/rails_dojo_production'
+export DATABASE_URL='postgresql://rails_dojo:<RailsDojo2026Db@RDSのendpoint>:5432/rails_dojo_production'
 export RAILS_ENV=production
 export SECRET_KEY_BASE='コピーしたSECRET_KEY_BASE'
 ```
 
+例
+```
+export DATABASE_URL='postgresql://rails_dojo:RailsDojo2026Db@rails-dojo-week13-db.cixstnczuqiy.us-east-1.rds.amazonaws.com:5432/rails_dojo_production'
+export RAILS_ENV=production
+export SECRET_KEY_BASE='8608583b336e05c7da098ae1c9b523b58718ccb9478609863f2dfb2b3437b57f20c64767caae9eb32342e208dc559a1b716fa9631078d16d3f8d8370c7add1c4'
+```
+
 保存して閉じます。
+
+操作は、次のように行います。
+
+- 保存: `Ctl + o` ののちEnterキー
+- nanoエディタを閉じる: `Ctl + x`
 
 設定を読み込みます。
 
@@ -376,6 +401,8 @@ EC2 ①のターミナルで実行します。
 bin/rails db:prepare
 ```
 
+※ 成功の場合は、何も表示されません。何か出力された場合は設定をミスっているので、内容をよく読んで修正してください。一番多い間違いは、 `DATABASE_URL` の設定誤りです。
+
 production用のアセットを準備します。
 
 ```bash
@@ -395,6 +422,8 @@ curl http://localhost:3000/up
 ```
 
 HTMLが表示されれば、EC2 ①のRails serverは起動しています。
+
+`<!DOCTYPE html><html><body style="background-color: green"></body></html>`
 
 ---
 
@@ -419,7 +448,7 @@ source ~/.bashrc
 User Dataの完了を確認します。
 
 ```bash
-sudo cloud-init status
+sudo cloud-init status --wait
 ```
 
 次の表示になれば完了です。
@@ -433,6 +462,8 @@ status: done
 ```bash
 git clone 自分のリポジトリURL
 ```
+
+例: `git clone https://github.com/yamauchi-haw/rails-dojo-week13-yamauchi.git`
 
 cloneしたディレクトリへ移動します。
 
@@ -461,6 +492,11 @@ export SECRET_KEY_BASE='コピーしたSECRET_KEY_BASE'
 ```
 
 保存して閉じます。
+
+操作は、次のように行います。
+
+- 保存: `Ctl + o` ののちEnterキー
+- nanoエディタを閉じる: `Ctl + x`
 
 設定を読み込みます。
 
@@ -492,6 +528,8 @@ curl http://localhost:3000/up
 
 HTMLが表示されれば、EC2 ②のRails serverも起動しています。
 
+`<!DOCTYPE html><html><body style="background-color: green"></body></html>`
+
 ---
 
 ## Step 13：ALBでas-isを確認する
@@ -516,13 +554,15 @@ http://ALBのDNS名
 Healthy
 ```
 
+※ 30秒間隔のヘルスチェックに連続5回成功で、`Healthy`となります。 `Unhealthy` の場合は、3分程度待つ必要があります。
+
 ---
 
 # 1周目：画面だけを変更してdeployする
 
 1周目では、データベースを変更しません。
 
-Codespacesで画面を変更し、GitHubへpushし、EC2 2台で `git pull` して反映します。
+<b><font color="red">Codespaces</font></b> で画面を変更し、GitHubへpushし、EC2 2台で `git pull` して反映します。
 
 ## Step 14：【Codespaces】トップ画面の説明を追加する
 
@@ -624,14 +664,36 @@ source ~/rails-dojo-week13.env
 Rails serverを停止します。
 
 ```bash
-kill "$(cat tmp/pids/server.pid)"
+ps aux | grep puma
 ```
 
-PIDファイルを削除します。
+実行すると、たとえば次のように表示されます。
+
+```text
+ubuntu      5954  0.1  4.0 1276136 157736 ?      Ssl  00:58   0:01 puma 8.0.2 (tcp://0.0.0.0:3000) [rails-dojo-week13-yamauchi]
+ubuntu      6192  0.0  0.0   7144  2352 pts/3    S+   01:14   0:00 grep --color=auto puma
+```
+
+`puma` と表示されている行の、左から2番目の数字がPIDです。
+
+この例では `5954` です。
 
 ```bash
-rm -f tmp/pids/server.pid
+kill -9 5954
 ```
+
+これでPumaを停止できます。
+
+**注意:** `5954` は毎回同じとは限りません。必ず自分の環境で `ps aux | grep puma` を実行してPIDを確認してください。
+
+停止できたことを確認するには、もう一度実行します。
+
+```bash
+ps aux | grep puma
+```
+
+`grep --color=auto puma` の行しか表示されなければ、Pumaは停止しています。
+
 
 Rails serverを起動します。
 
@@ -667,13 +729,38 @@ git log --oneline -1
 source ~/rails-dojo-week13.env
 ```
 
-```bash
-kill "$(cat tmp/pids/server.pid)"
-```
+Rails serverを停止します。
 
 ```bash
-rm -f tmp/pids/server.pid
+ps aux | grep puma
 ```
+
+実行すると、たとえば次のように表示されます。
+
+```text
+ubuntu      5954  0.1  4.0 1276136 157736 ?      Ssl  00:58   0:01 puma 8.0.2 (tcp://0.0.0.0:3000) [rails-dojo-week13-yamauchi]
+ubuntu      6192  0.0  0.0   7144  2352 pts/3    S+   01:14   0:00 grep --color=auto puma
+```
+
+`puma` と表示されている行の、左から2番目の数字がPIDです。
+
+この例では `5954` です。
+
+```bash
+kill -9 5954
+```
+
+これでPumaを停止できます。
+
+**注意:** `5954` は毎回同じとは限りません。必ず自分の環境で `ps aux | grep puma` を実行してPIDを確認してください。
+
+停止できたことを確認するには、もう一度実行します。
+
+```bash
+ps aux | grep puma
+```
+
+`grep --color=auto puma` の行しか表示されなければ、Pumaは停止しています。
 
 ```bash
 bin/rails server -b 0.0.0.0 -p 3000 -d
@@ -713,11 +800,13 @@ http://ALBのDNS名
 
 ## Step 19：【Codespaces】category列を追加するmigrationを作る
 
-Codespacesのターミナルで実行します。
+<b><font color="red">Codespaces</font></b> のターミナルで実行します。
 
 ```bash
 bin/rails generate migration AddCategoryToArticles category:string
 ```
+
+※ もしエラーがでた場合は、ターミナルを新しく立ち上げてください。
 
 migrationファイルが作成されたことを確認します。
 
@@ -757,7 +846,9 @@ params.expect(article: [ :title, :body ])
 params.expect(article: [ :title, :body, :category ])
 ```
 
-保存します。
+保存します。  
+
+※ Codespacesの設定で自動で保存されるようになっています。
 
 ---
 
@@ -830,6 +921,8 @@ Codespacesのブラウザプレビューで記事作成画面を開きます。
 
 記事一覧または詳細画面に、カテゴリ`AWS`が表示されることを確認します。
 
+※ 失敗する場合は、 <b><font color="red">Codespaces</font></b> 上のRailsを再起動してください。(`Ctl + c` で停めて、 `bin/rails server` です。)
+
 ---
 
 ## Step 24：【Codespaces】2周目をcommitしてpushする
@@ -899,12 +992,35 @@ bin/rails db:migrate
 Rails serverを再起動します。
 
 ```bash
-kill "$(cat tmp/pids/server.pid)"
+ps aux | grep puma
 ```
 
-```bash
-rm -f tmp/pids/server.pid
+実行すると、たとえば次のように表示されます。
+
+```text
+ubuntu      5954  0.1  4.0 1276136 157736 ?      Ssl  00:58   0:01 puma 8.0.2 (tcp://0.0.0.0:3000) [rails-dojo-week13-yamauchi]
+ubuntu      6192  0.0  0.0   7144  2352 pts/3    S+   01:14   0:00 grep --color=auto puma
 ```
+
+`puma` と表示されている行の、左から2番目の数字がPIDです。
+
+この例では `5954` です。
+
+```bash
+kill -9 5954
+```
+
+これでPumaを停止できます。
+
+**注意:** `5954` は毎回同じとは限りません。必ず自分の環境で `ps aux | grep puma` を実行してPIDを確認してください。
+
+停止できたことを確認するには、もう一度実行します。
+
+```bash
+ps aux | grep puma
+```
+
+`grep --color=auto puma` の行しか表示されなければ、Pumaは停止しています。
 
 ```bash
 bin/rails server -b 0.0.0.0 -p 3000 -d
@@ -939,12 +1055,35 @@ RDSはEC2 ①と共通で、Step 25でmigration済みだからです。
 Rails serverを再起動します。
 
 ```bash
-kill "$(cat tmp/pids/server.pid)"
+ps aux | grep puma
 ```
 
-```bash
-rm -f tmp/pids/server.pid
+実行すると、たとえば次のように表示されます。
+
+```text
+ubuntu      5954  0.1  4.0 1276136 157736 ?      Ssl  00:58   0:01 puma 8.0.2 (tcp://0.0.0.0:3000) [rails-dojo-week13-yamauchi]
+ubuntu      6192  0.0  0.0   7144  2352 pts/3    S+   01:14   0:00 grep --color=auto puma
 ```
+
+`puma` と表示されている行の、左から2番目の数字がPIDです。
+
+この例では `5954` です。
+
+```bash
+kill -9 5954
+```
+
+これでPumaを停止できます。
+
+**注意:** `5954` は毎回同じとは限りません。必ず自分の環境で `ps aux | grep puma` を実行してPIDを確認してください。
+
+停止できたことを確認するには、もう一度実行します。
+
+```bash
+ps aux | grep puma
+```
+
+`grep --color=auto puma` の行しか表示されなければ、Pumaは停止しています。
 
 ```bash
 bin/rails server -b 0.0.0.0 -p 3000 -d
@@ -1151,12 +1290,35 @@ bin/rails db:migrate
 Rails serverを再起動します。
 
 ```bash
-kill "$(cat tmp/pids/server.pid)"
+ps aux | grep puma
 ```
 
-```bash
-rm -f tmp/pids/server.pid
+実行すると、たとえば次のように表示されます。
+
+```text
+ubuntu      5954  0.1  4.0 1276136 157736 ?      Ssl  00:58   0:01 puma 8.0.2 (tcp://0.0.0.0:3000) [rails-dojo-week13-yamauchi]
+ubuntu      6192  0.0  0.0   7144  2352 pts/3    S+   01:14   0:00 grep --color=auto puma
 ```
+
+`puma` と表示されている行の、左から2番目の数字がPIDです。
+
+この例では `5954` です。
+
+```bash
+kill -9 5954
+```
+
+これでPumaを停止できます。
+
+**注意:** `5954` は毎回同じとは限りません。必ず自分の環境で `ps aux | grep puma` を実行してPIDを確認してください。
+
+停止できたことを確認するには、もう一度実行します。
+
+```bash
+ps aux | grep puma
+```
+
+`grep --color=auto puma` の行しか表示されなければ、Pumaは停止しています。
 
 ```bash
 bin/rails server -b 0.0.0.0 -p 3000 -d
@@ -1189,12 +1351,35 @@ EC2 ②では、`bin/rails db:migrate`を実行しません。
 Rails serverを再起動します。
 
 ```bash
-kill "$(cat tmp/pids/server.pid)"
+ps aux | grep puma
 ```
 
-```bash
-rm -f tmp/pids/server.pid
+実行すると、たとえば次のように表示されます。
+
+```text
+ubuntu      5954  0.1  4.0 1276136 157736 ?      Ssl  00:58   0:01 puma 8.0.2 (tcp://0.0.0.0:3000) [rails-dojo-week13-yamauchi]
+ubuntu      6192  0.0  0.0   7144  2352 pts/3    S+   01:14   0:00 grep --color=auto puma
 ```
+
+`puma` と表示されている行の、左から2番目の数字がPIDです。
+
+この例では `5954` です。
+
+```bash
+kill -9 5954
+```
+
+これでPumaを停止できます。
+
+**注意:** `5954` は毎回同じとは限りません。必ず自分の環境で `ps aux | grep puma` を実行してPIDを確認してください。
+
+停止できたことを確認するには、もう一度実行します。
+
+```bash
+ps aux | grep puma
+```
+
+`grep --color=auto puma` の行しか表示されなければ、Pumaは停止しています。
 
 ```bash
 bin/rails server -b 0.0.0.0 -p 3000 -d
