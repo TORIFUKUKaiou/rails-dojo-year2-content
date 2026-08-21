@@ -1149,7 +1149,7 @@ category
 
 ## Step 29：【Codespaces】Author scaffoldを作る
 
-Codespacesのターミナルで実行します。
+<b><font color="red">Codespaces</font></b> のターミナルで実行します。
 
 ```bash
 bin/rails generate scaffold Author name:string role:string bio:text
