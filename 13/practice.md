@@ -354,7 +354,7 @@ nano ~/rails-dojo-week13.env
 `RDSのendpoint`と`コピーしたSECRET_KEY_BASE`は、自分の値へ置き換えます。
 
 ```bash
-export DATABASE_URL='postgresql://rails_dojo:<RailsDojo2026Db@RDSのendpoint>:5432/rails_dojo_production'
+export DATABASE_URL='postgresql://rails_dojo:RailsDojo2026Db@<RDSのendpoint>:5432/rails_dojo_production'
 export RAILS_ENV=production
 export SECRET_KEY_BASE='コピーしたSECRET_KEY_BASE'
 ```
@@ -488,7 +488,7 @@ nano ~/rails-dojo-week13.env
 EC2 ①と同じ値を入力します。
 
 ```bash
-export DATABASE_URL='postgresql://rails_dojo:RailsDojo2026Db@RDSのendpoint:5432/rails_dojo_production'
+export DATABASE_URL='postgresql://rails_dojo:RailsDojo2026Db@<RDSのendpoint>:5432/rails_dojo_production'
 export RAILS_ENV=production
 export SECRET_KEY_BASE='コピーしたSECRET_KEY_BASE'
 ```
