@@ -617,10 +617,30 @@ commitに含めます。
 git add app/views/articles/index.html.erb
 ```
 
+`git add`した直後に、commitへ含める変更がそろっているか確認します。
+
+```bash
+git status
+```
+
+`Changes to be committed`に`app/views/articles/index.html.erb`が表示され、`Changes not staged for commit`や`Untracked files`が表示されないことを確認します。
+
 commitします。
 
 ```bash
 git commit -m "トップ画面に授業用の説明を追加"
+```
+
+commit後にも、変更が残っていないか確認します。
+
+```bash
+git status
+```
+
+次のように表示されれば成功です。
+
+```text
+nothing to commit, working tree clean
 ```
 
 GitHubへpushします。
@@ -947,10 +967,30 @@ migration、controller、viewの変更が含まれていることを確認しま
 git add db/migrate app/controllers/articles_controller.rb app/views/articles/_form.html.erb app/views/articles/_article.html.erb app/views/articles/show.html.erb db/schema.rb
 ```
 
+`git add`した直後に、commitへ含める変更がそろっているか確認します。
+
+```bash
+git status
+```
+
+`Changes to be committed`にmigration、controller、view、`db/schema.rb`が表示され、`Changes not staged for commit`や`Untracked files`が表示されないことを確認します。
+
 commitします。
 
 ```bash
 git commit -m "記事にカテゴリを追加"
+```
+
+commit後にも、変更が残っていないか確認します。
+
+```bash
+git status
+```
+
+次のように表示されれば成功です。
+
+```text
+nothing to commit, working tree clean
 ```
 
 GitHubへpushします。
@@ -1254,10 +1294,30 @@ git status --short
 git add app db config test
 ```
 
+`git add`した直後に、commitへ含める変更がそろっているか確認します。
+
+```bash
+git status
+```
+
+scaffoldで追加・変更されたファイルが`Changes to be committed`に表示され、`Changes not staged for commit`や`Untracked files`が表示されないことを確認します。
+
 commitします。
 
 ```bash
 git commit -m "著者プロフィール機能を追加"
+```
+
+commit後にも、変更が残っていないか確認します。
+
+```bash
+git status
+```
+
+次のように表示されれば成功です。
+
+```text
+nothing to commit, working tree clean
 ```
 
 GitHubへpushします。
