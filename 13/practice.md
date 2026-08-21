@@ -1,5 +1,7 @@
 # 第13週：練習 ── 手動deployを3周体験する
 
+![](../images/Gemini_Generated_Image_uehx8xuehx8xuehx.jpeg)
+
 この練習では、自分のGitHubリポジトリでCodeShelfを変更し、AWS上の2台のEC2へ手動でdeployします。
 
 先に、[第13週の説明](orientation.md)を読んでください。
