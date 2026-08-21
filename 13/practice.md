@@ -1196,6 +1196,8 @@ app/views/layouts/application.html.erb
 
 保存します。
 
+※ Codespacesの設定で自動で保存されるようになっています。
+
 ---
 
 ## Step 31：【Codespaces】Author CRUDを確認する
@@ -1206,6 +1208,7 @@ Codespacesのブラウザプレビューで次を開きます。
 /authors
 ```
 
+`New author`リンクから、  
 Authorを1件作成します。
 
 ```text
