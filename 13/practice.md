@@ -464,6 +464,8 @@ You are connected to database "rails_dojo_production" as user "rails_dojo" on ho
 
 <!-- スクリーンショット差し込み予定：psql "$DATABASE_URL" -c '\conninfo' が成功した画面。DATABASE_URLやSECRET_KEY_BASEの文字列そのものは写さない -->
 
+![](../images/conninfo2.png)
+
 ---
 
 ## Step 11：EC2 ①でas-isを起動する
@@ -506,6 +508,8 @@ HTMLが表示されれば、EC2 ①のRails serverは起動しています。
 `<!DOCTYPE html><html><body style="background-color: green"></body></html>`
 
 <!-- スクリーンショット差し込み予定：EC2 ①でcurl http://localhost:3000/up を実行し、緑色のHTMLが返る画面 -->
+
+![](../images/slash-up.png)
 
 ---
 
@@ -640,6 +644,8 @@ Healthy
 ```
 
 <!-- スクリーンショット差し込み予定：ターゲットグループのターゲットタブで、EC2 2台がHealthyと表示される画面 -->
+
+![](../images/tg-healthys13.png)
 
 ※ 30秒間隔のヘルスチェックに連続5回成功で、`Healthy`となります。 `Unhealthy` の場合は、3分程度待つ必要があります。
 
