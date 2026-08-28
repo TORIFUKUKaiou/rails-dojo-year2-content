@@ -566,11 +566,28 @@ bundle install
 EC2 ①と同じ内容で環境変数ファイルを作成します。
 
 EC2 ①とEC2 ②は別のコンピューターです。EC2 ①で作ったファイルはEC2 ②にはありません。
-Step 10を開き、同じ3行をEC2 ②にも入力します。`DATABASE_URL`、`RAILS_ENV`、`SECRET_KEY_BASE`はEC2 ①と**まったく同じ値**です。
+
+EC2 ①のSession Managerタブへ戻り、EC2 ①で作った設定ファイルの内容を表示します。
+
+```bash
+cat ~/rails-dojo-week13.env
+```
+
+`cat`は、ファイルの内容をターミナルに表示するコマンドです。ファイルの内容を変更したり、削除したりはしません。
+
+先頭が`export`の3行が表示されます。表示された3行をすべて選択してコピーします。
+
+> [!WARNING]
+> 3行目には秘密値の`SECRET_KEY_BASE`が含まれています。
+> GitHub、README、チャット、提出物には貼り付けず、次の手順でEC2 ②の設定ファイルへだけ貼り付けます。
+
+EC2 ②のSession Managerタブへ戻ります。`DATABASE_URL`、`RAILS_ENV`、`SECRET_KEY_BASE`はEC2 ①と**まったく同じ値**です。
 
 ```bash
 nano ~/rails-dojo-week13.env
 ```
+
+開いたnanoエディタに、EC2 ①でコピーした3行を貼り付けます。
 
 保存して閉じます。
 
