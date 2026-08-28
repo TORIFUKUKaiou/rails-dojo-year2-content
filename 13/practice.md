@@ -128,6 +128,7 @@ CREATE_COMPLETE
 > endpointの正本は、RDSコンソールの対象データベースに表示される値です。
 
 <!-- スクリーンショット差し込み予定：CloudFormationの「出力」タブで、Ec2Instance1Id、Ec2Instance2Id、AlbDnsName、RdsEndpoint、DatabaseName、DatabaseUserを確認する画面 -->
+![](../images/cf-outputs.png)
 
 > [!NOTE]
 > この時点ではRails serverが起動していないため、ターゲットグループの2台は`Unhealthy`になります。
