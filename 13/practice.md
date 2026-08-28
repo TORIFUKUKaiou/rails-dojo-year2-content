@@ -118,13 +118,14 @@ CREATE_COMPLETE
 | `Ec2Instance1Id` | EC2 ①へ接続するとき |
 | `Ec2Instance2Id` | EC2 ②へ接続するとき |
 | `AlbDnsName` | ブラウザで本番環境を確認するとき |
-| `RdsEndpoint` | `DATABASE_URL`を作るとき |
+| `RdsEndpoint` | RDSコンソールで確認したendpointと照らし合わせるとき |
+| `RdsPort` | `DATABASE_URL`のポート番号を確認するとき |
 | `DatabaseName` | `DATABASE_URL`のデータベース名を確認するとき |
 | `DatabaseUser` | `DATABASE_URL`のユーザー名を確認するとき |
 
 > [!IMPORTANT]
-> `RdsEndpoint`はデータベースの接続先の名前です。
-> 後の手順で使うときは、先頭に `https://` や `http://` を付けず、末尾に `:5432` も付けずに、そのままコピーします。
+> CloudFormationの出力は、後の手順でRDSコンソールから確認するendpointと照らし合わせるために控えます。
+> endpointの正本は、RDSコンソールの対象データベースに表示される値です。
 
 <!-- スクリーンショット差し込み予定：CloudFormationの「出力」タブで、Ec2Instance1Id、Ec2Instance2Id、AlbDnsName、RdsEndpoint、DatabaseName、DatabaseUserを確認する画面 -->
 
@@ -289,16 +290,48 @@ bundle install
 
 ---
 
-## Step 9：EC2 ①からRDSへ接続できることを確認する
+## Step 9：RDSコンソールでendpointを確認し、EC2 ①から接続する
 
-このStepでは、EC2 ①からRDSへ直接接続できることを確認します。
+このStepでは、RDSコンソールで接続先を確認してから、EC2 ①からRDSへ直接接続します。
 
 ここで接続できれば、RDSの接続先・ユーザー名・パスワード・ネットワーク設定は正しい状態です。
 この確認が成功してから、次のStepでRails用の`DATABASE_URL`を作ります。
 
-CloudFormationの出力`RdsEndpoint`を使います。
+### RDSコンソールでendpointを確認する
 
-`RDSのendpoint`を、自分の出力値へ置き換えます。
+1. AWSマネジメントコンソールで`RDS`を開きます。
+2. 左側のメニューから`データベース`を開きます。
+3. 次のデータベースをクリックします。
+
+```text
+rails-dojo-week13-db
+```
+
+4. ステータスが次になっていることを確認します。
+
+```text
+利用可能（Available）
+```
+
+5. `接続とセキュリティ`を開き、`エンドポイント`と`ポート`を確認します。
+
+ポートは次になっていることを確認します。
+
+```text
+5432
+```
+
+`エンドポイント`の値だけをコピーします。画面にポート番号も表示されている場合は、endpointの名前だけをコピーし、`:5432`はコピーしません。
+
+> [!IMPORTANT]
+> コピーしたendpointが、Step 4で控えた`RdsEndpoint`と完全に同じであることを確認します。
+> `http://`や`https://`は付けません。
+
+<!-- スクリーンショット差し込み予定：RDSコンソールのrails-dojo-week13-dbで、ステータスが利用可能（Available）、接続とセキュリティにendpointとポート5432が表示される画面 -->
+
+### EC2 ①からRDSへ直接接続する
+
+`RDSのendpoint`を、RDSコンソールでコピーした値へ置き換えます。
 
 ```bash
 psql -h <RDSのendpoint> -U rails_dojo -d rails_dojo_production
@@ -324,7 +357,7 @@ rails_dojo_production=>
 \conninfo
 ```
 
-表示された接続先のhostが、自分の`RdsEndpoint`と同じであることを確認します。
+表示された接続先のhostが、RDSコンソールでコピーしたendpointおよびStep 4の`RdsEndpoint`と同じであることを確認します。
 
 <!-- スクリーンショット差し込み予定：psqlでrails_dojo_production=>が表示され、\conninfoでRDSへの接続先を確認できる画面 -->
 
@@ -360,12 +393,13 @@ postgresql://rails_dojo:RailsDojo2026Db@<RDSのendpoint>:5432/rails_dojo_product
 | `postgresql://` | PostgreSQLを使う印 | 変更しない |
 | `rails_dojo` | データベースのユーザー名 | 変更しない |
 | `RailsDojo2026Db` | Step 9で入力したパスワード | 変更しない |
-| `<RDSのendpoint>` | CloudFormation出力の`RdsEndpoint` | **ここだけ置き換える** |
+| `<RDSのendpoint>` | RDSコンソールの`rails-dojo-week13-db`で確認したendpoint | **ここだけ置き換える** |
 | `5432` | PostgreSQLのポート番号 | 変更しない |
 | `rails_dojo_production` | データベース名 | 変更しない |
 
 > [!IMPORTANT]
-> `<RDSのendpoint>`だけを、自分のCloudFormation出力の`RdsEndpoint`へ置き換えます。
+> `<RDSのendpoint>`だけを、RDSコンソールで確認したendpointへ置き換えます。
+> Step 4のCloudFormation出力`RdsEndpoint`と同じ値になっていることも確認します。
 > 置き換えた後の行には、`<`、`>`、`http://`、`https://`を残しません。
 
 `SECRET_KEY_BASE`を作成します。
@@ -421,7 +455,7 @@ You are connected to database "rails_dojo_production" as user "rails_dojo" on ho
 
 > [!IMPORTANT]
 > この確認でエラーが出た場合は、次のStepへ進みません。
-> `nano ~/rails-dojo-week13.env`をもう一度開き、`RDSのendpoint`だけを自分のCloudFormation出力と照らし合わせて確認します。
+> `nano ~/rails-dojo-week13.env`をもう一度開き、`RDSのendpoint`だけをRDSコンソールとStep 4のCloudFormation出力に照らし合わせて確認します。
 
 <!-- スクリーンショット差し込み予定：psql "$DATABASE_URL" -c '\conninfo' が成功した画面。DATABASE_URLやSECRET_KEY_BASEの文字列そのものは写さない -->
 
