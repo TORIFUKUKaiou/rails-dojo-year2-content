@@ -31,7 +31,8 @@ flowchart LR
 
 > [!IMPORTANT]
 > この練習では、同じdeploy手順を3周します。
-> 1周だけで終わらせず、変更の種類が変わるとdeployで何が増えるかを確認してください。
+> 最初のas-is起動と1周目では、手順の意味と確認結果を丁寧に確認します。
+> 2周目・3周目では、1周目で確認した基本のdeploy手順を使い、変更の種類によって何が増えるかを確認してください。
 
 ---
 
@@ -118,8 +119,14 @@ CREATE_COMPLETE
 | `Ec2Instance2Id` | EC2 ②へ接続するとき |
 | `AlbDnsName` | ブラウザで本番環境を確認するとき |
 | `RdsEndpoint` | `DATABASE_URL`を作るとき |
-| `DatabaseName` | `DATABASE_URL`を作るとき |
-| `DatabaseUser` | `DATABASE_URL`を作るとき |
+| `DatabaseName` | `DATABASE_URL`のデータベース名を確認するとき |
+| `DatabaseUser` | `DATABASE_URL`のユーザー名を確認するとき |
+
+> [!IMPORTANT]
+> `RdsEndpoint`はデータベースの接続先の名前です。
+> 後の手順で使うときは、先頭に `https://` や `http://` を付けず、末尾に `:5432` も付けずに、そのままコピーします。
+
+<!-- スクリーンショット差し込み予定：CloudFormationの「出力」タブで、Ec2Instance1Id、Ec2Instance2Id、AlbDnsName、RdsEndpoint、DatabaseName、DatabaseUserを確認する画面 -->
 
 > [!NOTE]
 > この時点ではRails serverが起動していないため、ターゲットグループの2台は`Unhealthy`になります。
@@ -284,6 +291,11 @@ bundle install
 
 ## Step 9：EC2 ①からRDSへ接続できることを確認する
 
+このStepでは、EC2 ①からRDSへ直接接続できることを確認します。
+
+ここで接続できれば、RDSの接続先・ユーザー名・パスワード・ネットワーク設定は正しい状態です。
+この確認が成功してから、次のStepでRails用の`DATABASE_URL`を作ります。
+
 CloudFormationの出力`RdsEndpoint`を使います。
 
 `RDSのendpoint`を、自分の出力値へ置き換えます。
@@ -312,6 +324,10 @@ rails_dojo_production=>
 \conninfo
 ```
 
+表示された接続先のhostが、自分の`RdsEndpoint`と同じであることを確認します。
+
+<!-- スクリーンショット差し込み予定：psqlでrails_dojo_production=>が表示され、\conninfoでRDSへの接続先を確認できる画面 -->
+
 psqlを終了します。
 
 ```sql
@@ -330,6 +346,27 @@ pwd
 
 例: `/home/ubuntu/rails-dojo-week13-yamauchi`
 
+### `DATABASE_URL`を組み立てる
+
+`DATABASE_URL`は、Railsへ「どのデータベースへ、どの情報で接続するか」を伝える文字列です。
+長い文字列を暗記する必要はありません。次の部品を順番につないでいます。
+
+```text
+postgresql://rails_dojo:RailsDojo2026Db@<RDSのendpoint>:5432/rails_dojo_production
+```
+
+| 部品 | 意味 | 自分で変更するか |
+|---|---|---|
+| `postgresql://` | PostgreSQLを使う印 | 変更しない |
+| `rails_dojo` | データベースのユーザー名 | 変更しない |
+| `RailsDojo2026Db` | Step 9で入力したパスワード | 変更しない |
+| `<RDSのendpoint>` | CloudFormation出力の`RdsEndpoint` | **ここだけ置き換える** |
+| `5432` | PostgreSQLのポート番号 | 変更しない |
+| `rails_dojo_production` | データベース名 | 変更しない |
+
+> [!IMPORTANT]
+> `<RDSのendpoint>`だけを、自分のCloudFormation出力の`RdsEndpoint`へ置き換えます。
+> 置き換えた後の行には、`<`、`>`、`http://`、`https://`を残しません。
 
 `SECRET_KEY_BASE`を作成します。
 
@@ -349,7 +386,7 @@ bin/rails secret
 nano ~/rails-dojo-week13.env
 ```
 
-次を入力します。
+次の3行を入力します。
 
 `RDSのendpoint`と`コピーしたSECRET_KEY_BASE`は、自分の値へ置き換えます。
 
@@ -359,19 +396,10 @@ export RAILS_ENV=production
 export SECRET_KEY_BASE='コピーしたSECRET_KEY_BASE'
 ```
 
-例
-```
-export DATABASE_URL='postgresql://rails_dojo:RailsDojo2026Db@rails-dojo-week13-db.cixstnczuqiy.us-east-1.rds.amazonaws.com:5432/rails_dojo_production'
-export RAILS_ENV=production
-export SECRET_KEY_BASE='8608583b336e05c7da098ae1c9b523b58718ccb9478609863f2dfb2b3437b57f20c64767caae9eb32342e208dc559a1b716fa9631078d16d3f8d8370c7add1c4'
-```
-
 保存して閉じます。
 
-操作は、次のように行います。
-
-- 保存: `Ctl + o` ののちEnterキー
-- nanoエディタを閉じる: `Ctl + x`
+- 保存：`Ctrl + O`、Enterキー
+- nanoエディタを閉じる：`Ctrl + X`
 
 設定を読み込みます。
 
@@ -379,19 +407,23 @@ export SECRET_KEY_BASE='8608583b336e05c7da098ae1c9b523b58718ccb9478609863f2dfb2b
 source ~/rails-dojo-week13.env
 ```
 
-設定された変数名を確認します。
+今作成した`DATABASE_URL`を使って、もう一度RDSへ接続します。
 
 ```bash
-env | grep -E '^(DATABASE_URL|RAILS_ENV|SECRET_KEY_BASE)=' | cut -d= -f1
+psql "$DATABASE_URL" -c '\conninfo'
 ```
 
-次の3行が表示されれば成功です。
+次のように、`rails_dojo_production`、`rails_dojo`、RDSのhost名を含む表示になれば成功です。
 
 ```text
-DATABASE_URL
-RAILS_ENV
-SECRET_KEY_BASE
+You are connected to database "rails_dojo_production" as user "rails_dojo" on host "..." (port "5432")
 ```
+
+> [!IMPORTANT]
+> この確認でエラーが出た場合は、次のStepへ進みません。
+> `nano ~/rails-dojo-week13.env`をもう一度開き、`RDSのendpoint`だけを自分のCloudFormation出力と照らし合わせて確認します。
+
+<!-- スクリーンショット差し込み予定：psql "$DATABASE_URL" -c '\conninfo' が成功した画面。DATABASE_URLやSECRET_KEY_BASEの文字列そのものは写さない -->
 
 ---
 
@@ -399,11 +431,18 @@ SECRET_KEY_BASE
 
 EC2 ①のターミナルで実行します。
 
+> [!IMPORTANT]
+> Step 10の`psql "$DATABASE_URL" -c '\conninfo'`が成功していることを確認してから実行します。
+
 ```bash
 bin/rails db:prepare
 ```
 
-※ 成功の場合は、何も表示されません。何か出力された場合は設定をミスっているので、内容をよく読んで修正してください。一番多い間違いは、 `DATABASE_URL` の設定誤りです。
+エラーが出ず、何も表示されずにプロンプトへ戻れば成功です。
+
+> [!IMPORTANT]
+> エラーが出た場合は、アセットの準備へ進まず、教員へ画面を見せてください。
+> まずはStep 10の接続確認をもう一度実行します。
 
 production用のアセットを準備します。
 
@@ -426,6 +465,8 @@ curl http://localhost:3000/up
 HTMLが表示されれば、EC2 ①のRails serverは起動しています。
 
 `<!DOCTYPE html><html><body style="background-color: green"></body></html>`
+
+<!-- スクリーンショット差し込み予定：EC2 ①でcurl http://localhost:3000/up を実行し、緑色のHTMLが返る画面 -->
 
 ---
 
@@ -481,30 +522,33 @@ bundle install
 
 EC2 ①と同じ内容で環境変数ファイルを作成します。
 
+EC2 ①とEC2 ②は別のコンピューターです。EC2 ①で作ったファイルはEC2 ②にはありません。
+Step 10を開き、同じ3行をEC2 ②にも入力します。`DATABASE_URL`、`RAILS_ENV`、`SECRET_KEY_BASE`はEC2 ①と**まったく同じ値**です。
+
 ```bash
 nano ~/rails-dojo-week13.env
-```
-
-EC2 ①と同じ値を入力します。
-
-```bash
-export DATABASE_URL='postgresql://rails_dojo:RailsDojo2026Db@<RDSのendpoint>:5432/rails_dojo_production'
-export RAILS_ENV=production
-export SECRET_KEY_BASE='コピーしたSECRET_KEY_BASE'
 ```
 
 保存して閉じます。
 
 操作は、次のように行います。
 
-- 保存: `Ctl + o` ののちEnterキー
-- nanoエディタを閉じる: `Ctl + x`
+- 保存：`Ctrl + O`、Enterキー
+- nanoエディタを閉じる：`Ctrl + X`
 
 設定を読み込みます。
 
 ```bash
 source ~/rails-dojo-week13.env
 ```
+
+EC2 ②でも、今作成した`DATABASE_URL`でRDSへ接続できることを確認します。
+
+```bash
+psql "$DATABASE_URL" -c '\conninfo'
+```
+
+エラーが出た場合は、Step 10の表を見ながら環境変数ファイルを確認します。
 
 EC2 ②では、`bin/rails db:prepare`は実行しません。
 
@@ -556,6 +600,8 @@ http://ALBのDNS名
 Healthy
 ```
 
+<!-- スクリーンショット差し込み予定：ターゲットグループのターゲットタブで、EC2 2台がHealthyと表示される画面 -->
+
 ※ 30秒間隔のヘルスチェックに連続5回成功で、`Healthy`となります。 `Unhealthy` の場合は、3分程度待つ必要があります。
 
 ---
@@ -565,6 +611,21 @@ Healthy
 1周目では、データベースを変更しません。
 
 <b><font color="red">Codespaces</font></b> で画面を変更し、GitHubへpushし、EC2 2台で `git pull` して反映します。
+
+1周目では、次のdeployの流れを1つずつ確認します。
+
+```mermaid
+flowchart LR
+  C["Codespacesで<br>画面を変更"] --> P["git commit<br>git push"]
+  P --> G["GitHubの<br>自分用リポジトリ"]
+  G --> E1["EC2 ①<br>git pull・再起動"]
+  G --> E2["EC2 ②<br>git pull・再起動"]
+  E1 --> A["ALB経由で<br>画面を確認"]
+  E2 --> A
+```
+
+> [!NOTE]
+> 1周目ではデータベースの構造を変更しないため、`bin/rails db:migrate`は実行しません。
 
 ## Step 14：【Codespaces】トップ画面の説明を追加する
 
@@ -671,6 +732,12 @@ cd ~/rails-dojo-week13-自分の名前
 git pull
 ```
 
+`Updating ...`と表示され、`app/views/articles/index.html.erb`の変更を取得できれば成功です。
+
+> [!IMPORTANT]
+> `Already up to date.`と表示され、まだ今回の変更を取得できていない場合は、EC2へ新しい変更が届いていません。
+> EC2の再起動へ進まず、Codespacesで`git push origin main`を実行したか、GitHubの自分用リポジトリにcommitがあるかを確認します。
+
 commit hashを確認します。
 
 ```bash
@@ -743,6 +810,8 @@ cd ~/rails-dojo-week13-自分の名前
 git pull
 ```
 
+EC2 ①で確認したcommit hashと同じ新しいcommitを取得できることを確認します。
+
 ```bash
 git log --oneline -1
 ```
@@ -811,6 +880,8 @@ http://ALBのDNS名
 ```
 
 何度かリロードしても同じ文章が表示されれば、2台とも反映できています。
+
+<!-- スクリーンショット差し込み予定：ALBのURLで、1周目に追加した文章が表示されるCodeShelfの画面 -->
 
 ---
 
@@ -943,7 +1014,7 @@ Codespacesのブラウザプレビューで記事作成画面を開きます。
 
 記事一覧または詳細画面に、カテゴリ`AWS`が表示されることを確認します。
 
-※ 失敗する場合は、 <b><font color="red">Codespaces</font></b> 上のRailsを再起動してください。(`Ctl + c` で停めて、 `bin/rails server` です。)
+※ 失敗する場合は、 <b><font color="red">Codespaces</font></b> 上のRailsを再起動してください。(`Ctrl + C` で停めて、 `bin/rails server` です。)
 
 ---
 
@@ -1005,7 +1076,9 @@ git push origin main
 
 ## Step 25：【EC2 ①】2周目をdeployし、RDSへmigrationする
 
-EC2 ①のターミナルで実行します。
+EC2 ①のターミナルで実行します。基本のdeploy手順は1周目のStep 16と同じです。
+
+Railsアプリのディレクトリへ移動します。
 
 ```bash
 cd ~/rails-dojo-week13-自分の名前
@@ -1031,42 +1104,10 @@ bin/rails db:migrate
 
 エラーが出ず、プロンプトへ戻れば成功です。
 
-Rails serverを再起動します。
+> [!IMPORTANT]
+> RDSはEC2 ①とEC2 ②で共通です。migrationはこのEC2 ①で**1回だけ**実行します。
 
-```bash
-ps aux | grep puma
-```
-
-実行すると、たとえば次のように表示されます。
-
-```text
-ubuntu      5954  0.1  4.0 1276136 157736 ?      Ssl  00:58   0:01 puma 8.0.2 (tcp://0.0.0.0:3000) [rails-dojo-week13-yamauchi]
-ubuntu      6192  0.0  0.0   7144  2352 pts/3    S+   01:14   0:00 grep --color=auto puma
-```
-
-`puma` と表示されている行の、左から2番目の数字がPIDです。
-
-この例では `5954` です。
-
-```bash
-kill -9 5954
-```
-
-これでPumaを停止できます。
-
-**注意:** `5954` は毎回同じとは限りません。必ず自分の環境で `ps aux | grep puma` を実行してPIDを確認してください。
-
-停止できたことを確認するには、もう一度実行します。
-
-```bash
-ps aux | grep puma
-```
-
-`grep --color=auto puma` の行しか表示されなければ、Pumaは停止しています。
-
-```bash
-bin/rails server -b 0.0.0.0 -p 3000 -d
-```
+1周目のStep 16と同じように、Pumaを停止してからRails serverを再起動します。
 
 ```bash
 curl http://localhost:3000/up
@@ -1076,7 +1117,9 @@ curl http://localhost:3000/up
 
 ## Step 26：【EC2 ②】2周目をdeployする
 
-EC2 ②のターミナルで実行します。
+EC2 ②のターミナルで実行します。基本のdeploy手順は1周目のStep 17と同じです。
+
+Railsアプリのディレクトリへ移動します。
 
 ```bash
 cd ~/rails-dojo-week13-自分の名前
@@ -1094,42 +1137,7 @@ EC2 ②では、`bin/rails db:migrate`を実行しません。
 
 RDSはEC2 ①と共通で、Step 25でmigration済みだからです。
 
-Rails serverを再起動します。
-
-```bash
-ps aux | grep puma
-```
-
-実行すると、たとえば次のように表示されます。
-
-```text
-ubuntu      5954  0.1  4.0 1276136 157736 ?      Ssl  00:58   0:01 puma 8.0.2 (tcp://0.0.0.0:3000) [rails-dojo-week13-yamauchi]
-ubuntu      6192  0.0  0.0   7144  2352 pts/3    S+   01:14   0:00 grep --color=auto puma
-```
-
-`puma` と表示されている行の、左から2番目の数字がPIDです。
-
-この例では `5954` です。
-
-```bash
-kill -9 5954
-```
-
-これでPumaを停止できます。
-
-**注意:** `5954` は毎回同じとは限りません。必ず自分の環境で `ps aux | grep puma` を実行してPIDを確認してください。
-
-停止できたことを確認するには、もう一度実行します。
-
-```bash
-ps aux | grep puma
-```
-
-`grep --color=auto puma` の行しか表示されなければ、Pumaは停止しています。
-
-```bash
-bin/rails server -b 0.0.0.0 -p 3000 -d
-```
+1周目のStep 17と同じように、Pumaを停止してからRails serverを再起動します。
 
 ```bash
 curl http://localhost:3000/up
@@ -1332,7 +1340,9 @@ git push origin main
 
 ## Step 33：【EC2 ①】3周目をdeployし、RDSへmigrationする
 
-EC2 ①のターミナルで実行します。
+EC2 ①のターミナルで実行します。基本のdeploy手順は1周目のStep 16と同じです。
+
+Railsアプリのディレクトリへ移動します。
 
 ```bash
 cd ~/rails-dojo-week13-自分の名前
@@ -1352,42 +1362,12 @@ RDSへmigrationを実行します。
 bin/rails db:migrate
 ```
 
-Rails serverを再起動します。
+エラーが出ず、プロンプトへ戻れば成功です。
 
-```bash
-ps aux | grep puma
-```
+> [!IMPORTANT]
+> RDSはEC2 ①とEC2 ②で共通です。migrationはこのEC2 ①で**1回だけ**実行します。
 
-実行すると、たとえば次のように表示されます。
-
-```text
-ubuntu      5954  0.1  4.0 1276136 157736 ?      Ssl  00:58   0:01 puma 8.0.2 (tcp://0.0.0.0:3000) [rails-dojo-week13-yamauchi]
-ubuntu      6192  0.0  0.0   7144  2352 pts/3    S+   01:14   0:00 grep --color=auto puma
-```
-
-`puma` と表示されている行の、左から2番目の数字がPIDです。
-
-この例では `5954` です。
-
-```bash
-kill -9 5954
-```
-
-これでPumaを停止できます。
-
-**注意:** `5954` は毎回同じとは限りません。必ず自分の環境で `ps aux | grep puma` を実行してPIDを確認してください。
-
-停止できたことを確認するには、もう一度実行します。
-
-```bash
-ps aux | grep puma
-```
-
-`grep --color=auto puma` の行しか表示されなければ、Pumaは停止しています。
-
-```bash
-bin/rails server -b 0.0.0.0 -p 3000 -d
-```
+1周目のStep 16と同じように、Pumaを停止してからRails serverを再起動します。
 
 ```bash
 curl http://localhost:3000/up
@@ -1397,7 +1377,9 @@ curl http://localhost:3000/up
 
 ## Step 34：【EC2 ②】3周目をdeployする
 
-EC2 ②のターミナルで実行します。
+EC2 ②のターミナルで実行します。基本のdeploy手順は1周目のStep 17と同じです。
+
+Railsアプリのディレクトリへ移動します。
 
 ```bash
 cd ~/rails-dojo-week13-自分の名前
@@ -1413,42 +1395,9 @@ source ~/rails-dojo-week13.env
 
 EC2 ②では、`bin/rails db:migrate`を実行しません。
 
-Rails serverを再起動します。
+RDSはEC2 ①と共通で、Step 33でmigration済みだからです。
 
-```bash
-ps aux | grep puma
-```
-
-実行すると、たとえば次のように表示されます。
-
-```text
-ubuntu      5954  0.1  4.0 1276136 157736 ?      Ssl  00:58   0:01 puma 8.0.2 (tcp://0.0.0.0:3000) [rails-dojo-week13-yamauchi]
-ubuntu      6192  0.0  0.0   7144  2352 pts/3    S+   01:14   0:00 grep --color=auto puma
-```
-
-`puma` と表示されている行の、左から2番目の数字がPIDです。
-
-この例では `5954` です。
-
-```bash
-kill -9 5954
-```
-
-これでPumaを停止できます。
-
-**注意:** `5954` は毎回同じとは限りません。必ず自分の環境で `ps aux | grep puma` を実行してPIDを確認してください。
-
-停止できたことを確認するには、もう一度実行します。
-
-```bash
-ps aux | grep puma
-```
-
-`grep --color=auto puma` の行しか表示されなければ、Pumaは停止しています。
-
-```bash
-bin/rails server -b 0.0.0.0 -p 3000 -d
-```
+1周目のStep 17と同じように、Pumaを停止してからRails serverを再起動します。
 
 ```bash
 curl http://localhost:3000/up
