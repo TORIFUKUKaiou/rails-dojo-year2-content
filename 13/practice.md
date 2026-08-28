@@ -330,6 +330,8 @@ rails-dojo-week13-db
 
 <!-- スクリーンショット差し込み予定：RDSコンソールのrails-dojo-week13-dbで、ステータスが利用可能（Available）、接続とセキュリティにendpointとポート5432が表示される画面 -->
 
+![](../images/rds-endpoint13.png)
+
 ### EC2 ①からRDSへ直接接続する
 
 `RDSのendpoint`を、RDSコンソールでコピーした値へ置き換えます。
