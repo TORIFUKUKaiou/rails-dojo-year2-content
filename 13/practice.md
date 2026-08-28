@@ -364,6 +364,8 @@ rails_dojo_production=>
 
 <!-- スクリーンショット差し込み予定：psqlでrails_dojo_production=>が表示され、\conninfoでRDSへの接続先を確認できる画面 -->
 
+![](../images/conninfo.png)
+
 psqlを終了します。
 
 ```sql
