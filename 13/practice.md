@@ -945,6 +945,8 @@ http://ALBのDNS名
 
 <!-- スクリーンショット差し込み予定：ALBのURLで、1周目に追加した文章が表示されるCodeShelfの画面 -->
 
+![](../images/codeshelf-change-01.png)
+
 ---
 
 # 2周目：Articleにcategoryを追加してdeployする
