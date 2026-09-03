@@ -7,7 +7,8 @@
 ## 試験の進め方
 
 - 試験時間は 180 分です。
-- 第1部は選択式19問です。教員から指定された Google フォームに回答してください。
+- この試験は全30点です。第1部は選択式20問（各1点）、第2部は実技試験（10点）です。
+- 第1部は、教員から指定された Google フォームに回答してください。
 - 第2部は、CodeShelf を AWS の本番環境へ deploy する実技試験です。
 - 講義資料、過去の演習ファイル、インターネット検索、生成AIは使って構いません。
 - ただし、使用する GitHub リポジトリと AWS 環境は、自分自身が作成・操作したものにしてください。
@@ -18,7 +19,7 @@
 
 ---
 
-# 第1部：選択式問題（全19問）
+# 第1部：選択式問題（全20問・各1点）
 
 各問について、最も適切な選択肢を1つ選んでください。
 
@@ -395,9 +396,27 @@ ALB は、たとえば <code>/up</code> へ HTTP リクエストを送り、正�
 
 ---
 
-## E. 本番起動とエラーデバッグ（問19）
+## E. 本番起動とエラーデバッグ（問19〜問20）
 
 ### 問19
+
+EC2 で新しい CSS を含むコードを取得して Rails server を再起動したところ、production 環境の画面に CSS が適用されません。原因と対策として最も適切なものはどれですか。
+
+1. RDS を削除してから Rails を起動し直す。
+2. production 用のアセットを <code>assets:precompile</code> で準備し、Rails server を再起動して確認する。
+3. <code>config/routes.rb</code> から <code>resources</code> をすべて削除する。
+4. ALB の DNS 名を GitHub の URL に変更する。
+
+<details>
+<summary>解答・解説</summary>
+
+**解答：2**
+
+production 環境では、CSS や JavaScript などのアセットを事前に準備します。コードを取得した後は、<code>SECRET_KEY_BASE_DUMMY=1 RAILS_ENV=production bin/rails assets:precompile</code> を実行し、Rails server を再起動して確認します。
+
+</details>
+
+### 問20
 
 production モードで Rails を起動しようとしたとき、<code>ActiveRecord::ConnectionNotEstablished</code> が表示されました。確認すべき内容として最も適切なものはどれですか。
 
@@ -417,9 +436,9 @@ production モードで Rails を起動しようとしたとき、<code>ActiveRe
 
 ---
 
-# 第2部：実技試験（問20）
+# 第2部：実技試験（10点）
 
-## 問20：第13回 Practice を Step 13 まで完了できたか
+## 第13回 Practice を Step 13 まで完了できたか
 
 [第13回の Practice](../13/practice.md) の「Step 13：ALBでas-isを確認する」までを、上から順に実施します。
 
