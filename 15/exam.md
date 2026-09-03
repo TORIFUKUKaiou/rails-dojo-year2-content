@@ -187,7 +187,7 @@ end
 
 このコードの説明として正しいものはどれですか。
 
-1. <code>article</code> というまとまりの中から、<code>title</code> と <code>body</code> を受け取るためのパラメータを取り出す。
+1. <code>article</code> パラメータの中から、保存に使ってよい <code>title</code> と <code>body</code> だけを取り出す。
 2. <code>articles</code> テーブルを作成し、<code>title</code> と <code>body</code> のカラムを追加する。
 3. <code>title</code> と <code>body</code> が空文字列の場合に、必ず保存エラーにする。
 4. すべてのパラメータを無条件にデータベースへ保存する。
