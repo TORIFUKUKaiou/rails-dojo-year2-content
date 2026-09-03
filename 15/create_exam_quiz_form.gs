@@ -195,7 +195,7 @@ function addPart1Questions_(form) {
         "このコードの説明として正しいものはどれですか。"
       ].join("\n"),
       choices: [
-        "article というまとまりの中から、title と body を受け取るためのパラメータを取り出す。",
+        "article パラメータの中から、保存に使ってよい title と body だけを取り出す。",
         "articles テーブルを作成し、title と body のカラムを追加する。",
         "title と body が空文字列の場合に、必ず保存エラーにする。",
         "すべてのパラメータを無条件にデータベースへ保存する。"
