@@ -66,6 +66,29 @@ expect(total).to eq(300)
 
 ## 3. テストファイルは、この形で書く
 
+### RSpecを使えるようにする設定例
+
+RailsアプリにRSpecを追加するには、`Gemfile` の `group :development, :test do` の中に次のgemを追記します。以下はRails 8.0で使う一例です。既存のgemは残し、同じグループがなければこのブロックを追加します。
+
+```ruby
+group :development, :test do
+  gem "rspec-rails", "~> 8.0.0"
+end
+```
+
+`development` は開発用、`test` はテスト用の環境です。`rspec-rails` を入れると、RSpec本体も一緒にインストールされます。
+
+`Gemfile` を保存し、そのファイルがあるフォルダのターミナルで順に実行します。
+
+```bash
+bundle install
+bin/rails generate rspec:install
+```
+
+`.rspec`、`spec/spec_helper.rb`、`spec/rails_helper.rb` が作成されれば、設定ファイルの準備は完了です。使用するRailsのバージョンに合わせて、[rspec-railsの対応バージョン](https://github.com/rspec/rspec-rails#supported-versions)を選びます。
+
+### テストファイルの例
+
 対象ファイル：Railsアプリ内の `spec/total_spec.rb`
 
 以下がファイル全体です。
