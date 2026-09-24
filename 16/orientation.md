@@ -13,6 +13,8 @@
 > このページでは、テストの考え方とRSpecの基本的な書き方を学びます。
 > このあとPracticeで、環境の準備から順に、全員が実際に作成・実行・修正します。
 
+[PDF資料](https://drive.google.com/file/d/1Es_lMOpSM_TNMtERU4BHcoUbBO4vvsxL/view?usp=drive_link)
+
 ---
 
 ## 1. 今まで、どうやって動作を確かめていた？
