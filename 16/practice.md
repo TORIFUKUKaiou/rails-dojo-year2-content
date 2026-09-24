@@ -1123,6 +1123,6 @@ RSpecでは17件の確認が成功し、ブラウザでは作成・更新・削�
 
 提出は先生から指定された提出先へ、`practice16_report.md` と作成したコードを提出してください。
 
-Practiceが終わったらStretchへ進みましょう。
+Practiceが終わったら[Stretch](stretch.md)へ進みましょう。
 
 参考：[RSpec Railsの導入と実行](https://github.com/rspec/rspec-rails/tree/8-0-maintenance)
