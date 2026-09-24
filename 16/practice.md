@@ -55,9 +55,7 @@ cd /home/vscode/rspec_practice
 
 すでに同名のフォルダがある場合は、上書きや削除をせず確認してください。前の作業を再開する場合は `cd /home/vscode/rspec_practice` から続けます。
 
-VS Codeの **File → Open Folder...** で `/home/vscode/rspec_practice` を開きます。「コンテナで再度開く」操作は不要です。左側に `app`、`config`、`db`、`Gemfile` が見えることを確認してください。
-
-`Gemfile` を開き、`gem "rails", ...` の行だけを次に変更して保存します。他の行は残します。
+`rspec_practice/Gemfile` を開き、`gem "rails", ...` の行だけを次に変更して保存します。他の行は残します。
 
 ```ruby
 gem "rails", "8.0.2.1"
@@ -111,7 +109,58 @@ bin/rails db:migrate
 
 `db/schema.rb` を開き、`articles` テーブルに `title` と `body` があることを確認してください。migrationのクラスにあるバージョンや、`schema.rb` は書き換えません。
 
-## 準備4：ブラウザでCRUDを確認する
+## 準備4：Codespaces用の設定を追加する
+
+`config/environments/development.rb` を開きます。
+
+ファイルの中から、次の行を探します。
+
+```ruby
+Rails.application.configure do
+```
+
+その少し下に、次のコードを追加します。
+
+```ruby
+pf_domain = ENV["GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN"]
+codespace_name = ENV["CODESPACE_NAME"]
+
+if pf_domain.present? && codespace_name.present?
+  pf_host = "#{codespace_name}-3000.#{pf_domain}"
+  config.hosts << pf_host
+  config.action_controller.forgery_protection_origin_check = false
+end
+```
+
+> [!NOTE]
+> この設定は、Codespacesで公開したポート3000のURLからRailsアプリを開けるようにするためのものです。
+
+追加後の形は、次のようになります。
+
+```ruby
+Rails.application.configure do
+  # Settings specified here will take precedence over those in config/application.rb.
+
+  pf_domain = ENV["GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN"]
+  codespace_name = ENV["CODESPACE_NAME"]
+
+  if pf_domain.present? && codespace_name.present?
+    pf_host = "#{codespace_name}-3000.#{pf_domain}"
+    config.hosts << pf_host
+    config.action_controller.forgery_protection_origin_check = false
+  end
+
+  # もともと書かれていた設定は、この下にも続きます
+end
+```
+
+> [!IMPORTANT]
+> `development.rb` のファイル全体を置き換えないでください。
+> 今ある内容は消さずに、上のコードだけを追加します。
+
+保存したら次へ進みます。
+
+## 準備5：ブラウザでCRUDを確認する
 
 今使っているターミナルを「サーバー用」にします。
 
@@ -135,7 +184,7 @@ VS Codeの **Ports** タブでポート3000の地球儀アイコン（Open in Br
 
 確認が終わったら、サーバー用ターミナルで **Ctrl+C** を押して停止します。次はGemfileを変更するため、サーバーを止めた状態で進めます。
 
-## 準備5：RSpecを導入する
+## 準備6：RSpecを導入する
 
 `Gemfile` の既存の `group :development, :test do` の内側に、次の1行を追加します。既存のgemは残してください。
 
@@ -159,7 +208,7 @@ bundle exec rspec --version
 
 `.rspec` には実行オプションが、`spec/rails_helper.rb` にはRailsを使うテストの設定が入っています。生成された内容はそのまま使います。
 
-## 準備6：最初のテストを作る
+## 準備7：最初のテストを作る
 
 VS Codeのエクスプローラーで `spec` フォルダを右クリックし、**New File** から `total_spec.rb` を作ります。ファイル全体を次にします。
 
@@ -450,7 +499,8 @@ end
 
 ## 課題10：記事のタイトルを確認する
 
-`spec` の中に `models` フォルダを作り、その中に `article_spec.rb` を作成します。ファイル全体を次にします。
+`spec` の中に `models` フォルダを作り、その中に `article_spec.rb` を作成します。ファイル全体を次にします。  
+対象：`spec/models/article_spec.rb`。
 
 ```ruby
 require "rails_helper"
@@ -753,7 +803,7 @@ bundle exec rspec spec/models/article_display_spec.rb
 
 ```ruby
 def display_title
-  if title == ""
+  if title.blank?
     "無題（記事）"
   else
     "#{title}（記事）"
@@ -1104,12 +1154,12 @@ RSpecでは17件の確認が成功し、ブラウザでは作成・更新・削�
 
 記録例です。実行結果と操作結果は、自分が確認したものを書いてください。
 
-- 全件実行：17 examples, 0 failures。
-- 課題2：期待値500、実際の値300。仕様は300なので、テストの期待値を300に戻した。
-- 課題15：「Ruby（記事）」を返す仕様なのに「記事：Ruby」を返した。`app/models/article.rb` の文字列の組み立て方を直した。
-- 課題12：`it` が1つなので1件として数える。
-- `Article.new` は未保存の記事を作る。ブラウザからリクエストを送っていないので画面も確認していない。
-- 画面確認：「最後の確認」で作成でき、「更新も確認」へ更新できた。削除後は一覧から消えた。
+1. 全件実行：17 examples, 0 failures。
+2. 課題2：期待値500、実際の値300。仕様は300なので、テストの期待値を300に戻した。
+3. 課題15：「Ruby（記事）」を返す仕様なのに「記事：Ruby」を返した。`app/models/article.rb` の文字列の組み立て方を直した。
+4. 課題12：`it` が1つなので1件として数える。
+5. `Article.new` は未保存の記事を作る。ブラウザからリクエストを送っていないので画面も確認していない。
+6. 画面確認：「最後の確認」で作成でき、「更新も確認」へ更新できた。削除後は一覧から消えた。
 
 </details>
 
@@ -1121,7 +1171,7 @@ RSpecでは17件の確認が成功し、ブラウザでは作成・更新・削�
 
 `/home/vscode` のアプリはコンテナの再ビルドで消えるため、再ビルドしないでください。バックアップとして、VS Codeの **File → Open Folder...** で `/home/vscode` を開き、エクスプローラーの `rspec_practice` フォルダを右クリックして **Download...** から自分のPCにも保存してください。ダウンロードされたフォルダに `app`、`spec`、`Gemfile`、`practice16_report.md` が含まれることを確認します。
 
-提出は先生から指定された提出先へ、`practice16_report.md` と作成したコードを提出してください。
+`practice16_report.md` をTeamsに提出してください。
 
 Practiceが終わったら[Stretch](stretch.md)へ進みましょう。
 
