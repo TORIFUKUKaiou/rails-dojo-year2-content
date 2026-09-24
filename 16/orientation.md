@@ -273,7 +273,7 @@ Practiceでは、値の比較から始め、記事のテストを追加し、仕
 
 ブラウザ確認でRailsサーバーを使うときは、サーバー用とは別のターミナルでRSpecを実行します。RSpec自体の実行に、`rails server` の起動は必要ありません。
 
-Practiceは全問に取り組み、終わったらStretchへ進みましょう。
+[Practice](practice.md)は全問に取り組み、終わったらStretchへ進みましょう。
 
 ---
 
