@@ -14,6 +14,10 @@
 > アプリの起動やファイルの変更は、このあとのPracticeの手順で行います。
 > 第16週のCodespaceや解答ファイルは必要ありません。
 
+[PDF資料](https://drive.google.com/file/d/1MYlTaS89r1WbrjH8cne6K5LW_HIxuvom/view?usp=drive_link)
+
+---
+
 ## 今回使うアプリ
 
 [rails-dojo-rspec-starter](https://github.com/TORIFUKUKaiou/rails-dojo-rspec-starter)から、新しいCodespaceで始めます。Article CRUD・RSpecの設定・タイトルを確認する初期テスト1件が準備されています。最初は、タイトルや本文が空欄でも登録できる状態です。
